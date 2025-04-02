@@ -1,7 +1,6 @@
 /* Contenedor principal - Mobile First */
 .song-list-container {
     padding: 0.75rem 1rem;
-    /* Más padding a la izquierda */
     width: 100%;
     box-sizing: border-box;
 }
@@ -14,15 +13,6 @@
     width: 100%;
 }
 
-/* Modo horizontal - solo para desktop */
-@media (min-width: 768px) {
-    .song-grid.horizontal-layout {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-    }
-}
-
 /* Tarjeta de canción */
 .song-card {
     background: #282828;
@@ -31,13 +21,19 @@
     width: 100%;
     transition: all 0.3s ease;
     cursor: pointer;
+    position: relative;
+}
+
+/* Estado de reproducción */
+.song-card.playing {
+    border: 2px solid #1db954;
+    box-shadow: 0 0 12px rgba(29, 185, 84, 0.6);
 }
 
 /* Contenedor de contenido */
 .song-content {
     padding: 0.75rem;
     text-align: left;
-    /* Alineación izquierda */
 }
 
 /* Texto - alineado a la izquierda */
@@ -46,9 +42,15 @@
     font-weight: 600;
     color: white;
     margin: 0.25rem 0 0.1rem 0;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+    line-height: 1.4;
+    max-height: 2.8em;
+    padding-right: 0.5rem;
 }
 
 .song-artist {
@@ -60,6 +62,7 @@
     text-overflow: ellipsis;
 }
 
+/* Estadísticas */
 .song-stats {
     display: flex;
     gap: 0.5rem;
@@ -67,8 +70,8 @@
     font-size: 0.75rem;
     margin-top: 0.25rem;
     justify-content: flex-start;
-    /* Alinear a la izquierda */
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .song-stats span {
@@ -76,9 +79,9 @@
     align-items: center;
 }
 
-.song-stats span:not(:last-child)::after {
-    content: "•";
-    margin-left: 0.5rem;
+.song-stats .separator {
+    margin: 0 0.3rem;
+    color: #666;
 }
 
 /* Contenedor de thumbnail */
@@ -87,6 +90,7 @@
     width: 100%;
     aspect-ratio: 16/9;
     overflow: hidden;
+    background: #121212;
 }
 
 /* Miniaturas */
@@ -95,6 +99,29 @@
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
+}
+
+.youtube-thumbnail {
+    background-color: #121212;
+}
+
+.local-thumbnail {
+    background-color: #282828;
+    object-fit: contain;
+    padding: 15%;
+}
+
+/* Efecto de carga para imágenes */
+.song-thumbnail:not([src]) {
+    background: linear-gradient(110deg, #282828 8%, #383838 18%, #282828 33%);
+    background-size: 200% 100%;
+    animation: 1.5s shine linear infinite;
+}
+
+@keyframes shine {
+    to {
+        background-position-x: -200%;
+    }
 }
 
 /* Badge de duración */
@@ -107,30 +134,19 @@
     padding: 0.2rem 0.4rem;
     border-radius: 4px;
     font-size: 0.7rem;
+    font-weight: 500;
 }
 
-/* Efectos hover solo para desktop */
-@media (hover: hover) {
-    .song-card:hover {
-        transform: translateY(-3px);
-        background: #383838;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .song-thumbnail:hover {
-        transform: scale(1.03);
-    }
-}
-
-/* Ajustes para móviles pequeños (iPhone 12 Pro y similares) */
+/* Ajustes para móviles pequeños (iPhone 8/SE y similares) */
 @media (max-width: 480px) {
     .song-list-container {
         padding: 0.5rem 0.75rem 0.5rem 1rem;
-        /* Más padding izquierdo */
     }
 
     .song-title {
         font-size: 0.95rem;
+        -webkit-line-clamp: 2;
+        line-height: 1.3;
     }
 
     .song-artist {
@@ -141,6 +157,11 @@
         font-size: 0.7rem;
         gap: 0.4rem;
     }
+
+    .song-card.playing {
+        border-width: 1.5px;
+        box-shadow: 0 0 8px rgba(29, 185, 84, 0.5);
+    }
 }
 
 /* Tablets (entre 481px y 767px) */
@@ -150,10 +171,37 @@
     }
 }
 
+/* Modo horizontal - solo para desktop */
+@media (min-width: 768px) {
+    .song-grid.horizontal-layout {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .song-title {
+        -webkit-line-clamp: 1;
+        max-height: none;
+    }
+}
+
 /* Pantallas grandes */
 @media (min-width: 1200px) {
     .song-grid.horizontal-layout {
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+/* Efectos hover solo para desktop */
+@media (hover: hover) {
+    .song-card:hover {
+        transform: translateY(-3px);
+        background: #383838;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .song-thumbnail:hover {
+        transform: scale(1.03);
     }
 }
 
@@ -169,6 +217,7 @@
 
 .error-message {
     color: #f00;
+    font-weight: 500;
 }
 
 .loading-spinner {

@@ -127,16 +127,15 @@ export default function SongList({
                                     <div className="duration-badge">{durationText}</div>
                                 </div>
 
-                                <div className="song-info">
+                                <div className="song-content">  {/* Cambiado de song-info a song-content */}
                                     <h3 className="song-title" title={song.title}>
                                         {song.title}
                                     </h3>
-                                    <div className="song-meta">
-                                        <p className="song-artist">{song.artist || 'Artista desconocido'}</p>
-                                        <div className="song-stats">
-                                            {viewsText && <span>{viewsText}</span>}
-                                            {dateText && <span>{dateText}</span>}
-                                        </div>
+                                    <p className="song-artist">{song.artist || 'Artista desconocido'}</p>
+                                    <div className="song-stats">
+                                        {viewsText && <span>{viewsText}</span>}
+                                        {viewsText && dateText && <span className="separator">•</span>}
+                                        {dateText && <span>{dateText}</span>}
                                     </div>
                                 </div>
                             </div>
