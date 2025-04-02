@@ -37,8 +37,10 @@ build/
 *.code-workspace
 
 # ===== ARCHIVOS DE AUDIO/SUBIENDA =====
-uploads/*
-!uploads/.gitkeep  # Opcional: para mantener la carpeta
+uploads/*                  # Para uploads en raíz
+backend/uploads/*          # Específico para tu estructura
+!uploads/.gitkeep          # Opcional para mantener estructura
+!backend/uploads/.gitkeep  # Opcional para backend
 
 # ===== LOGS =====
 *.log
