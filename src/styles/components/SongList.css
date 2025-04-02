@@ -1,20 +1,17 @@
 /* Contenedor principal */
 .song-list-container {
     padding: 1.5rem;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    background: #1a202c;
-    border-radius: 10px;
 }
 
-/* Grid de canciones - 4 columnas */
+
+/* Grid responsive */
 .song-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
-    list-style: none;
     padding: 0;
-    margin: 0;
 }
 
 /* Modo horizontal (para listas) */
@@ -26,28 +23,30 @@
 
 /* Tarjeta de canción */
 .song-card {
-    background: #2d3748;
-    border-radius: 8px;
+    background: #ffffff0d;
+    border-radius: 12px;
     overflow: hidden;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    position: relative;
+    transition: transform 0.3s ease;
+    border: 1px solid #ffffff14;
 }
 
 .song-card:hover {
+    background: #ffffff1a;
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* Estado de reproducción */
 .song-card.playing {
-    box-shadow: 0 0 0 2px #4f46e5;
+    border: 1px solid #4f46e5;
+    box-shadow: 0 0 0 2px #4f46e555;
 }
 
 /* Contenedor de thumbnail */
 .thumbnail-container {
     position: relative;
-    aspect-ratio: 16/9;
+    height: 180px;
+    overflow: hidden;
 }
 
 /* Miniaturas */
@@ -65,54 +64,66 @@
 }
 
 .youtube-thumbnail {
-    background-color: #4a5568;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
 /* Badge de duración */
 .duration-badge {
     position: absolute;
-    bottom: 8px;
-    right: 8px;
-    background: rgba(0, 0, 0, 0.7);
+    bottom: 10px;
+    right: 10px;
+    background: #000000cc;
     color: white;
-    padding: 3px 6px;
+    padding: 4px 8px;
     border-radius: 4px;
-    font-size: 0.75rem;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.song-card:hover .youtube-thumbnail {
+    transform: scale(1.05);
 }
 
 /* Información de la canción */
 .song-info {
-    padding: 1rem;
-    color: white;
+    padding: 14px;
 }
 
+
 .song-title {
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 600;
-    margin: 0 0 0.5rem 0;
-    white-space: nowrap;
+    color: white;
+    margin: 0 0 8px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.4;
+    height: 44px;
 }
 
 .song-artist {
-    font-size: 0.875rem;
-    color: #cbd5e0;
-    margin: 0 0 0.75rem 0;
+    font-size: 14px;
+    color: #aaa;
+    margin: 0 0 12px 0;
 }
 
 /* Estadísticas */
 .song-stats {
     display: flex;
-    gap: 1rem;
-    font-size: 0.75rem;
-    color: #a0aec0;
+    gap: 15px;
+    color: #aaa;
+    font-size: 13px;
 }
 
 .song-stats .stat {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 5px;
 }
 
 /* Botones de reproducción */
@@ -206,22 +217,35 @@
 /* Responsive */
 @media (max-width: 1024px) {
     .song-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    .thumbnail-container {
+        height: 160px;
     }
 }
 
 @media (max-width: 768px) {
     .song-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+
+    .thumbnail-container {
+        height: 140px;
     }
 }
 
 @media (max-width: 480px) {
-    .song-grid {
-        grid-template-columns: 1fr;
-    }
-
     .song-list-container {
         padding: 1rem;
+    }
+
+    .song-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .thumbnail-container {
+        height: 200px;
     }
 }
