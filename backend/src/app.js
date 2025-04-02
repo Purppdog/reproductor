@@ -40,21 +40,38 @@ app.use(express.json());
 
 // 5. Nueva ruta para buscar en YouTube (protegida en el backend)
 app.get("/api/youtube-search", async (req, res) => {
-    const { q } = req.query; // Término de búsqueda
+    const { q } = req.query;
+
+    if (!q || q.trim().length === 0) {
+        return res.status(400).json({ error: "El término de búsqueda no puede estar vacío" });
+    }
+
     try {
         const response = await axios.get("https://www.googleapis.com/youtube/v3/search", {
             params: {
-                part: "snippet,contentDetails,statistics",
-                q,
-                key: process.env.YT_API_KEY, // Clave desde variables de entorno (segura)
+                part: "snippet", // Primero prueba solo con snippet
+                q: encodeURIComponent(q.trim()),
+                key: process.env.YT_API_KEY,
                 type: "video",
                 maxResults: 5
             }
         });
         res.json(response.data);
     } catch (error) {
-        console.error("Error en YouTube API:", error.message);
-        res.status(500).json({ error: "Error al buscar en YouTube" });
+        console.error("Detalle completo del error:", {
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message
+        });
+
+        const errorMessage = error.response?.data?.error?.message ||
+            "Error al procesar la solicitud con YouTube API";
+
+        res.status(500).json({
+            error: "Error al buscar en YouTube",
+            detalle: errorMessage,
+            sugerencia: "Verifica la configuración de la API Key en Google Cloud"
+        });
     }
 });
 
