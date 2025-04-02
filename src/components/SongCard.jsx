@@ -1,5 +1,5 @@
-//import { useState } from 'react';
 import { FaPlay, FaPause } from 'react-icons/fa';
+import ViniloImage from '../assets/images/VINILO.jpeg';
 import '../styles/components/SongCard.css';
 
 export default function SongCard({ song, isPlaying, onPlay, onPause }) {
@@ -9,34 +9,28 @@ export default function SongCard({ song, isPlaying, onPlay, onPause }) {
     };
 
     return (
-        <div
-            className="song-card-horizontal"
-            onClick={handlePlayClick}
-        >
-            <div className="song-image-container-horizontal">
+        <div className="song-card-container" onClick={handlePlayClick}>
+            <div className="thumbnail-wrapper">
                 <img
-                    src={song.thumbnail}
+                    src={song.thumbnail || ViniloImage}
                     alt={`Portada de ${song.title}`}
-                    className="song-thumbnail-horizontal"
+                    className="song-thumbnail"
                     onError={(e) => {
-                        e.target.src = '/path/to/VINILO.jpeg';
-                        e.target.className = 'song-thumbnail-horizontal default-thumbnail';
+                        e.target.src = ViniloImage;
+                        e.target.classList.add('default-thumbnail');
                     }}
                 />
             </div>
 
-            <div className="song-info-horizontal">
-                <div className="song-text-horizontal">
-                    <h3 className="song-title-horizontal">{song.title}</h3>
-                    <p className="song-artist-horizontal">{song.artist}</p>
+            <div className="song-info">
+                <h3 className="song-title">{song.title}</h3>
+                <div className="song-meta">
+                    <p className="song-artist">{song.artist || 'Artista desconocido'}</p>
+                    <div className="song-stats">
+                        {song.views && <span>{song.views}</span>}
+                        {song.date && <span>{song.date}</span>}
+                    </div>
                 </div>
-
-                <button
-                    className={`play-button-horizontal ${isPlaying ? 'playing' : ''}`}
-                    aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
-                >
-                    {isPlaying ? <FaPause /> : <FaPlay />}
-                </button>
             </div>
         </div>
     );
