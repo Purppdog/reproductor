@@ -72,12 +72,19 @@ export default function Home() {
         setYoutubeError(null);
 
         try {
-            const response = await fetch(`http://localhost:3001/api/search?q=${encodeURIComponent(query)}`);
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/youtube-search?q=${encodeURIComponent(query)}`
+            );
+
             if (!response.ok) throw new Error(await response.text());
 
             const data = await response.json();
-            setYoutubeResults(data.map(video => ({
-                ...video,
+            // Asegúrate de que la respuesta coincida con tu estructura de datos
+            setYoutubeResults(data.items.map(video => ({
+                id: video.id.videoId,
+                title: video.snippet.title,
+                artist: video.snippet.channelTitle,
+                thumbnail: video.snippet.thumbnails.default.url,
                 source: 'youtube'
             })));
         } catch (error) {
