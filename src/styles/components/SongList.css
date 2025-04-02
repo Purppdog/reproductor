@@ -18,7 +18,7 @@
 .song-grid.horizontal-layout {
     display: flex;
     flex-wrap: nowrap;
-    overflow-x: auto;
+    overflow-x: hidden;
     scroll-snap-type: x mandatory;
     scrollbar-width: thin;
     padding: 1rem 0;
