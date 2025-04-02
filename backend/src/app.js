@@ -41,37 +41,45 @@ app.use(express.json());
 // 5. Nueva ruta para buscar en YouTube (protegida en el backend)
 app.get("/api/youtube-search", async (req, res) => {
     const { q } = req.query;
-
-    if (!q || q.trim().length === 0) {
-        return res.status(400).json({ error: "El término de búsqueda no puede estar vacío" });
-    }
-
     try {
-        const response = await axios.get("https://www.googleapis.com/youtube/v3/search", {
+        // 1. Primera llamada: Búsqueda básica (maxResults=5)
+        const searchResponse = await axios.get("https://www.googleapis.com/youtube/v3/search", {
             params: {
-                part: "snippet", // Primero prueba solo con snippet
-                q: encodeURIComponent(q.trim()),
+                part: "snippet",
+                q,
                 key: process.env.YT_API_KEY,
                 type: "video",
-                maxResults: 5
+                maxResults: 5 // ✅ Límite de 5 resultados aquí
             }
         });
-        res.json(response.data);
+
+        // 2. Obtener IDs de los videos encontrados
+        const videoIds = searchResponse.data.items.map(item => item.id.videoId).join(',');
+
+        // 3. Segunda llamada: Detalles de los 5 videos (maxResults implícito en los IDs)
+        const detailsResponse = await axios.get("https://www.googleapis.com/youtube/v3/videos", {
+            params: {
+                part: "contentDetails,statistics",
+                id: videoIds,
+                key: process.env.YT_API_KEY
+                // No necesita maxResults aquí porque ya está limitado por los IDs
+            }
+        });
+
+        // Combinar resultados
+        const combinedResults = searchResponse.data.items.map(item => {
+            const details = detailsResponse.data.items.find(v => v.id === item.id.videoId) || {};
+            return {
+                ...item,
+                contentDetails: details.contentDetails,
+                statistics: details.statistics
+            };
+        });
+
+        res.json({ items: combinedResults.slice(0, 5) }); // ✅ Aseguramos 5 resultados
     } catch (error) {
-        console.error("Detalle completo del error:", {
-            status: error.response?.status,
-            data: error.response?.data,
-            message: error.message
-        });
-
-        const errorMessage = error.response?.data?.error?.message ||
-            "Error al procesar la solicitud con YouTube API";
-
-        res.status(500).json({
-            error: "Error al buscar en YouTube",
-            detalle: errorMessage,
-            sugerencia: "Verifica la configuración de la API Key en Google Cloud"
-        });
+        console.error("Error en YouTube API:", error.message);
+        res.status(500).json({ error: "Error al buscar en YouTube" });
     }
 });
 

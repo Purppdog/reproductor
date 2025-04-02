@@ -96,23 +96,30 @@ export default function Home() {
                 `${import.meta.env.VITE_API_URL}/api/youtube-search?q=${encodeURIComponent(query)}`
             );
 
-            if (!response.ok) throw new Error(await response.text());
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Error en la búsqueda");
+            }
 
             const data = await response.json();
 
-            setYoutubeResults(data.items.map(video => ({
+            // Asegurar máximo 5 resultados (aunque el backend ya lo haga)
+            const limitedResults = data.items.slice(0, 5).map(video => ({
                 id: video.id.videoId,
                 title: video.snippet.title,
                 artist: video.snippet.channelTitle,
                 thumbnail: video.snippet.thumbnails.medium?.url || video.snippet.thumbnails.default.url,
-                duration: video.contentDetails?.duration, // Formato ISO 8601
+                duration: video.contentDetails?.duration,
                 views: video.statistics?.viewCount,
                 publishedAt: video.snippet.publishedAt,
                 source: 'youtube'
-            })));
+            }));
+
+            setYoutubeResults(limitedResults);
+
         } catch (error) {
             console.error('Error en búsqueda YouTube:', error);
-            setYoutubeError('Error al cargar videos');
+            setYoutubeError(error.message || 'Error al cargar videos');
         } finally {
             setIsLoadingYouTube(false);
         }
