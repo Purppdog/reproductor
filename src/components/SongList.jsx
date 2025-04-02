@@ -106,8 +106,8 @@ export default function SongList({
                     {songs.map((song) => {
                         const isPlaying = currentSong?.id === song.id;
                         const durationText = formatDuration(song.duration);
-                        const viewsText = formatViews(song.views);
-                        const dateText = formatDate(song.publishedAt);
+                        const viewsText = song.source === 'youtube' ? formatViews(song.views) : null;
+                        const dateText = song.source === 'youtube' ? formatDate(song.publishedAt) : null;
 
                         return (
                             <div
@@ -116,32 +116,15 @@ export default function SongList({
                                 onClick={() => handleSongClick(song, isPlaying)}
                             >
                                 <div className="thumbnail-container">
-                                    {song.source === 'local' ? (
-                                        <img
-                                            src={ViniloImage}
-                                            alt="Canción local"
-                                            className="song-thumbnail local-thumbnail"
-                                        />
-                                    ) : (
-                                        <img
-                                            src={`https://img.youtube.com/vi/${song.id}/mqdefault.jpg`}
-                                            alt={`Miniatura de ${song.title}`}
-                                            className="song-thumbnail youtube-thumbnail"
-                                            onError={(e) => {
-                                                e.target.src = `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`;
-                                            }}
-                                        />
-                                    )}
-                                    <div className="duration-badge">{durationText}</div>
-                                    <button
-                                        className={`play-button ${isPlaying ? 'active' : ''}`}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleSongClick(song, isPlaying);
+                                    <img
+                                        src={song.source === 'local' ? ViniloImage : `https://img.youtube.com/vi/${song.id}/mqdefault.jpg`}
+                                        alt={`Miniatura de ${song.title}`}
+                                        className={`song-thumbnail ${song.source === 'local' ? 'local-thumbnail' : 'youtube-thumbnail'}`}
+                                        onError={(e) => {
+                                            e.target.src = song.source === 'local' ? ViniloImage : `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`;
                                         }}
-                                    >
-                                        {isPlaying ? <FaPause /> : <FaPlay />}
-                                    </button>
+                                    />
+                                    <div className="duration-badge">{durationText}</div>
                                 </div>
 
                                 <div className="song-info">
@@ -150,12 +133,10 @@ export default function SongList({
                                     </h3>
                                     <div className="song-meta">
                                         <p className="song-artist">{song.artist || 'Artista desconocido'}</p>
-                                        {song.source === 'youtube' && (
-                                            <div className="song-stats">
-                                                {viewsText && <span>{viewsText}</span>}
-                                                {dateText && <span>{dateText}</span>}
-                                            </div>
-                                        )}
+                                        <div className="song-stats">
+                                            {viewsText && <span>{viewsText}</span>}
+                                            {dateText && <span>{dateText}</span>}
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -1,53 +1,64 @@
-/* Contenedor principal - estilo YouTube */
+/* Contenedor principal */
 .song-list-container {
     padding: 1rem;
-    max-width: 100%;
-    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-/* Grid responsive - más compacto */
+/* Grid base */
 .song-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 1.5rem;
     padding: 0;
+    margin: 0;
 }
 
+/* Modo horizontal */
 .song-grid.horizontal-layout {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
     padding: 1rem 0;
+    margin: 0 -1rem;
     gap: 1.5rem;
 }
 
 .song-grid.horizontal-layout .song-card {
     min-width: 250px;
     scroll-snap-align: start;
+    margin: 0 1rem;
 }
 
-
-/* Tarjeta de canción - estilo minimalista YouTube */
+/* Tarjeta de canción */
 .song-card {
     background: #282828;
     border-radius: 8px;
     overflow: hidden;
-    transition: transform 0.2s ease;
+    transition: all 0.3s ease;
     cursor: pointer;
     width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Contenedor de thumbnail - relación 16:9 como YouTube */
+.song-card:hover {
+    transform: translateY(-5px);
+    background: #383838;
+}
+
+/* Contenedor de thumbnail */
 .thumbnail-container {
     position: relative;
     width: 100%;
     aspect-ratio: 16/9;
     overflow: hidden;
-    border-radius: 8px 8px 0 0;
 }
 
-/* Miniaturas - ajuste perfecto al contenedor */
+/* Miniaturas */
 .song-thumbnail {
     width: 100%;
     height: 100%;
@@ -55,18 +66,22 @@
     transition: transform 0.3s ease;
 }
 
-.local-thumbnail {
-    background: linear-gradient(45deg, #1a202c, #2d3748);
-    padding: 20%;
-    box-sizing: border-box;
+.song-card:hover .song-thumbnail {
+    transform: scale(1.05);
 }
 
-/* Badge de duración - estilo YouTube */
+.local-thumbnail {
+    object-fit: contain;
+    padding: 15%;
+    background: linear-gradient(45deg, #1a202c, #2d3748);
+}
+
+/* Badge de duración */
 .duration-badge {
     position: absolute;
     bottom: 8px;
     right: 8px;
-    background: #000000cc;
+    background: rgba(0, 0, 0, 0.8);
     color: white;
     padding: 3px 6px;
     border-radius: 4px;
@@ -74,19 +89,19 @@
     font-weight: 500;
 }
 
-/* Información de la canción - estilo YouTube */
+/* Información de la canción */
 .song-info {
     padding: 12px;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
 }
 
 .song-title {
     font-size: 16px;
     font-weight: 500;
     color: white;
-    margin: 0;
+    margin: 0 0 8px 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -98,25 +113,19 @@
 .song-artist {
     font-size: 14px;
     color: #aaa;
-    margin: 0 0 4px 0;
-}
-
-/* Estadísticas - en línea con puntos separadores */
-.song-artist {
-    font-size: 14px;
-    color: #aaa;
-    margin: 0;
+    margin: 0 0 8px 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+/* Estadísticas */
 .song-stats {
     display: flex;
     gap: 8px;
     color: #aaa;
     font-size: 12px;
-    flex-wrap: wrap;
+    margin-top: auto;
 }
 
 .song-stats span {
@@ -127,32 +136,6 @@
 .song-stats span:not(:last-child)::after {
     content: "•";
     margin-left: 8px;
-}
-
-/* Botón de play - esquina inferior izquierda */
-.play-button {
-    display: none !important;
-}
-
-.song-card:hover {
-    transform: translateY(-5px);
-}
-
-.song-card:hover .play-button {
-    opacity: 1;
-}
-
-.song-card:hover .song-thumbnail {
-    transform: scale(1.05);
-}
-
-.play-button.active {
-    background: #f00;
-    opacity: 1;
-}
-
-.play-button svg {
-    font-size: 12px;
 }
 
 /* Mensajes de estado */
@@ -189,7 +172,17 @@
     }
 }
 
-/* Responsive - adaptación a móviles */
+/* Scrollbar para modo horizontal */
+.song-grid.horizontal-layout::-webkit-scrollbar {
+    height: 6px;
+}
+
+.song-grid.horizontal-layout::-webkit-scrollbar-thumb {
+    background: #535353;
+    border-radius: 3px;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
     .song-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -210,10 +203,6 @@
     .song-grid {
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: 0.8rem;
-    }
-
-    .song-info {
-        padding: 8px;
     }
 
     .song-title {
