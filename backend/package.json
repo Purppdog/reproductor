@@ -2,6 +2,9 @@
     "name": "backend",
     "version": "1.0.0",
     "type": "module",
+    "files": [
+        "src/**/*"
+    ],
     "main": "src/app.js",
     "scripts": {
         "start": "node src/app.js",
