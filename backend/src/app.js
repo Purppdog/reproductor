@@ -44,11 +44,11 @@ app.get("/api/youtube-search", async (req, res) => {
     try {
         const response = await axios.get("https://www.googleapis.com/youtube/v3/search", {
             params: {
-                part: "snippet",
+                part: "snippet,contentDetails,statistics",
                 q,
                 key: process.env.YT_API_KEY, // Clave desde variables de entorno (segura)
                 type: "video",
-                maxResults: 10
+                maxResults: 5
             }
         });
         res.json(response.data);

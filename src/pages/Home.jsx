@@ -27,19 +27,39 @@ export default function Home() {
     const volumeBeforeMute = useRef(volume);
 
     // Función para formatear la duración
-    const formatDuration = (seconds) => {
-        if (!seconds) return "--:--";
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = Math.floor(seconds % 60);
-        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    const formatDuration = (secondsOrISO) => {
+        // Si es duración en segundos (número)
+        if (typeof secondsOrISO === 'number') {
+            const minutes = Math.floor(secondsOrISO / 60);
+            const remainingSeconds = Math.floor(secondsOrISO % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        // Si es formato ISO 8601 de YouTube (string)
+        else if (typeof secondsOrISO === 'string') {
+            const match = secondsOrISO.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+            const hours = parseInt(match[1]) || 0;
+            const minutes = parseInt(match[2]) || 0;
+            const seconds = parseInt(match[3]) || 0;
+
+            return hours > 0
+                ? `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+                : `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        return "--:--";
     };
 
     // Función para formatear las visualizaciones
     const formatViews = (views) => {
         if (!views) return "0 vistas";
-        const num = parseInt(views.replace(/\./g, ''));
+        const num = typeof views === 'string' ? parseInt(views.replace(/\./g, '')) : views;
         return num.toLocaleString() + " vistas";
     };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return "Fecha no disponible";
+        return new Date(dateString).toLocaleDateString('es-ES');
+    };
+
 
     // Cargar canciones locales al inicio
     useEffect(() => {
@@ -79,20 +99,20 @@ export default function Home() {
             if (!response.ok) throw new Error(await response.text());
 
             const data = await response.json();
-            // Asegúrate de que la respuesta coincida con tu estructura de datos
+
             setYoutubeResults(data.items.map(video => ({
                 id: video.id.videoId,
                 title: video.snippet.title,
                 artist: video.snippet.channelTitle,
-                thumbnail: video.snippet.thumbnails.default.url,
+                thumbnail: video.snippet.thumbnails.medium?.url || video.snippet.thumbnails.default.url,
+                duration: video.contentDetails?.duration, // Formato ISO 8601
+                views: video.statistics?.viewCount,
+                publishedAt: video.snippet.publishedAt,
                 source: 'youtube'
             })));
         } catch (error) {
             console.error('Error en búsqueda YouTube:', error);
-            setYoutubeError({
-                message: 'Error al buscar videos',
-                details: error.message
-            });
+            setYoutubeError('Error al cargar videos');
         } finally {
             setIsLoadingYouTube(false);
         }
@@ -332,32 +352,19 @@ export default function Home() {
                                     playerVars: {
                                         autoplay: 1,
                                         controls: 1,
-                                        disablekb: 0,
-                                        modestbranding: 1,
                                         rel: 0
                                     }
                                 }}
-                                onReady={(e) => {
-                                    e.target.playVideo();
-                                }}
+                                onReady={(e) => e.target.playVideo()}
                             />
-
                             <div className="video-details">
-                                <h3 className="video-title">{currentSong.title}</h3>
-
+                                <h3>{currentSong.title}</h3>
                                 <div className="video-meta">
-                                    <span className="video-channel">{currentSong.artist}</span>
-
+                                    <span>{currentSong.artist}</span>
                                     <div className="video-stats">
-                                        <span className="stat-item">
-                                            <i className="stat-icon">⏱️</i> {formatDuration(currentSong.duration)}
-                                        </span>
-                                        <span className="stat-item">
-                                            <i className="stat-icon">👁️</i> {formatViews(currentSong.views)}
-                                        </span>
-                                        <span className="stat-item">
-                                            <i className="stat-icon">📅</i> {currentSong.publishedAt}
-                                        </span>
+                                        <span>⏱️ {formatDuration(currentSong.duration)}</span>
+                                        <span>👁️ {formatViews(currentSong.views)}</span>
+                                        <span>📅 {formatDate(currentSong.publishedAt)}</span>
                                     </div>
                                 </div>
                             </div>

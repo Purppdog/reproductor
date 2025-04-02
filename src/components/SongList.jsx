@@ -1,4 +1,5 @@
 import { FaPlay, FaPause } from "react-icons/fa";
+import ViniloImage from "../assets/images/VINILO.jpeg";
 import "../styles/components/SongList.css";
 
 const formatDuration = (duration) => {
@@ -28,17 +29,39 @@ const formatDuration = (duration) => {
 
 const formatViews = (views) => {
     if (!views) return "N/A";
-    if (typeof views === "number") {
-        return views >= 1000000
-            ? `${(views / 1000000).toFixed(1)}M`
-            : views >= 1000
-                ? `${(views / 1000).toFixed(1)}K`
-                : views.toString();
+
+    if (typeof views === "string") {
+        const num = parseInt(views.replace(/\D/g, ''));
+        if (isNaN(num)) return views;
+
+        return num >= 1000000
+            ? `${(num / 1000000).toFixed(1)}M`
+            : num >= 1000
+                ? `${(num / 1000).toFixed(1)}K`
+                : num.toString();
     }
-    return views;
+
+    return views >= 1000000
+        ? `${(views / 1000000).toFixed(1)}M`
+        : views >= 1000
+            ? `${(views / 1000).toFixed(1)}K`
+            : views.toString();
 };
 
-export default function YouTubeSongList({
+const formatDate = (dateString) => {
+    if (!dateString) return null;
+    try {
+        return new Date(dateString).toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    } catch {
+        return dateString;
+    }
+};
+
+export default function SongList({
     songs = [],
     currentSong,
     onPlay,
@@ -49,17 +72,17 @@ export default function YouTubeSongList({
 }) {
     const handleSongClick = (song, isPlaying) => {
         if (isPlaying) {
-            onPause();
+            onPause?.();
         } else {
-            onPlay(song);
+            onPlay?.(song);
         }
     };
 
     if (error) {
         return (
-            <div className="youtube-error-container">
-                <p className="youtube-error-message">
-                    Error al cargar videos: {error.message || "Intenta nuevamente más tarde"}
+            <div className="error-container">
+                <p className="error-message">
+                    {error.message || "Error al cargar contenido"}
                 </p>
             </div>
         );
@@ -67,72 +90,91 @@ export default function YouTubeSongList({
 
     if (isLoading) {
         return (
-            <div className="youtube-loading-container">
-                <p>Cargando videos de YouTube...</p>
+            <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>Cargando...</p>
             </div>
         );
     }
 
     return (
-        <div className={`youtube-list-container ${horizontal ? 'horizontal-mode' : ''}`}>
+        <div className={`song-list-container ${horizontal ? 'horizontal' : ''}`}>
             {songs.length === 0 ? (
-                <p className="no-results">No se encontraron videos</p>
+                <p className="no-results">No se encontraron resultados</p>
             ) : (
-                <div className={`youtube-grid ${horizontal ? 'horizontal-layout' : ''}`}>
+                <div className={`song-grid ${horizontal ? 'horizontal-layout' : ''}`}>
                     {songs.map((song) => {
                         const isPlaying = currentSong?.id === song.id;
                         const durationText = formatDuration(song.duration);
                         const viewsText = formatViews(song.views);
+                        const dateText = formatDate(song.publishedAt);
 
                         return (
                             <div
                                 key={song.id}
-                                className={`youtube-card ${horizontal ? 'horizontal' : ''} ${isPlaying ? 'playing' : ''}`}
+                                className={`song-card ${isPlaying ? 'playing' : ''}`}
                                 onClick={() => handleSongClick(song, isPlaying)}
                             >
                                 <div className="thumbnail-container">
-                                    <img
-                                        src={song.thumbnail || `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`}
-                                        alt={`Miniatura de ${song.title}`}
-                                        className="youtube-thumbnail"
-                                        onError={(e) => {
-                                            e.target.src = `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`;
-                                        }}
-                                    />
+                                    {/* Imagen diferenciada por tipo de contenido */}
+                                    {song.source === 'local' ? (
+                                        <img
+                                            src={ViniloImage}
+                                            alt="Canción local"
+                                            className="song-thumbnail local-thumbnail"
+                                        />
+                                    ) : (
+                                        <img
+                                            src={`https://img.youtube.com/vi/${song.id}/mqdefault.jpg`}
+                                            alt={`Miniatura de ${song.title}`}
+                                            className="song-thumbnail youtube-thumbnail"
+                                            onError={(e) => {
+                                                e.target.src = `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`;
+                                            }}
+                                        />
+                                    )}
                                     <div className="duration-badge">{durationText}</div>
                                     {horizontal && (
                                         <div className="play-overlay">
-                                            <button
-                                                className={`play-button ${isPlaying ? 'pause' : 'play'}`}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleSongClick(song, isPlaying);
-                                                }}
-                                            >
+                                            <button className="play-button">
                                                 {isPlaying ? <FaPause /> : <FaPlay />}
                                             </button>
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="video-info">
-                                    <h3 className="video-title">{song.title}</h3>
-                                    <p className="video-channel">{song.artist || 'Artista desconocido'}</p>
-                                    {horizontal && (
-                                        <div className="video-stats">
-                                            <span className="stat-item">
-                                                <i className="stat-icon">👁️</i> {viewsText}
-                                            </span>
-                                            <span className="stat-item">
-                                                <i className="stat-icon">⏱️</i> {durationText}
-                                            </span>
+                                <div className="song-info">
+                                    <h3 className="song-title" title={song.title}>
+                                        {song.title}
+                                    </h3>
+                                    <p className="song-artist" title={song.artist}>
+                                        {song.artist || 'Artista desconocido'}
+                                    </p>
+
+                                    {(horizontal || song.source === 'youtube') && (
+                                        <div className="song-stats">
+                                            {song.source === 'youtube' && viewsText && (
+                                                <span className="stat">
+                                                    <i className="icon">👁️</i> {viewsText}
+                                                </span>
+                                            )}
+                                            {durationText && (
+                                                <span className="stat">
+                                                    <i className="icon">⏱️</i> {durationText}
+                                                </span>
+                                            )}
+                                            {song.source === 'youtube' && dateText && (
+                                                <span className="stat">
+                                                    <i className="icon">📅</i> {dateText}
+                                                </span>
+                                            )}
                                         </div>
                                     )}
                                 </div>
 
                                 {!horizontal && (
                                     <button
-                                        className={`play-button ${isPlaying ? 'pause' : 'play'}`}
+                                        className={`play-button ${isPlaying ? 'active' : ''}`}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             handleSongClick(song, isPlaying);

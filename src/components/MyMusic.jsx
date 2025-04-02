@@ -93,12 +93,6 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
                 ) : (
                     <div className="no-songs-message">
                         <p>No hay canciones disponibles</p>
-                        <button
-                            onClick={() => setShowAddSong(true)}
-                            className="add-first-song-btn"
-                        >
-                            Agrega tu primera canción
-                        </button>
                     </div>
                 )}
             </div>
