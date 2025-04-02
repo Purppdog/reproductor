@@ -49,7 +49,7 @@ app.get("/api/youtube-search", async (req, res) => {
                 q,
                 key: process.env.YT_API_KEY,
                 type: "video",
-                maxResults: 5 // ✅ Límite de 5 resultados aquí
+                maxResults: 6 // ✅ Límite de 5 resultados aquí
             }
         });
 
@@ -76,7 +76,7 @@ app.get("/api/youtube-search", async (req, res) => {
             };
         });
 
-        res.json({ items: combinedResults.slice(0, 5) }); // ✅ Aseguramos 5 resultados
+        res.json({ items: combinedResults.slice(0, 6) }); // ✅ Aseguramos 5 resultados
     } catch (error) {
         console.error("Error en YouTube API:", error.message);
         res.status(500).json({ error: "Error al buscar en YouTube" });
