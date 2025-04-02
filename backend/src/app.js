@@ -4,51 +4,68 @@ import dotenv from "dotenv";
 import songsRouter from "./routes/songs.js";
 import { router as searchRouter } from "./routes/search.js";
 import myMusicRoutes from "./routes/myMusic.js";
-//import { pool } from "./models/db.js"; 
-import multer from "multer"; // Importa multer si lo usas
-
-// Configuración de multer (si es necesario)
-const upload = multer({ dest: 'uploads/' });
+import multer from "multer";
+import axios from "axios"; // Importa axios para llamadas a APIs externas (como YouTube)
 
 dotenv.config();
 
 const app = express();
 
-// Configurar CORS
+// 1. Configuración de CORS actualizada (¡incluye tu URL real de Vercel!)
 const corsOptions = {
     origin: [
-        'http://localhost:5173', // Desarrollo
-        'https://tu-frontend.vercel.app', // Producción
-        'https://tu-backend.onrender.com' // Permite acceso directo a los MP3
+        'http://localhost:5173',
+        'https://reproductor-three.vercel.app', // Reemplaza con tu URL real de frontend
+        'https://reproductornicolas.onrender.com'
     ],
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'] // Métodos permitidos
 };
 app.use(cors(corsOptions));
 
-// Servir archivos MP3 con CORS y caché (una sola vez)
+// 2. Servir archivos estáticos con CORS
 app.use("/uploads", express.static("uploads", {
     setHeaders: (res) => {
         res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Expose-Headers", "Content-Length");
         res.header("Cache-Control", "public, max-age=31536000");
     }
 }));
 
-// 🚀 Importante: NO usar express.json() antes de multer en rutas de subida de archivos
-app.use("/api/mymusic", myMusicRoutes); // Multer actúa antes aquí
+// 3. Middleware para subida de archivos (multer)
+const upload = multer({ dest: 'uploads/' });
+app.use("/api/mymusic", myMusicRoutes); // Multer actúa aquí
 
-// JSON solo en rutas que no usan archivos
+// 4. Middleware para JSON (después de multer)
 app.use(express.json());
 
-// Ruta para subir archivos (si aplica)
+// 5. Nueva ruta para buscar en YouTube (protegida en el backend)
+app.get("/api/youtube-search", async (req, res) => {
+    const { q } = req.query; // Término de búsqueda
+    try {
+        const response = await axios.get("https://www.googleapis.com/youtube/v3/search", {
+            params: {
+                part: "snippet",
+                q,
+                key: process.env.YT_API_KEY, // Clave desde variables de entorno (segura)
+                type: "video",
+                maxResults: 10
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error("Error en YouTube API:", error.message);
+        res.status(500).json({ error: "Error al buscar en YouTube" });
+    }
+});
+
+// 6. Rutas existentes
 app.post('/api/upload', upload.single('audio'), (req, res) => {
     res.json({ path: req.file.path });
 });
-
-// Rutas de la API (aquí se manejará /api/songs a través del router)
 app.use("/api/songs", songsRouter);
 app.use("/api/search", searchRouter);
 
+// Ruta de prueba
 app.get("/", (req, res) => {
     res.send("¡Backend funcionando!");
 });
