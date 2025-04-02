@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import songsRouter from "./routes/songs.js";
 import { router as searchRouter } from "./routes/search.js";
 import myMusicRoutes from "./routes/myMusic.js";
-import { pool } from "./db.js"; // Asegúrate de importar pool
+//import { pool } from "./models/db.js"; 
 import multer from "multer"; // Importa multer si lo usas
 
 // Configuración de multer (si es necesario)
