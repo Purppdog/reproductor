@@ -1,0 +1,30 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    /* Alinea el título a la izquierda y el botón a la derecha */
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.add-song-btn {
+    background-color: #17a74a;
+    /* Cambia este color según el diseño */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.add-song-btn:hover {
+    background-color: #cc5500;
+    /* Color más oscuro al pasar el mouse */
+}
+
+.song-thumbnail {
+    background-image: url('../assets/images/VINILO.jpeg');
+    background-size: cover;
+}

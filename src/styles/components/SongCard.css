@@ -1,0 +1,103 @@
+/* Tarjeta horizontal */
+.song-card-horizontal {
+    display: flex;
+    align-items: center;
+    background: #282828;
+    border-radius: 8px;
+    padding: 12px;
+    gap: 16px;
+    width: 100%;
+    max-width: 400px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.song-card-horizontal:hover {
+    background: #383838;
+}
+
+/* Contenedor de imagen */
+.song-image-container-horizontal {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+}
+
+/* Imagen */
+.song-thumbnail-horizontal {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.default-thumbnail {
+    background-color: #1a202c;
+    padding: 15%;
+    object-fit: contain;
+}
+
+/* Contenedor de información */
+.song-info-horizontal {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-grow: 1;
+    gap: 12px;
+    min-width: 0;
+}
+
+/* Texto */
+.song-text-horizontal {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.song-title-horizontal {
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+.song-artist-horizontal {
+    font-size: 14px;
+    color: #b3b3b3;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+/* Botón de play */
+.play-button-horizontal {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: transparent;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.song-card-horizontal:hover .play-button-horizontal {
+    background: #1db954;
+}
+
+.play-button-horizontal.playing {
+    background: #e22134;
+}
+
+.play-button-horizontal:hover {
+    transform: scale(1.1);
+}

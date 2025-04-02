@@ -1,0 +1,58 @@
+# ===== ARCHIVOS SENSIBLES =====
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+config.js
+*.key
+*.pem
+*.crt
+
+# ===== DEPENDENCIAS =====
+node_modules/
+**/node_modules/*
+.pnpm-store/
+
+# ===== BUILD/COMPILACIÓN =====
+dist/
+dist-ssr/
+build/
+.out/
+.next/
+.vite/
+*.exe
+*.out
+*.coverage
+
+# ===== SISTEMA Y EDITORES =====
+.DS_Store
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.code-workspace
+
+# ===== ARCHIVOS DE AUDIO/SUBIENDA =====
+uploads/*
+!uploads/.gitkeep  # Opcional: para mantener la carpeta
+
+# ===== LOGS =====
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===== MYSQL/MIGRACIONES =====
+*.sqlite
+*.sql
+migrations/*.sql
+
+# ===== VERCEL =====
+.vercel
