@@ -116,7 +116,6 @@ export default function SongList({
                                 onClick={() => handleSongClick(song, isPlaying)}
                             >
                                 <div className="thumbnail-container">
-                                    {/* Imagen diferenciada por tipo de contenido */}
                                     {song.source === 'local' ? (
                                         <img
                                             src={ViniloImage}
@@ -134,45 +133,6 @@ export default function SongList({
                                         />
                                     )}
                                     <div className="duration-badge">{durationText}</div>
-                                    {horizontal && (
-                                        <div className="play-overlay">
-                                            <button className="play-button">
-                                                {isPlaying ? <FaPause /> : <FaPlay />}
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="song-info">
-                                    <h3 className="song-title" title={song.title}>
-                                        {song.title}
-                                    </h3>
-                                    <p className="song-artist" title={song.artist}>
-                                        {song.artist || 'Artista desconocido'}
-                                    </p>
-
-                                    {(horizontal || song.source === 'youtube') && (
-                                        <div className="song-stats">
-                                            {song.source === 'youtube' && viewsText && (
-                                                <span className="stat">
-                                                    <i className="icon">👁️</i> {viewsText}
-                                                </span>
-                                            )}
-                                            {durationText && (
-                                                <span className="stat">
-                                                    <i className="icon">⏱️</i> {durationText}
-                                                </span>
-                                            )}
-                                            {song.source === 'youtube' && dateText && (
-                                                <span className="stat">
-                                                    <i className="icon">📅</i> {dateText}
-                                                </span>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {!horizontal && (
                                     <button
                                         className={`play-button ${isPlaying ? 'active' : ''}`}
                                         onClick={(e) => {
@@ -182,7 +142,22 @@ export default function SongList({
                                     >
                                         {isPlaying ? <FaPause /> : <FaPlay />}
                                     </button>
-                                )}
+                                </div>
+
+                                <div className="song-info">
+                                    <h3 className="song-title" title={song.title}>
+                                        {song.title}
+                                    </h3>
+                                    <div className="song-meta">
+                                        <p className="song-artist">{song.artist || 'Artista desconocido'}</p>
+                                        {song.source === 'youtube' && (
+                                            <div className="song-stats">
+                                                {viewsText && <span>{viewsText}</span>}
+                                                {dateText && <span>{dateText}</span>}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         );
                     })}
