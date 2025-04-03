@@ -28,3 +28,16 @@
     background-image: url('../assets/images/VINILO.jpeg');
     background-size: cover;
 }
+
+.no-songs-message {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    /* Ajusta el color según el fondo */
+    margin-top: 20px;
+}
+
+.no-songs-message {
+    min-height: 50px;
+}
