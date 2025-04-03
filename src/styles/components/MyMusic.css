@@ -31,13 +31,49 @@
 
 .no-songs-message {
     text-align: center;
-    font-size: 16px;
-    font-weight: bold;
-    color: white;
-    /* Ajusta el color según el fondo */
-    margin-top: 20px;
+    font-size: 1rem;
+    /* Usar unidades relativas */
+    font-weight: 500;
+    /* Peso semi-bold para mejor legibilidad */
+    color: #ffffff;
+    margin: 2rem auto;
+    /* Más espacio vertical y centrado horizontal */
+    padding: 0 1rem;
+    /* Padding lateral para evitar bordes pegados */
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.5;
+    /* Mejor espaciado entre líneas */
+    width: 90%;
+    /* Ancho relativo para adaptarse a pantallas pequeñas */
 }
 
-.no-songs-message {
-    min-height: 50px;
+.no-songs-message p {
+    margin: 0;
+    /* Eliminar margen por defecto del párrafo */
+    max-width: 100%;
+    /* Evitar desbordamiento */
+    word-break: break-word;
+    /* Romper palabras largas si es necesario */
+}
+
+/* Ajustes específicos para móviles pequeños */
+@media (max-width: 480px) {
+    .no-songs-message {
+        font-size: 0.9rem;
+        /* Tamaño ligeramente menor para móviles */
+        margin: 1.5rem auto;
+        width: 95%;
+        /* Más ancho en pantallas pequeñas */
+    }
+}
+
+/* Tablets y pantallas medianas */
+@media (min-width: 481px) and (max-width: 768px) {
+    .no-songs-message {
+        font-size: 1rem;
+        margin: 1.75rem auto;
+    }
 }
