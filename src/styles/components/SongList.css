@@ -11,6 +11,7 @@
     grid-template-columns: 1fr;
     gap: 1rem;
     width: 100%;
+    justify-items: center;
 }
 
 /* Tarjeta de canción */
@@ -19,6 +20,7 @@
     border-radius: 10px;
     overflow: hidden;
     width: 100%;
+    max-width: 90%;
     transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
