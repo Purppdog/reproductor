@@ -11,7 +11,7 @@
     grid-template-columns: 1fr;
     gap: 1rem;
     width: 100%;
-    justify-items: center;
+    justify-items: start;
 }
 
 /* Tarjeta de canción */
@@ -141,6 +141,13 @@
 
 /* Ajustes para móviles pequeños (iPhone 8/SE y similares) */
 @media (max-width: 480px) {
+    .song-grid {
+        justify-items: start;
+        /* Alinea los elementos a la izquierda */
+        margin-left: -10px;
+        /* Ajusta según sea necesario */
+    }
+
     .song-list-container {
         padding: 0.5rem 0.75rem 0.5rem 1rem;
     }
