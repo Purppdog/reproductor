@@ -23,13 +23,26 @@ const app = express();
 const corsOptions = {
     origin: [
         'http://localhost:5173',
-        'https://reproductor-three.vercel.app',
+        'https://reproductor-lake.vercel.app',
         'https://reproductornicolas.onrender.com'
     ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 };
 app.use(cors(corsOptions));
+
+// Middleware para headers CORS (refuerzo)
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', corsOptions.origin);
+    res.header('Access-Control-Allow-Methods', corsOptions.methods.join(','));
+    res.header('Access-Control-Allow-Headers', corsOptions.allowedHeaders.join(','));
+    res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+});
+
+app.options('*', cors(corsOptions));
+
 
 // 2. Middleware para subida de archivos (multer)
 const upload = multer({
