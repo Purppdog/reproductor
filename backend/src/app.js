@@ -19,36 +19,38 @@ cloudinary.config({
 
 const app = express();
 
-// 1. Configuración de CORS
+// 1. Configuración CORS mejorada
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://reproductor-lake.vercel.app',
+    'https://reproductornicolas.onrender.com'
+];
+
 const corsOptions = {
-    origin: [
-        'http://localhost:5173',
-        'https://reproductor-lake.vercel.app',
-        'https://reproductornicolas.onrender.com'
-    ],
+    origin: function (origin, callback) {
+        // Permitir solicitudes sin origen (como Postman)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        } else {
+            return callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 200
 };
+
+// Aplicar CORS solo una vez (elimina los middlewares adicionales)
 app.use(cors(corsOptions));
-
-// Middleware para headers CORS (refuerzo)
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', corsOptions.origin);
-    res.header('Access-Control-Allow-Methods', corsOptions.methods.join(','));
-    res.header('Access-Control-Allow-Headers', corsOptions.allowedHeaders.join(','));
-    res.header('Access-Control-Allow-Credentials', 'true');
-    next();
-});
-
-app.options('*', cors(corsOptions));
-
 
 // 2. Middleware para subida de archivos (multer)
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: {
-        fileSize: 50 * 1024 * 1024, // 50MB (ajustable)
+        fileSize: 50 * 1024 * 1024, // 50MB
     },
     fileFilter: (req, file, cb) => {
         const audioMimeTypes = [
@@ -56,37 +58,28 @@ const upload = multer({
             'audio/x-m4a', 'audio/webm', 'audio/x-flac',
             'audio/x-aiff', 'audio/x-wav'
         ];
-
-        if (audioMimeTypes.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error('Solo se permiten archivos de audio (MP3, WAV, OGG, etc.)'), false);
-        }
+        audioMimeTypes.includes(file.mimetype)
+            ? cb(null, true)
+            : cb(new Error('Solo se permiten archivos de audio (MP3, WAV, OGG, etc.)'), false);
     }
 });
 
 // 3. Middleware para JSON
 app.use(express.json());
 
+// 4. Ruta de subida a Cloudinary
 app.post('/api/upload', upload.single('audio'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: "No se proporcionó ningún archivo" });
         }
 
-        // Lista de tipos MIME permitidos (puedes ampliarla)
         const allowedMimeTypes = [
-            'audio/mpeg',       // MP3
-            'audio/wav',        // WAV
-            'audio/ogg',        // OGG
-            'audio/x-m4a',      // M4A/AAC
-            'audio/webm',       // WEBM
-            'audio/x-aiff',     // AIFF
-            'audio/x-flac',     // FLAC
-            'audio/x-wav'       // WAV alternativo
+            'audio/mpeg', 'audio/wav', 'audio/ogg',
+            'audio/x-m4a', 'audio/webm', 'audio/x-flac',
+            'audio/x-aiff', 'audio/x-wav'
         ];
 
-        // Validar tipo de archivo
         if (!allowedMimeTypes.includes(req.file.mimetype)) {
             return res.status(400).json({
                 error: "Formato de audio no soportado",
@@ -94,18 +87,15 @@ app.post('/api/upload', upload.single('audio'), async (req, res) => {
             });
         }
 
-        // Extraer extensión del archivo original
         const fileExt = req.file.originalname.split('.').pop().toLowerCase();
-
-        // Subir a Cloudinary
         const result = await cloudinary.uploader.upload(
             `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`,
             {
-                resource_type: 'auto', // Auto-detecta el tipo (audio/video)
-                format: fileExt, // Conserva el formato original
-                allowed_formats: ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'webm', 'flac', 'aiff'], // Formatos permitidos
-                use_filename: true, // Usa el nombre original
-                unique_filename: false // No agregar sufijos únicos
+                resource_type: 'auto',
+                format: fileExt,
+                allowed_formats: ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'webm', 'flac', 'aiff'],
+                use_filename: true,
+                unique_filename: false
             }
         );
 
@@ -113,8 +103,8 @@ app.post('/api/upload', upload.single('audio'), async (req, res) => {
             success: true,
             url: result.secure_url,
             public_id: result.public_id,
-            duration: result.duration, // Duración en segundos
-            format: result.format,    // Formato del archivo resultante
+            duration: result.duration,
+            format: result.format,
             original_name: req.file.originalname
         });
     } catch (error) {
@@ -126,7 +116,7 @@ app.post('/api/upload', upload.single('audio'), async (req, res) => {
     }
 });
 
-// 5. Ruta para buscar en YouTube
+// 5. Búsqueda en YouTube
 app.get("/api/youtube-search", async (req, res) => {
     const { q } = req.query;
     try {
@@ -141,7 +131,6 @@ app.get("/api/youtube-search", async (req, res) => {
         });
 
         const videoIds = searchResponse.data.items.map(item => item.id.videoId).join(',');
-
         const detailsResponse = await axios.get("https://www.googleapis.com/youtube/v3/videos", {
             params: {
                 part: "contentDetails,statistics",
@@ -166,7 +155,7 @@ app.get("/api/youtube-search", async (req, res) => {
     }
 });
 
-// 6. Otras rutas
+// 6. Rutas adicionales
 app.use("/api/songs", songsRouter);
 app.use("/api/search", searchRouter);
 app.use("/api/mymusic", myMusicRoutes);
