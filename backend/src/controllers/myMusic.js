@@ -7,8 +7,13 @@ export const getSavedSongs = async (req, res) => {
         console.log("Resultados de la consulta:", rows); // ← Verás esto si la consulta funciona
         res.json(rows || []); // Devuelve array vacío si no hay datos
     } catch (error) {
-        console.error("Error en /api/mymusic:", error); // ← Esto aparecerá en los logs
-        res.status(500).json({ error: "Error al obtener canciones" });
+        console.log("Variables DB:", {
+            host: process.env.MYSQLHOST,
+            port: process.env.MYSQLPORT,
+            user: process.env.MYSQLUSER,
+            database: process.env.MYSQLDATABASE,
+            ssl: process.env.SSL_CERT ? "Configurado" : "Falta SSL"
+        });
     }
 };
 
