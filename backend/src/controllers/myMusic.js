@@ -2,17 +2,26 @@ import { pool } from "../models/db.js";
 
 export const getSavedSongs = async (req, res) => {
     try {
-        console.log("Conectando a la base de datos..."); // ← Verás esto en los logs de Render
+        console.log("Conectando a la base de datos...");
         const [rows] = await pool.query("SELECT id, title, artist FROM songs");
-        console.log("Resultados de la consulta:", rows); // ← Verás esto si la consulta funciona
-        res.json(rows || []); // Devuelve array vacío si no hay datos
+        console.log("Resultados de la consulta:", rows);
+        res.json(rows || []);
     } catch (error) {
-        console.log("Variables DB:", {
-            host: process.env.MYSQLHOST,
-            port: process.env.MYSQLPORT,
-            user: process.env.MYSQLUSER,
-            database: process.env.MYSQLDATABASE,
-            ssl: process.env.SSL_CERT ? "Configurado" : "Falta SSL"
+        console.error("Error en /api/mymusic:", {
+            message: error.message,
+            code: error.code,
+            stack: error.stack,
+            envVariables: { // Agrega esto para debug
+                host: process.env.MYSQLHOST,
+                port: process.env.MYSQLPORT,
+                user: process.env.MYSQLUSER,
+                database: process.env.MYSQLDATABASE,
+                ssl: process.env.SSL_CERT ? "Configurado" : "Falta SSL"
+            }
+        });
+        res.status(500).json({
+            error: "Error al obtener canciones",
+            details: error.code // Devuelve el código de error específico
         });
     }
 };
