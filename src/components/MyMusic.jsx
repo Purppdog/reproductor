@@ -19,7 +19,7 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch("http://localhost:3001/api/mymusic");
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`);
 
             if (!response.ok) {
                 throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -29,12 +29,12 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
 
             const normalizedSongs = data.map(song => ({
                 ...song,
-                id: song.id || song.public_id, // Usar public_id de Cloudinary si no hay id
+                id: song.id || song.public_id,
                 title: song.title || "Título desconocido",
                 artist: song.artist || "Artista desconocido",
                 thumbnail: song.thumbnail || generateThumbnailUrl(song.public_id) || ViniloDefault,
-                url: song.url, // URL directa de Cloudinary
-                source: 'cloudinary', // Cambiado de 'local' a 'cloudinary'
+                url: song.cloudinary_url,  // Cambiado a cloudinary_url
+                source: 'cloudinary',
                 duration: song.duration || 0
             }));
 
@@ -47,17 +47,15 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
         }
     };
 
-    // Generar URL de thumbnail desde Cloudinary
     const generateThumbnailUrl = (publicId) => {
         if (!publicId) return null;
-        return `https://res.cloudinary.com/dh5v8wspm/image/upload/w_300,h_300,c_thumb,g_faces/${publicId}.jpg`;
+        return `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_300,h_300,c_thumb,g_faces/${publicId}.jpg`;
     };
 
     const handlePlay = (song) => {
         if (onPlaySong) {
             onPlaySong({
                 ...song,
-                // Usar directamente la URL de Cloudinary
                 url: song.url,
                 source: 'cloudinary'
             });
@@ -82,11 +80,7 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
     };
 
     if (loading) {
-        return (
-            <div className="loading-container">
-                <p>Cargando tus canciones...</p>
-            </div>
-        );
+        return <div className="loading-container">Cargando tus canciones...</div>;
     }
 
     if (error) {
@@ -105,7 +99,6 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
                 <button
                     className="add-song-btn"
                     onClick={() => setShowAddSong(true)}
-                    aria-label="Agregar canción"
                 >
                     Agregar Canción
                 </button>

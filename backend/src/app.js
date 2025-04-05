@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import songsRouter from "./routes/songs.js";
 import { router as searchRouter } from "./routes/search.js";
 import myMusicRoutes from "./routes/myMusic.js";
-import multer from "multer";
 import axios from "axios";
 import { v2 as cloudinary } from 'cloudinary';
 
@@ -28,9 +27,7 @@ const allowedOrigins = [
 
 const corsOptions = {
     origin: function (origin, callback) {
-        // Permitir solicitudes sin origen (como Postman)
         if (!origin) return callback(null, true);
-
         if (allowedOrigins.includes(origin)) {
             return callback(null, true);
         } else {
@@ -43,80 +40,13 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 
-// Aplicar CORS solo una vez (elimina los middlewares adicionales)
 app.use(cors(corsOptions));
-
-// 2. Middleware para subida de archivos (multer)
-const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: {
-        fileSize: 50 * 1024 * 1024, // 50MB
-    },
-    fileFilter: (req, file, cb) => {
-        const audioMimeTypes = [
-            'audio/mpeg', 'audio/wav', 'audio/ogg',
-            'audio/x-m4a', 'audio/webm', 'audio/x-flac',
-            'audio/x-aiff', 'audio/x-wav'
-        ];
-        audioMimeTypes.includes(file.mimetype)
-            ? cb(null, true)
-            : cb(new Error('Solo se permiten archivos de audio (MP3, WAV, OGG, etc.)'), false);
-    }
-});
-
-// 3. Middleware para JSON
 app.use(express.json());
 
-// 4. Ruta de subida a Cloudinary
-app.post('/api/upload', upload.single('audio'), async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ error: "No se proporcionó ningún archivo" });
-        }
+// 2. Eliminada la configuración de multer (ya no es necesaria)
+// 3. Eliminada la ruta /api/upload (ahora está en myMusicRoutes)
 
-        const allowedMimeTypes = [
-            'audio/mpeg', 'audio/wav', 'audio/ogg',
-            'audio/x-m4a', 'audio/webm', 'audio/x-flac',
-            'audio/x-aiff', 'audio/x-wav'
-        ];
-
-        if (!allowedMimeTypes.includes(req.file.mimetype)) {
-            return res.status(400).json({
-                error: "Formato de audio no soportado",
-                formats_soportados: allowedMimeTypes
-            });
-        }
-
-        const fileExt = req.file.originalname.split('.').pop().toLowerCase();
-        const result = await cloudinary.uploader.upload(
-            `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`,
-            {
-                resource_type: 'auto',
-                format: fileExt,
-                allowed_formats: ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'webm', 'flac', 'aiff'],
-                use_filename: true,
-                unique_filename: false
-            }
-        );
-
-        res.json({
-            success: true,
-            url: result.secure_url,
-            public_id: result.public_id,
-            duration: result.duration,
-            format: result.format,
-            original_name: req.file.originalname
-        });
-    } catch (error) {
-        console.error("Error al subir el archivo:", error);
-        res.status(500).json({
-            error: "Error al subir el archivo a Cloudinary",
-            details: error.message
-        });
-    }
-});
-
-// 5. Búsqueda en YouTube
+// 4. Búsqueda en YouTube (sin cambios)
 app.get("/api/youtube-search", async (req, res) => {
     const { q } = req.query;
     try {
@@ -155,7 +85,7 @@ app.get("/api/youtube-search", async (req, res) => {
     }
 });
 
-// 6. Rutas adicionales
+// 5. Rutas adicionales
 app.use("/api/songs", songsRouter);
 app.use("/api/search", searchRouter);
 app.use("/api/mymusic", myMusicRoutes);
