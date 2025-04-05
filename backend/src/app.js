@@ -43,8 +43,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// 2. Eliminada la configuración de multer (ya no es necesaria)
-// 3. Eliminada la ruta /api/upload (ahora está en myMusicRoutes)
 
 // 4. Búsqueda en YouTube (sin cambios)
 app.get("/api/youtube-search", async (req, res) => {
