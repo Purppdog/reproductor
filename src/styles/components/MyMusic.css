@@ -1,79 +1,218 @@
+/* Contenedor principal */
+.my-music {
+    padding: 2rem;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    margin: 1.5rem auto;
+    max-width: 1200px;
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Encabezado */
 .header {
     display: flex;
     justify-content: space-between;
-    /* Alinea el título a la izquierda y el botón a la derecha */
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 15px;
 }
 
+.header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+    color: #e6e6e6;
+    position: relative;
+    display: inline-block;
+}
+
+.header h1::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: #4cc9f0;
+    border-radius: 3px;
+}
+
+/* Botón de agregar canción */
 .add-song-btn {
-    background-color: #17a74a;
-    /* Cambia este color según el diseño */
+    background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
     color: white;
     border: none;
-    padding: 10px 15px;
-    font-size: 14px;
-    font-weight: bold;
-    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
 }
 
 .add-song-btn:hover {
-    background-color: #cc5500;
-    /* Color más oscuro al pasar el mouse */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+    background: linear-gradient(135deg, #3aa8d8 0%, #3a56e8 100%);
 }
 
-.song-thumbnail {
-    background-image: url('../assets/images/VINILO.jpeg');
-    background-size: cover;
+.add-song-btn:active {
+    transform: translateY(0);
 }
 
+.add-song-btn::before {
+    content: '+';
+    font-size: 1.2rem;
+}
+
+/* Grid de canciones */
+.song-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* Mensaje cuando no hay canciones */
 .no-songs-message {
     text-align: center;
-    font-size: 1rem;
-    /* Usar unidades relativas */
-    font-weight: 500;
-    /* Peso semi-bold para mejor legibilidad */
-    color: #ffffff;
-    margin: 2rem auto;
-    /* Más espacio vertical y centrado horizontal */
-    padding: 0 1rem;
-    /* Padding lateral para evitar bordes pegados */
-    min-height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1.5;
-    /* Mejor espaciado entre líneas */
-    width: 90%;
-    /* Ancho relativo para adaptarse a pantallas pequeñas */
+    grid-column: 1 / -1;
+    padding: 3rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    margin: 1rem 0;
 }
 
 .no-songs-message p {
-    margin: 0;
-    /* Eliminar margen por defecto del párrafo */
-    max-width: 100%;
-    /* Evitar desbordamiento */
-    word-break: break-word;
-    /* Romper palabras largas si es necesario */
+    font-size: 1.1rem;
+    color: #a1a1a1;
+    margin-bottom: 1.5rem;
 }
 
-/* Ajustes específicos para móviles pequeños */
+.no-songs-message button {
+    background: rgba(255, 255, 255, 0.1);
+    color: #4cc9f0;
+    border: 1px solid #4cc9f0;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.no-songs-message button:hover {
+    background: rgba(76, 201, 240, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: #1a1a2e;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Efectos de hover para las tarjetas de canción */
+.song-card-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .song-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .add-song-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+}
+
 @media (max-width: 480px) {
+    .my-music {
+        padding: 1.5rem 1rem;
+    }
+
+    .song-grid {
+        grid-template-columns: 1fr;
+    }
+
     .no-songs-message {
-        font-size: 0.9rem;
-        /* Tamaño ligeramente menor para móviles */
-        margin: 1.5rem auto;
-        width: 95%;
-        /* Más ancho en pantallas pequeñas */
+        padding: 2rem 1rem;
     }
 }
 
-/* Tablets y pantallas medianas */
-@media (min-width: 481px) and (max-width: 768px) {
-    .no-songs-message {
-        font-size: 1rem;
-        margin: 1.75rem auto;
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.song-grid {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Scroll personalizado */
+.song-grid-container {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.song-grid-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.song-grid-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.song-grid-container::-webkit-scrollbar-thumb {
+    background: #4cc9f0;
+    border-radius: 10px;
+}
+
+.song-grid-container::-webkit-scrollbar-thumb:hover {
+    background: #3aa8d8;
 }

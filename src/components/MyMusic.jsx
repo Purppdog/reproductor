@@ -1,48 +1,65 @@
-import { useState, useEffect, _useRef } from "react";
+import { useState, useEffect } from "react";
 import { Howl } from "howler";
 import SongCard from "./SongCard";
 import AddSong from "./AddSong";
 import Modal from "./Modal";
 import ViniloDefault from '../assets/images/VINILO.jpeg';
-import '../styles/components/MyMusic.css';
 
 export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlaying }) {
     const [songs, setSongs] = useState([]);
     const [showAddSong, setShowAddSong] = useState(false);
-    //const [localProgress, setLocalProgress] = useState(0);
-    //const progressInterval = useRef(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         fetchSongs();
     }, []);
 
     const fetchSongs = async () => {
+        setLoading(true);
+        setError(null);
         try {
             const response = await fetch("http://localhost:3001/api/mymusic");
+
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+
             const data = await response.json();
 
             const normalizedSongs = data.map(song => ({
                 ...song,
+                id: song.id || song.public_id, // Usar public_id de Cloudinary si no hay id
                 title: song.title || "Título desconocido",
                 artist: song.artist || "Artista desconocido",
-                thumbnail: song.thumbnail || null,
-                file_path: song.file_path || "",
-                source: 'local',
+                thumbnail: song.thumbnail || generateThumbnailUrl(song.public_id) || ViniloDefault,
+                url: song.url, // URL directa de Cloudinary
+                source: 'cloudinary', // Cambiado de 'local' a 'cloudinary'
                 duration: song.duration || 0
             }));
 
             setSongs(normalizedSongs);
-        } catch (error) {
-            console.error("Error al obtener las canciones:", error);
+        } catch (err) {
+            console.error("Error al obtener las canciones:", err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
+    };
+
+    // Generar URL de thumbnail desde Cloudinary
+    const generateThumbnailUrl = (publicId) => {
+        if (!publicId) return null;
+        return `https://res.cloudinary.com/dh5v8wspm/image/upload/w_300,h_300,c_thumb,g_faces/${publicId}.jpg`;
     };
 
     const handlePlay = (song) => {
         if (onPlaySong) {
             onPlaySong({
                 ...song,
-                url: `http://localhost:3001/uploads/${song.file_path}`,
-                source: 'local'
+                // Usar directamente la URL de Cloudinary
+                url: song.url,
+                source: 'cloudinary'
             });
         }
     };
@@ -51,10 +68,40 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
         return currentPlayingSong?.id === song.id && isGlobalPlaying;
     };
 
+    const handleSongAdded = (newSong) => {
+        setSongs(prev => [
+            {
+                ...newSong,
+                id: newSong.public_id,
+                thumbnail: generateThumbnailUrl(newSong.public_id),
+                source: 'cloudinary'
+            },
+            ...prev
+        ]);
+        setShowAddSong(false);
+    };
+
+    if (loading) {
+        return (
+            <div className="loading-container">
+                <p>Cargando tus canciones...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="error-container">
+                <p>Error al cargar las canciones: {error}</p>
+                <button onClick={fetchSongs}>Reintentar</button>
+            </div>
+        );
+    }
+
     return (
         <div className="my-music">
             <div className="header">
-                <h1>Mis Canciones</h1>
+                <h1>Mi Biblioteca Musical</h1>
                 <button
                     className="add-song-btn"
                     onClick={() => setShowAddSong(true)}
@@ -66,13 +113,7 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
 
             {showAddSong && (
                 <Modal onClose={() => setShowAddSong(false)}>
-                    <AddSong
-                        onSongAdded={(songName) => {
-                            setShowAddSong(false);
-                            alert(`Canción "${songName}" agregada correctamente`);
-                            fetchSongs();
-                        }}
-                    />
+                    <AddSong onSongAdded={handleSongAdded} />
                 </Modal>
             )}
 
@@ -87,12 +128,15 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
                             }}
                             isPlaying={isSongPlaying(song)}
                             onPlay={() => handlePlay(song)}
-                            onPause={() => onPlaySong?.(null)} // Pausar la reproducción
+                            onPause={() => onPlaySong?.(null)}
                         />
                     ))
                 ) : (
                     <div className="no-songs-message">
-                        <p>No hay canciones disponibles</p>
+                        <p>No hay canciones en tu biblioteca</p>
+                        <button onClick={() => setShowAddSong(true)}>
+                            Agrega tu primera canción
+                        </button>
                     </div>
                 )}
             </div>

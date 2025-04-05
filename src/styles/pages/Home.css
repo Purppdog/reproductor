@@ -1,102 +1,166 @@
-/* styles/pages/Home.css */
+/* styles/pages/Home.css - Versión Profesional */
+
+/* Variables CSS consistentes con SongList */
+:root {
+    --primary-color: #1db954;
+    --dark-bg: #121212;
+    --card-bg: #181818;
+    --hover-bg: #282828;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --text-tertiary: #a0a0a0;
+    --border-radius: 8px;
+    --transition-speed: 0.3s;
+    --youtube-red: #f00;
+    --player-height: 80px;
+}
+
+/* Contenedor principal */
 .home-container {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding-bottom: 80px;
-    background-color: #121212;
-    color: white;
+    padding-bottom: var(--player-height);
+    background-color: var(--dark-bg);
+    color: var(--text-primary);
+    position: relative;
 }
 
-/* 🔍 Barra de búsqueda */
+/* 🔍 Barra de búsqueda - Estilo Premium */
 .search-container {
-    padding: 15px;
+    padding: 1rem;
     position: sticky;
     top: 0;
-    background: var(--background-color, #181818);
-    z-index: 10;
-    border-bottom: 1px solid #333;
+    background: var(--card-bg);
+    z-index: 20;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all var(--transition-speed);
+}
+
+.search-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 2px var(--primary-color);
 }
 
 .search-tabs {
     display: flex;
-    margin-top: 10px;
-    gap: 5px;
+    margin-top: 1rem;
+    gap: 0.5rem;
 }
 
 .search-tabs button {
     flex: 1;
-    padding: 8px;
+    padding: 0.75rem;
     border: none;
-    background: #333;
-    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
     cursor: pointer;
-    border-radius: 4px;
-    transition: background 0.2s, transform 0.1s;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    transition: all var(--transition-speed);
 }
 
 .search-tabs button:hover {
-    background: #444;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
 }
 
 .search-tabs button.active {
-    background: #1db954;
-    font-weight: bold;
-    transform: scale(1.05);
+    background: var(--primary-color);
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
 }
 
-/* 🎥 Contenido YouTube */
+/* 🎥 Contenido YouTube - Estilo Premium */
 .youtube-content {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    margin-top: 1rem;
+    gap: 2.5rem;
+    margin-top: 1.5rem;
     width: 100%;
+    padding: 0 1.5rem;
+    animation: fadeIn 0.5s ease-out;
 }
 
 .youtube-player-container {
     width: 100%;
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .youtube-player-container iframe {
     width: 100%;
-    height: 390px;
+    height: 500px;
     border: none;
+    display: block;
 }
 
-/* 🎵 Lista de videos */
+/* 🎵 Lista de videos - Integración consistente con SongList */
 .youtube-list-section {
     width: 100%;
-    padding: 0 1rem;
-    overflow: hidden;
+    padding: 0 1.5rem;
+    margin: 2rem 0;
 }
 
 .section-title {
-    color: #fff;
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-    padding-left: 0.5rem;
-    border-left: 4px solid #f00;
+    color: var(--text-primary);
+    margin-bottom: 1.75rem;
+    font-size: 1.75rem;
+    padding-left: 1rem;
+    border-left: 4px solid var(--youtube-red);
+    font-weight: 700;
+    position: relative;
 }
 
-/* 🔥 Corrección para SongList */
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 1rem;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--youtube-red), transparent);
+}
+
+/* 🔥 Integración mejorada con SongList */
 .youtube-list-section .song-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.75rem;
     width: 100%;
     padding: 0;
 }
 
 .youtube-list-section .song-card {
-    background: #282828;
-    border-radius: 8px;
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
     overflow: hidden;
-    transition: transform 0.2s;
+    transition: all var(--transition-speed) cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.youtube-list-section .song-card:hover {
+    transform: translateY(-5px);
+    background: var(--hover-bg);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
 }
 
 .youtube-list-section .thumbnail-container {
@@ -104,95 +168,168 @@
     width: 100%;
     aspect-ratio: 16/9;
     overflow: hidden;
+    background: #000;
 }
 
 .youtube-list-section .song-thumbnail {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s;
+    transition: transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 
 .youtube-list-section .song-card:hover .song-thumbnail {
-    transform: scale(1.05);
+    transform: scale(1.08);
 }
 
 .youtube-list-section .song-info {
-    padding: 12px;
+    padding: 1.25rem;
 }
 
 .youtube-list-section .song-title {
-    font-size: 1rem;
-    font-weight: 500;
-    color: white;
-    margin: 0 0 8px 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     line-height: 1.4;
-    height: 2.8em;
 }
 
 .youtube-list-section .song-artist {
     font-size: 0.875rem;
-    color: #aaa;
+    color: var(--text-secondary);
     margin: 0;
+    transition: color var(--transition-speed);
+}
+
+.youtube-list-section .song-card:hover .song-artist {
+    color: var(--text-primary);
 }
 
 .youtube-list-section .song-stats {
     display: flex;
-    gap: 8px;
-    color: #aaa;
+    gap: 0.75rem;
+    color: var(--text-tertiary);
     font-size: 0.75rem;
-    margin-top: 8px;
+    margin-top: 0.75rem;
+    align-items: center;
+}
+
+.youtube-list-section .song-stats span {
+    display: flex;
+    align-items: center;
+    transition: color var(--transition-speed);
+}
+
+.youtube-list-section .song-card:hover .song-stats span {
+    color: var(--text-secondary);
 }
 
 .youtube-list-section .song-stats span:not(:last-child)::after {
     content: "•";
-    margin-left: 8px;
+    margin-left: 0.75rem;
+    color: rgba(255, 255, 255, 0.2);
 }
 
-/* 🎵 Player Controls */
+/* 🎵 Player Controls - Estilo Premium */
 .player-controls {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    background: #181818;
-    border-top: 1px solid #333;
-    padding: 10px 0;
+    background: rgba(24, 24, 24, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 0;
     z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--player-height);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* 📱 Responsive */
+/* 📱 Responsive Design - Mejorado */
+@media (max-width: 1200px) {
+    .youtube-player-container iframe {
+        height: 450px;
+    }
+}
+
 @media (max-width: 1024px) {
     .youtube-player-container iframe {
-        height: 350px;
+        height: 400px;
+    }
+
+    .youtube-list-section .song-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     }
 }
 
 @media (max-width: 768px) {
-    .youtube-list-section .song-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    .youtube-content {
+        padding: 0 1rem;
+        gap: 2rem;
     }
 
     .youtube-player-container iframe {
-        height: 300px;
+        height: 350px;
+    }
+
+    .youtube-list-section .song-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
     }
 }
 
-@media (max-width: 480px) {
-    .youtube-list-section .song-grid {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 1rem;
+@media (max-width: 576px) {
+    .youtube-player-container iframe {
+        height: 250px;
     }
 
+    .youtube-list-section .song-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .search-tabs button {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 400px) {
     .youtube-player-container iframe {
         height: 200px;
     }
 
-    .youtube-list-section .song-title {
-        font-size: 0.875rem;
+    .youtube-list-section .song-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+/* Animaciones consistentes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

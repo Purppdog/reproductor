@@ -1,15 +1,12 @@
-import { useRef, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute, FaStepForward, FaStepBackward } from 'react-icons/fa';
 import ViniloDefault from '../assets/images/VINILO.jpeg';
-import '../styles/components/PlayerControls.css';
 
 export default function PlayerControls({
     currentSong,
     isPlaying,
-    onPlay,
-    onPause,
-    onNext,
     onPlayPause,
+    onNext,
     onPrevious,
     progress,
     currentTime = 0,
@@ -17,79 +14,20 @@ export default function PlayerControls({
     onProgressChange,
     onVolumeChange,
     volume = 0.7,
-    isYouTubePlayer = false,
     onToggleMute,
-    isMuted
+    isMuted = false
 }) {
-    const youtubePlayerRef = useRef(null);
+    const progressRef = useRef(null);
     const volumeBeforeMute = useRef(volume);
-    const safeVolume = Math.max(0, Math.min(volume, 1));
 
+    // Efecto para manejar cambios de volumen
     useEffect(() => {
-        if (isYouTubePlayer && youtubePlayerRef.current) {
-            youtubePlayerRef.current.setVolume(isMuted ? 0 : safeVolume * 100);
+        if (isMuted && volume > 0) {
+            volumeBeforeMute.current = volume;
         }
-    }, [safeVolume, isMuted, isYouTubePlayer]);
+    }, [volume, isMuted]);
 
-    useEffect(() => {
-        if (!isYouTubePlayer || !currentSong) return;
-
-        const loadYouTubeAPI = () => {
-            if (!window.YT) {
-                const tag = document.createElement('script');
-                tag.src = "https://www.youtube.com/iframe_api";
-                const firstScript = document.getElementsByTagName('script')[0];
-                firstScript.parentNode.insertBefore(tag, firstScript);
-            }
-
-            window.onYouTubeIframeAPIReady = initializePlayer;
-        };
-
-        const initializePlayer = () => {
-            youtubePlayerRef.current = new window.YT.Player('youtube-player', {
-                videoId: currentSong.id,
-                playerVars: {
-                    autoplay: isPlaying ? 1 : 0,
-                    controls: 0,
-                    disablekb: 1,
-                    modestbranding: 1,
-                    rel: 0
-                },
-                events: {
-                    onReady: (e) => {
-                        e.target.setVolume(isMuted ? 0 : safeVolume * 100);
-                        if (isPlaying) e.target.playVideo();
-                    },
-                    onStateChange: handlePlayerStateChange
-                }
-            });
-        };
-
-        loadYouTubeAPI();
-
-        return () => {
-            if (youtubePlayerRef.current) {
-                youtubePlayerRef.current.destroy();
-            }
-        };
-    }, [currentSong?.id, isYouTubePlayer]);
-
-    const handlePlayerStateChange = (event) => {
-        switch (event.data) {
-            case window.YT.PlayerState.PLAYING:
-                onPlay();
-                break;
-            case window.YT.PlayerState.PAUSED:
-                onPause();
-                break;
-            case window.YT.PlayerState.ENDED:
-                onNext();
-                break;
-            default:
-                break;
-        }
-    };
-
+    // Formatear tiempo (mm:ss)
     const formatTime = (seconds) => {
         if (!seconds || isNaN(seconds)) return "0:00";
         const minutes = Math.floor(seconds / 60);
@@ -97,68 +35,56 @@ export default function PlayerControls({
         return `${minutes}:${secs.toString().padStart(2, "0")}`;
     };
 
-    const handleTogglePlay = () => {
-        onPlayPause();
-
-        // Opcional: Mantén el control de YouTube si lo necesitas
-        if (isYouTubePlayer && youtubePlayerRef.current) {
-            isPlaying
-                ? youtubePlayerRef.current.pauseVideo()
-                : youtubePlayerRef.current.playVideo();
-        }
-    };
-
+    // Manejar cambio de progreso
     const handleSeek = (e) => {
         const newProgress = parseFloat(e.target.value);
-        if (isYouTubePlayer && youtubePlayerRef.current) {
-            const seekTo = (newProgress / 100) * youtubePlayerRef.current.getDuration();
-            youtubePlayerRef.current.seekTo(seekTo, true);
-        }
         onProgressChange(newProgress);
     };
 
-    const handleVolumeAdjust = (e) => {
+    // Manejar cambio de volumen
+    const handleVolumeChange = (e) => {
         const newVolume = parseFloat(e.target.value);
-        if (onVolumeChange) onVolumeChange(newVolume);
+        onVolumeChange(newVolume);
+
+        // Desmutear si se ajusta el volumen
         if (isMuted && newVolume > 0 && onToggleMute) {
             onToggleMute();
         }
     };
 
-    const handleMuteToggle = () => {
+    // Manejar mute/unmute
+    const handleToggleMute = () => {
         if (onToggleMute) {
             onToggleMute();
-        } else {
-            if (isMuted) {
-                onVolumeChange?.(volumeBeforeMute.current);
-            } else {
-                volumeBeforeMute.current = safeVolume;
-                onVolumeChange?.(0);
-            }
         }
     };
 
     if (!currentSong) return null;
 
     return (
-        <div className="player-controls">
-            {isYouTubePlayer && <div id="youtube-player" style={{ display: 'none' }} />}
-
-            {/* Sección izquierda - Info de canción */}
+        <div className={`player-controls ${isPlaying ? 'is-playing' : ''}`}>
+            {/* Información de la canción */}
             <div className="song-info">
                 <img
                     src={currentSong.thumbnail || ViniloDefault}
                     alt={`Portada de ${currentSong.title}`}
                     className="song-thumbnail"
-                    onError={(e) => { e.target.src = ViniloDefault }}
+                    onError={(e) => {
+                        e.target.src = ViniloDefault;
+                        e.target.classList.add('default-thumbnail');
+                    }}
                 />
                 <div className="song-text-container">
-                    <p className="song-title">{currentSong.title}</p>
-                    <p className="song-artist">{currentSong.artist || 'Artista desconocido'}</p>
+                    <p className="song-title" title={currentSong.title}>
+                        {currentSong.title}
+                    </p>
+                    <p className="song-artist" title={currentSong.artist}>
+                        {currentSong.artist || 'Artista desconocido'}
+                    </p>
                 </div>
             </div>
 
-            {/* Sección central - Controles de reproducción */}
+            {/* Controles de reproducción */}
             <div className="playback-controls">
                 <div className="transport-controls">
                     <button
@@ -168,7 +94,11 @@ export default function PlayerControls({
                     >
                         <FaStepBackward />
                     </button>
-                    <button onClick={handleTogglePlay}>
+                    <button
+                        onClick={onPlayPause}
+                        className="play-pause-button"
+                        aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
+                    >
                         {isPlaying ? <FaPause /> : <FaPlay />}
                     </button>
                     <button
@@ -179,9 +109,12 @@ export default function PlayerControls({
                         <FaStepForward />
                     </button>
                 </div>
+
+                {/* Barra de progreso */}
                 <div className="progress-container">
                     <span className="time-display">{formatTime(currentTime)}</span>
                     <input
+                        ref={progressRef}
                         type="range"
                         min="0"
                         max="100"
@@ -194,10 +127,10 @@ export default function PlayerControls({
                 </div>
             </div>
 
-            {/* Sección derecha - Control de volumen */}
+            {/* Control de volumen */}
             <div className="volume-controls">
                 <button
-                    onClick={handleMuteToggle}
+                    onClick={handleToggleMute}
                     className="volume-button"
                     aria-label={isMuted ? 'Desmutear' : 'Mutear'}
                 >
@@ -208,8 +141,8 @@ export default function PlayerControls({
                     min="0"
                     max="1"
                     step="0.01"
-                    value={isMuted ? 0 : safeVolume}
-                    onChange={handleVolumeAdjust}
+                    value={isMuted ? 0 : volume}
+                    onChange={handleVolumeChange}
                     className="volume-slider"
                     aria-label="Control de volumen"
                 />
