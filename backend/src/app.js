@@ -23,7 +23,6 @@ const allowedOrigins = [
     'http://localhost:5173',
     'https://reproductor-ivory.vercel.app',
     'https://reproductornicolas.onrender.com'
-
 ];
 
 const corsOptions = {
@@ -41,9 +40,10 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 
+// Aumentar límite de payload a 15MB
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ limit: '15mb', extended: true }));
 app.use(cors(corsOptions));
-app.use(express.json());
-
 
 // 4. Búsqueda en YouTube (sin cambios)
 app.get("/api/youtube-search", async (req, res) => {

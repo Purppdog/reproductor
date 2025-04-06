@@ -16,10 +16,10 @@ export default function AddSong({ onSongAdded }) {
             return;
         }
 
-        // Validar tamaño del archivo (10MB máximo)
-        const MAX_FILE_SIZE = 10 * 1024 * 1024;
+        // Validar tamaño del archivo (15MB máximo)
+        const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
         if (file.size > MAX_FILE_SIZE) {
-            setError("El archivo es demasiado grande (máximo 10MB)");
+            setError("El archivo es demasiado grande (máximo 15MB)");
             return;
         }
 
