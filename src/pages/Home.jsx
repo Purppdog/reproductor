@@ -29,64 +29,176 @@ export default function Home() {
     const volumeBeforeMute = useRef(volume);
     const searchController = useRef(null);
 
-    // Cargar canciones iniciales
-    useEffect(() => {
-        const fetchLibrary = async () => {
-            try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`);
-                const data = await response.json();
-
-                setSongs(data.map(song => ({
-                    ...song,
-                    id: song.id || song.public_id,
-                    source: 'cloudinary',
-                    thumbnail: song.thumbnail || generateCloudinaryThumbnail(song.public_id),
-                    url: song.url || generateCloudinaryAudioUrl(song.public_id)
-                })));
-            } catch (err) {
-                setError({ library: err.message });
-            } finally {
-                setLoading(prev => ({ ...prev, library: false }));
-            }
-        };
-
-        fetchLibrary();
-    }, []);
-
-    // Generar URL de audio desde Cloudinary
+    // Helper functions
     const generateCloudinaryAudioUrl = (publicId) => {
         if (!publicId) return null;
         return `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/video/upload/${publicId}`;
     };
 
-    // Generar thumbnail desde Cloudinary con fallback
     const generateCloudinaryThumbnail = (publicId) => {
         if (!publicId) return null;
         return `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_300,h_300,c_fill/${publicId}.jpg`;
     };
 
-    // Limpieza al desmontar
-    useEffect(() => {
-        return () => {
-            if (soundRef.current) {
-                soundRef.current.unload();
-                soundRef.current = null;
-            }
-            stopProgressTracker();
-            if (searchController.current) {
-                searchController.current.abort();
-            }
-        };
+    const formatViews = (views) => {
+        if (!views) return "0 vistas";
+        const num = typeof views === 'string' ? parseInt(views.replace(/\D/g, '')) : views;
+        return num.toLocaleString() + " vistas";
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return "";
+        return new Date(dateString).toLocaleDateString('es-ES');
+    };
+
+    // Playback control functions
+    const stopProgressTracker = useCallback(() => {
+        clearInterval(progressInterval.current);
+        progressInterval.current = null;
     }, []);
 
-    // Detener audio local al cambiar a YouTube
-    useEffect(() => {
-        if (activeTab === 'youtube' && currentSong?.source !== 'youtube') {
-            stopCurrentPlayback();
-        }
-    }, [activeTab]);
+    const startProgressTracker = useCallback(() => {
+        stopProgressTracker();
+        progressInterval.current = setInterval(() => {
+            if (soundRef.current?.playing()) {
+                const seek = soundRef.current.seek();
+                const duration = soundRef.current.duration();
+                if (duration > 0) {
+                    setProgress((seek / duration) * 100);
+                }
+            }
+        }, 200);
+    }, [stopProgressTracker]);
 
-    // Buscar en YouTube con cancelación
+    const stopCurrentPlayback = useCallback(() => {
+        if (soundRef.current) {
+            soundRef.current.stop();
+            soundRef.current.unload();
+            soundRef.current = null;
+        }
+        stopProgressTracker();
+        setIsPlaying(false);
+    }, [stopProgressTracker]);
+
+    // Song navigation
+    const getNextSong = useCallback(() => {
+        const list = activeTab === 'library' ? songs : youtubeResults;
+        if (!list.length) return null;
+        const currentIndex = list.findIndex(s => s.id === currentSong?.id);
+        return list[(currentIndex + 1) % list.length];
+    }, [currentSong, activeTab, songs, youtubeResults]);
+
+    const handleNext = useCallback(() => {
+        const nextSong = getNextSong();
+        if (nextSong) handlePlaySong(nextSong);
+    }, [getNextSong, handlePlaySong]);
+
+    const handlePrevious = useCallback(() => {
+        const list = activeTab === 'library' ? songs : youtubeResults;
+        if (!list.length) return;
+        const currentIndex = list.findIndex(s => s.id === currentSong?.id);
+        const prevIndex = (currentIndex - 1 + list.length) % list.length;
+        handlePlaySong(list[prevIndex]);
+    }, [currentSong, activeTab, songs, youtubeResults, handlePlaySong]);
+
+    // Volume control
+    const handleVolumeChange = useCallback((newVolume) => {
+        const vol = Math.max(0, Math.min(newVolume, 1));
+        setVolume(vol);
+        if (soundRef.current) soundRef.current.volume(isMuted ? 0 : vol);
+        if (isMuted && vol > 0) setIsMuted(false);
+    }, [isMuted]);
+
+    const toggleMute = useCallback(() => {
+        if (isMuted) {
+            handleVolumeChange(volumeBeforeMute.current);
+        } else {
+            volumeBeforeMute.current = volume;
+            handleVolumeChange(0);
+        }
+        setIsMuted(!isMuted);
+    }, [isMuted, volume, handleVolumeChange]);
+
+    // Play/pause control
+    const handlePlayPause = useCallback(() => {
+        if (!currentSong) return;
+
+        if (currentSong.source === 'youtube') {
+            setIsPlaying(!isPlaying);
+        } else {
+            if (isPlaying) {
+                soundRef.current?.pause();
+                setIsPlaying(false);
+                stopProgressTracker();
+            } else {
+                if (soundRef.current) {
+                    soundRef.current.play();
+                } else {
+                    playAudio(currentSong);
+                }
+                setIsPlaying(true);
+                startProgressTracker();
+            }
+        }
+    }, [currentSong, isPlaying, playAudio, startProgressTracker, stopProgressTracker]);
+
+    // Audio playback
+    const playAudio = useCallback((song) => {
+        stopCurrentPlayback();
+
+        soundRef.current = new Howl({
+            src: [song.url],
+            html5: true,
+            volume: isMuted ? 0 : volume,
+            onplay: () => {
+                setIsPlaying(true);
+                startProgressTracker();
+                if (!currentSong?.duration) {
+                    setCurrentSong(prev => ({
+                        ...prev,
+                        duration: soundRef.current.duration()
+                    }));
+                }
+            },
+            onpause: () => setIsPlaying(false),
+            onend: () => handleNext(),
+            onloaderror: (_, err) => {
+                console.error('Error al cargar audio:', err);
+                setError({ playback: 'Error al cargar el audio' });
+                setIsPlaying(false);
+            },
+            onplayerror: () => {
+                console.error('Error al reproducir audio');
+                setError({ playback: 'Error al reproducir el audio' });
+                setIsPlaying(false);
+            }
+        });
+
+        soundRef.current.play();
+    }, [volume, isMuted, currentSong?.duration, handleNext, startProgressTracker, stopCurrentPlayback]);
+
+    // Main play control
+    const handlePlaySong = useCallback((song) => {
+        if (!song) return;
+
+        if (currentSong && currentSong.id !== song.id) {
+            if (currentSong.source !== 'youtube') {
+                stopCurrentPlayback();
+            }
+            setIsPlaying(false);
+        }
+
+        setCurrentSong(song);
+        setProgress(0);
+
+        if (song.source === 'youtube') {
+            setIsPlaying(true);
+        } else {
+            playAudio(song);
+        }
+    }, [currentSong, playAudio, stopCurrentPlayback]);
+
+    // YouTube search
     const searchYouTube = useCallback(async (query) => {
         if (!query.trim()) {
             setYoutubeResults([]);
@@ -129,7 +241,49 @@ export default function Home() {
         }
     }, []);
 
-    // Búsqueda con debounce
+    // Effects
+    useEffect(() => {
+        const fetchLibrary = async () => {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`);
+                const data = await response.json();
+
+                setSongs(data.map(song => ({
+                    ...song,
+                    id: song.id || song.public_id,
+                    source: 'cloudinary',
+                    thumbnail: song.thumbnail || generateCloudinaryThumbnail(song.public_id),
+                    url: song.url || generateCloudinaryAudioUrl(song.public_id)
+                })));
+            } catch (err) {
+                setError({ library: err.message });
+            } finally {
+                setLoading(prev => ({ ...prev, library: false }));
+            }
+        };
+
+        fetchLibrary();
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            if (soundRef.current) {
+                soundRef.current.unload();
+                soundRef.current = null;
+            }
+            stopProgressTracker();
+            if (searchController.current) {
+                searchController.current.abort();
+            }
+        };
+    }, [stopProgressTracker]);
+
+    useEffect(() => {
+        if (activeTab === 'youtube' && currentSong?.source !== 'youtube') {
+            stopCurrentPlayback();
+        }
+    }, [activeTab, currentSong?.source, stopCurrentPlayback]);
+
     useEffect(() => {
         const timer = setTimeout(() => {
             if (activeTab === 'youtube') searchYouTube(searchQuery);
@@ -137,165 +291,6 @@ export default function Home() {
 
         return () => clearTimeout(timer);
     }, [searchQuery, activeTab, searchYouTube]);
-
-    // Reproducción de audio (Howler)
-    const playAudio = useCallback((song) => {
-        stopCurrentPlayback();
-
-        soundRef.current = new Howl({
-            src: [song.url],
-            html5: true,
-            volume: isMuted ? 0 : volume,
-            onplay: () => {
-                setIsPlaying(true);
-                startProgressTracker();
-                if (!currentSong?.duration) {
-                    setCurrentSong(prev => ({
-                        ...prev,
-                        duration: soundRef.current.duration()
-                    }));
-                }
-            },
-            onpause: () => setIsPlaying(false),
-            onend: () => handleNext(),
-            onloaderror: (_, err) => {
-                console.error('Error al cargar audio:', err);
-                setError({ playback: 'Error al cargar el audio' });
-                setIsPlaying(false);
-            },
-            onplayerror: () => {
-                console.error('Error al reproducir audio');
-                setError({ playback: 'Error al reproducir el audio' });
-                setIsPlaying(false);
-            }
-        });
-
-        soundRef.current.play();
-    }, [volume, isMuted, currentSong?.duration, handleNext]);
-
-    // Control principal de reproducción
-    const handlePlaySong = useCallback((song) => {
-        if (!song) return;
-
-        if (currentSong && currentSong.id !== song.id) {
-            if (currentSong.source !== 'youtube') {
-                stopCurrentPlayback();
-            }
-            setIsPlaying(false);
-        }
-
-        setCurrentSong(song);
-        setProgress(0);
-
-        if (song.source === 'youtube') {
-            setIsPlaying(true);
-        } else {
-            playAudio(song);
-        }
-    }, [currentSong, playAudio]);
-
-    // Navegación entre canciones
-    const getNextSong = useCallback(() => {
-        const list = activeTab === 'library' ? songs : youtubeResults;
-        if (!list.length) return null;
-        const currentIndex = list.findIndex(s => s.id === currentSong?.id);
-        return list[(currentIndex + 1) % list.length];
-    }, [currentSong, activeTab, songs, youtubeResults]);
-
-    const handleNext = useCallback(() => {
-        const nextSong = getNextSong();
-        if (nextSong) handlePlaySong(nextSong);
-    }, [getNextSong, handlePlaySong]);
-
-    const handlePrevious = useCallback(() => {
-        const list = activeTab === 'library' ? songs : youtubeResults;
-        if (!list.length) return;
-        const currentIndex = list.findIndex(s => s.id === currentSong?.id);
-        const prevIndex = (currentIndex - 1 + list.length) % list.length;
-        handlePlaySong(list[prevIndex]);
-    }, [currentSong, activeTab, songs, youtubeResults, handlePlaySong]);
-
-    // Control de progreso (Howler)
-    const startProgressTracker = useCallback(() => {
-        stopProgressTracker();
-        progressInterval.current = setInterval(() => {
-            if (soundRef.current?.playing()) {
-                const seek = soundRef.current.seek();
-                const duration = soundRef.current.duration();
-                if (duration > 0) {
-                    setProgress((seek / duration) * 100);
-                }
-            }
-        }, 200);
-    }, []);
-
-    const stopProgressTracker = useCallback(() => {
-        clearInterval(progressInterval.current);
-        progressInterval.current = null;
-    }, []);
-
-    const stopCurrentPlayback = useCallback(() => {
-        if (soundRef.current) {
-            soundRef.current.stop();
-            soundRef.current.unload();
-            soundRef.current = null;
-        }
-        stopProgressTracker();
-        setIsPlaying(false);
-    }, []);
-
-    // Control de volumen
-    const handleVolumeChange = useCallback((newVolume) => {
-        const vol = Math.max(0, Math.min(newVolume, 1));
-        setVolume(vol);
-        if (soundRef.current) soundRef.current.volume(isMuted ? 0 : vol);
-        if (isMuted && vol > 0) setIsMuted(false);
-    }, [isMuted]);
-
-    const toggleMute = useCallback(() => {
-        if (isMuted) {
-            handleVolumeChange(volumeBeforeMute.current);
-        } else {
-            volumeBeforeMute.current = volume;
-            handleVolumeChange(0);
-        }
-        setIsMuted(!isMuted);
-    }, [isMuted, volume, handleVolumeChange]);
-
-    // Control de play/pause
-    const handlePlayPause = useCallback(() => {
-        if (!currentSong) return;
-
-        if (currentSong.source === 'youtube') {
-            setIsPlaying(!isPlaying);
-        } else {
-            if (isPlaying) {
-                soundRef.current?.pause();
-                setIsPlaying(false);
-                stopProgressTracker();
-            } else {
-                if (soundRef.current) {
-                    soundRef.current.play();
-                } else {
-                    playAudio(currentSong);
-                }
-                setIsPlaying(true);
-                startProgressTracker();
-            }
-        }
-    }, [currentSong, isPlaying, playAudio, startProgressTracker, stopProgressTracker]);
-
-    // Funciones auxiliares
-    const formatViews = (views) => {
-        if (!views) return "0 vistas";
-        const num = typeof views === 'string' ? parseInt(views.replace(/\D/g, '')) : views;
-        return num.toLocaleString() + " vistas";
-    };
-
-    const formatDate = (dateString) => {
-        if (!dateString) return "";
-        return new Date(dateString).toLocaleDateString('es-ES');
-    };
 
     return (
         <div className="home-container">
