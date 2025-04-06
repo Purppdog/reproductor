@@ -32,7 +32,7 @@ export default function Home() {
     const handleNextRef = useRef();
     const handlePlaySongRef = useRef();
 
-    // Funciones helper (sin dependencias)
+    // Funciones helper
     const generateCloudinaryAudioUrl = (publicId) => {
         if (!publicId) return null;
         return `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/video/upload/${publicId}`;
@@ -54,7 +54,7 @@ export default function Home() {
         return new Date(dateString).toLocaleDateString('es-ES');
     };
 
-    // Funciones de control de reproducción
+    // Control de progreso
     const stopProgressTracker = useCallback(() => {
         clearInterval(progressInterval.current);
         progressInterval.current = null;
@@ -83,32 +83,36 @@ export default function Home() {
         setIsPlaying(false);
     }, [stopProgressTracker]);
 
-    // Función principal de reproducción (definida primero)
+    // Manejo de reproducción
     const handlePlaySong = useCallback((song) => {
-        if (!song) return;
-
-        if (currentSong && currentSong.id !== song.id) {
-            if (currentSong.source !== 'youtube') {
-                stopCurrentPlayback();
-            }
+        if (!song) {
+            stopCurrentPlayback();
+            setCurrentSong(null);
             setIsPlaying(false);
+            return;
+        }
+
+        if (currentSong && currentSong.id === song.id) {
+            handlePlayPause();
+            return;
         }
 
         setCurrentSong(song);
         setProgress(0);
 
         if (song.source === 'youtube') {
+            stopCurrentPlayback();
             setIsPlaying(true);
         } else {
             playAudio(song);
         }
-    }, [currentSong, stopCurrentPlayback]);
+    }, [currentSong, stopCurrentPlayback, handlePlayPause, playAudio]);
 
     useEffect(() => {
         handlePlaySongRef.current = handlePlaySong;
     }, [handlePlaySong]);
 
-    // Funciones de navegación de canciones
+    // Navegación entre canciones
     const getNextSong = useCallback(() => {
         const list = activeTab === 'library' ? songs : youtubeResults;
         if (!list.length) return null;
@@ -133,7 +137,7 @@ export default function Home() {
         handlePlaySongRef.current(list[prevIndex]);
     }, [currentSong, activeTab, songs, youtubeResults]);
 
-    // Funciones de control de audio
+    // Control de audio
     const playAudio = useCallback((song) => {
         stopCurrentPlayback();
 
@@ -144,7 +148,7 @@ export default function Home() {
             onplay: () => {
                 setIsPlaying(true);
                 startProgressTracker();
-                if (!currentSong?.duration) {
+                if (!song.duration) {
                     setCurrentSong(prev => ({
                         ...prev,
                         duration: soundRef.current.duration()
@@ -166,27 +170,9 @@ export default function Home() {
         });
 
         soundRef.current.play();
-    }, [volume, isMuted, currentSong?.duration, stopCurrentPlayback, startProgressTracker]);
+    }, [volume, isMuted, stopCurrentPlayback, startProgressTracker]);
 
-    // Control de volumen y mute
-    const handleVolumeChange = useCallback((newVolume) => {
-        const vol = Math.max(0, Math.min(newVolume, 1));
-        setVolume(vol);
-        if (soundRef.current) soundRef.current.volume(isMuted ? 0 : vol);
-        if (isMuted && vol > 0) setIsMuted(false);
-    }, [isMuted]);
-
-    const toggleMute = useCallback(() => {
-        if (isMuted) {
-            handleVolumeChange(volumeBeforeMute.current);
-        } else {
-            volumeBeforeMute.current = volume;
-            handleVolumeChange(0);
-        }
-        setIsMuted(!isMuted);
-    }, [isMuted, volume, handleVolumeChange]);
-
-    // Control de play/pause
+    // Play/Pause
     const handlePlayPause = useCallback(() => {
         if (!currentSong) return;
 
@@ -208,6 +194,24 @@ export default function Home() {
             }
         }
     }, [currentSong, isPlaying, playAudio, startProgressTracker, stopProgressTracker]);
+
+    // Volumen
+    const handleVolumeChange = useCallback((newVolume) => {
+        const vol = Math.max(0, Math.min(newVolume, 1));
+        setVolume(vol);
+        if (soundRef.current) soundRef.current.volume(isMuted ? 0 : vol);
+        if (isMuted && vol > 0) setIsMuted(false);
+    }, [isMuted]);
+
+    const toggleMute = useCallback(() => {
+        if (isMuted) {
+            handleVolumeChange(volumeBeforeMute.current);
+        } else {
+            volumeBeforeMute.current = volume;
+            handleVolumeChange(0);
+        }
+        setIsMuted(!isMuted);
+    }, [isMuted, volume, handleVolumeChange]);
 
     // Búsqueda en YouTube
     const searchYouTube = useCallback(async (query) => {
@@ -389,30 +393,27 @@ export default function Home() {
                 </div>
             )}
 
-            {(currentSong && (currentSong.source !== 'youtube' || isPlaying)) && (
-                <PlayerControls
-                    currentSong={currentSong}
-                    onNext={handleNext}
-                    onPrevious={handlePrevious}
-                    onPlayPause={handlePlayPause}
-                    isPlaying={isPlaying}
-                    progress={progress}
-                    onSeek={(newProgress) => {
-                        if (currentSong.source === 'youtube') return;
-
-                        if (soundRef.current) {
-                            const newTime = (newProgress / 100) * soundRef.current.duration();
-                            soundRef.current.seek(newTime);
-                        }
-                        setProgress(newProgress);
-                    }}
-                    volume={volume}
-                    onVolumeChange={handleVolumeChange}
-                    isMuted={isMuted}
-                    onToggleMute={toggleMute}
-                    duration={currentSong.duration || 0}
-                />
-            )}
+            <PlayerControls
+                currentSong={currentSong}
+                onNext={handleNext}
+                onPrevious={handlePrevious}
+                onPlayPause={handlePlayPause}
+                isPlaying={isPlaying}
+                progress={progress}
+                onSeek={(newProgress) => {
+                    if (currentSong.source === 'youtube') return;
+                    if (soundRef.current) {
+                        const newTime = (newProgress / 100) * soundRef.current.duration();
+                        soundRef.current.seek(newTime);
+                    }
+                    setProgress(newProgress);
+                }}
+                volume={volume}
+                onVolumeChange={handleVolumeChange}
+                isMuted={isMuted}
+                onToggleMute={toggleMute}
+                duration={currentSong?.duration || 0}
+            />
         </div>
     );
 }

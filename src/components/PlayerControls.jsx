@@ -1,5 +1,3 @@
-import { useEffect, useRef, useState } from 'react';
-import { Howl } from 'howler';
 import {
     FaPlay, FaPause,
     FaVolumeUp, FaVolumeMute,
@@ -11,111 +9,35 @@ export default function PlayerControls({
     currentSong,
     onNext,
     onPrevious,
+    onPlayPause,
+    isPlaying,
+    progress,
+    onSeek,
+    volume,
     onVolumeChange,
+    isMuted,
     onToggleMute,
-    initialVolume = 0.7,
-    isMuted = false
+    duration
 }) {
-    // Estados y referencias
-    const [sound, setSound] = useState(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [progress, setProgress] = useState(0);
-    const [duration, setDuration] = useState(0);
-    const progressInterval = useRef(null);
-
-    // 1. Inicializar Howl cuando cambia la canción
-    useEffect(() => {
-        if (!currentSong?.url) return;
-
-        const newSound = new Howl({
-            src: [currentSong.url],
-            html5: true, // Usar audio HTML5 para mejor compatibilidad
-            volume: isMuted ? 0 : initialVolume,
-            onplay: () => {
-                setIsPlaying(true);
-                startProgressTracker();
-                if (duration === 0) setDuration(newSound.duration());
-            },
-            onpause: () => setIsPlaying(false),
-            onend: () => {
-                onNext?.();
-            },
-            onloaderror: (id, error) => {
-                console.error('Error al cargar audio:', error);
-                setIsPlaying(false);
-            },
-            onplayerror: () => {
-                console.error('Error al reproducir');
-                setIsPlaying(false);
-            }
-        });
-
-        setSound(newSound);
-
-        // Limpieza al desmontar o cambiar canción
-        return () => {
-            newSound.unload();
-            stopProgressTracker();
-        };
-    }, [currentSong?.url]);
-
-    // 2. Manejar play/pause
-    const handlePlayPause = () => {
-        if (!sound) return;
-
-        if (isPlaying) {
-            sound.pause();
-        } else {
-            sound.play();
-        }
-    };
-
-    // 3. Control de progreso
-    const startProgressTracker = () => {
-        stopProgressTracker();
-        progressInterval.current = setInterval(() => {
-            if (sound?.playing()) {
-                const seek = sound.seek();
-                setProgress((seek / sound.duration()) * 100);
-            }
-        }, 200);
-    };
-
-    const stopProgressTracker = () => {
-        clearInterval(progressInterval.current);
-    };
-
-    const handleSeek = (e) => {
-        if (!sound) return;
-        const newProgress = parseFloat(e.target.value);
-        const newTime = (newProgress / 100) * sound.duration();
-        sound.seek(newTime);
-        setProgress(newProgress);
-    };
-
-    // 4. Control de volumen
-    useEffect(() => {
-        if (!sound) return;
-        sound.volume(isMuted ? 0 : initialVolume);
-    }, [initialVolume, isMuted, sound]);
-
-    const handleVolumeChange = (e) => {
-        const newVolume = parseFloat(e.target.value);
-        onVolumeChange?.(newVolume);
-
-        if (isMuted && newVolume > 0) {
-            onToggleMute?.();
-        }
-    };
-
-    // 5. Formatear tiempo (mm:ss)
     const formatTime = (seconds = 0) => {
+        if (isNaN(seconds)) return "0:00";
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    if (!currentSong) return null;
+    if (!currentSong) {
+        return (
+            <div className="player-controls inactive">
+                <div className="inactive-message">
+                    Selecciona una canción para comenzar
+                </div>
+            </div>
+        );
+    }
+
+    const currentTime = (progress / 100) * duration;
+    const canSeek = currentSong.source !== 'youtube';
 
     return (
         <div className={`player-controls ${isPlaying ? 'is-playing' : ''}`}>
@@ -139,31 +61,41 @@ export default function PlayerControls({
             {/* Controles de reproducción */}
             <div className="playback-controls">
                 <div className="transport-controls">
-                    <button onClick={onPrevious} aria-label="Anterior">
+                    <button
+                        onClick={onPrevious}
+                        aria-label="Anterior"
+                        disabled={!currentSong}
+                    >
                         <FaStepBackward />
                     </button>
                     <button
-                        onClick={handlePlayPause}
+                        onClick={onPlayPause}
                         className="play-pause-button"
                         aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
+                        disabled={!currentSong}
                     >
                         {isPlaying ? <FaPause /> : <FaPlay />}
                     </button>
-                    <button onClick={onNext} aria-label="Siguiente">
+                    <button
+                        onClick={onNext}
+                        aria-label="Siguiente"
+                        disabled={!currentSong}
+                    >
                         <FaStepForward />
                     </button>
                 </div>
 
                 {/* Barra de progreso */}
                 <div className="progress-container">
-                    <span>{formatTime((progress / 100) * duration)}</span>
+                    <span>{formatTime(currentTime)}</span>
                     <input
                         type="range"
                         min="0"
                         max="100"
                         value={progress}
-                        onChange={handleSeek}
+                        onChange={(e) => onSeek(parseFloat(e.target.value))}
                         className="progress-bar"
+                        disabled={!canSeek}
                     />
                     <span>{formatTime(duration)}</span>
                 </div>
@@ -182,8 +114,8 @@ export default function PlayerControls({
                     min="0"
                     max="1"
                     step="0.01"
-                    value={isMuted ? 0 : initialVolume}
-                    onChange={handleVolumeChange}
+                    value={isMuted ? 0 : volume}
+                    onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
                     className="volume-slider"
                 />
             </div>
