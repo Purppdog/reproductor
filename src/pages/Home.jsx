@@ -83,6 +83,64 @@ export default function Home() {
         setIsPlaying(false);
     }, [stopProgressTracker]);
 
+    // Control de audio - Definido primero para evitar dependencias circulares
+    const playAudio = useCallback((song) => {
+        stopCurrentPlayback();
+
+        soundRef.current = new Howl({
+            src: [song.url],
+            html5: true,
+            volume: isMuted ? 0 : volume,
+            onplay: () => {
+                setIsPlaying(true);
+                startProgressTracker();
+                if (!song.duration) {
+                    setCurrentSong(prev => ({
+                        ...prev,
+                        duration: soundRef.current.duration()
+                    }));
+                }
+            },
+            onpause: () => setIsPlaying(false),
+            onend: () => handleNextRef.current?.(),
+            onloaderror: (_, err) => {
+                console.error('Error al cargar audio:', err);
+                setError({ playback: 'Error al cargar el audio' });
+                setIsPlaying(false);
+            },
+            onplayerror: () => {
+                console.error('Error al reproducir audio');
+                setError({ playback: 'Error al reproducir el audio' });
+                setIsPlaying(false);
+            }
+        });
+
+        soundRef.current.play();
+    }, [volume, isMuted, stopCurrentPlayback, startProgressTracker]);
+
+    // Control de play/pause
+    const handlePlayPause = useCallback(() => {
+        if (!currentSong) return;
+
+        if (currentSong.source === 'youtube') {
+            setIsPlaying(!isPlaying);
+        } else {
+            if (isPlaying) {
+                soundRef.current?.pause();
+                setIsPlaying(false);
+                stopProgressTracker();
+            } else {
+                if (soundRef.current) {
+                    soundRef.current.play();
+                } else {
+                    playAudio(currentSong);
+                }
+                setIsPlaying(true);
+                startProgressTracker();
+            }
+        }
+    }, [currentSong, isPlaying, playAudio, startProgressTracker, stopProgressTracker]);
+
     // Manejo de reproducción
     const handlePlaySong = useCallback((song) => {
         if (!song) {
@@ -106,7 +164,7 @@ export default function Home() {
         } else {
             playAudio(song);
         }
-    }, [currentSong, stopCurrentPlayback, handlePlayPause, playAudio]);
+    }, [currentSong, stopCurrentPlayback, handlePlayPause]);
 
     useEffect(() => {
         handlePlaySongRef.current = handlePlaySong;
@@ -137,65 +195,7 @@ export default function Home() {
         handlePlaySongRef.current(list[prevIndex]);
     }, [currentSong, activeTab, songs, youtubeResults]);
 
-    // Control de audio
-    const playAudio = useCallback((song) => {
-        stopCurrentPlayback();
-
-        soundRef.current = new Howl({
-            src: [song.url],
-            html5: true,
-            volume: isMuted ? 0 : volume,
-            onplay: () => {
-                setIsPlaying(true);
-                startProgressTracker();
-                if (!song.duration) {
-                    setCurrentSong(prev => ({
-                        ...prev,
-                        duration: soundRef.current.duration()
-                    }));
-                }
-            },
-            onpause: () => setIsPlaying(false),
-            onend: () => handleNextRef.current(),
-            onloaderror: (_, err) => {
-                console.error('Error al cargar audio:', err);
-                setError({ playback: 'Error al cargar el audio' });
-                setIsPlaying(false);
-            },
-            onplayerror: () => {
-                console.error('Error al reproducir audio');
-                setError({ playback: 'Error al reproducir el audio' });
-                setIsPlaying(false);
-            }
-        });
-
-        soundRef.current.play();
-    }, [volume, isMuted, stopCurrentPlayback, startProgressTracker]);
-
-    // Play/Pause
-    const handlePlayPause = useCallback(() => {
-        if (!currentSong) return;
-
-        if (currentSong.source === 'youtube') {
-            setIsPlaying(!isPlaying);
-        } else {
-            if (isPlaying) {
-                soundRef.current?.pause();
-                setIsPlaying(false);
-                stopProgressTracker();
-            } else {
-                if (soundRef.current) {
-                    soundRef.current.play();
-                } else {
-                    playAudio(currentSong);
-                }
-                setIsPlaying(true);
-                startProgressTracker();
-            }
-        }
-    }, [currentSong, isPlaying, playAudio, startProgressTracker, stopProgressTracker]);
-
-    // Volumen
+    // Control de volumen
     const handleVolumeChange = useCallback((newVolume) => {
         const vol = Math.max(0, Math.min(newVolume, 1));
         setVolume(vol);
@@ -401,7 +401,7 @@ export default function Home() {
                 isPlaying={isPlaying}
                 progress={progress}
                 onSeek={(newProgress) => {
-                    if (currentSong.source === 'youtube') return;
+                    if (currentSong?.source === 'youtube') return;
                     if (soundRef.current) {
                         const newTime = (newProgress / 100) * soundRef.current.duration();
                         soundRef.current.seek(newTime);
