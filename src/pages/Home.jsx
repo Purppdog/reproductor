@@ -30,6 +30,7 @@ export default function Home() {
     const volumeBeforeMute = useRef(volume);
     const searchController = useRef(null);
     const handleNextRef = useRef();
+    const handlePlaySongRef = useRef();
 
     // Funciones helper (sin dependencias)
     const generateCloudinaryAudioUrl = (publicId) => {
@@ -82,6 +83,31 @@ export default function Home() {
         setIsPlaying(false);
     }, [stopProgressTracker]);
 
+    // Función principal de reproducción (definida primero)
+    const handlePlaySong = useCallback((song) => {
+        if (!song) return;
+
+        if (currentSong && currentSong.id !== song.id) {
+            if (currentSong.source !== 'youtube') {
+                stopCurrentPlayback();
+            }
+            setIsPlaying(false);
+        }
+
+        setCurrentSong(song);
+        setProgress(0);
+
+        if (song.source === 'youtube') {
+            setIsPlaying(true);
+        } else {
+            playAudio(song);
+        }
+    }, [currentSong, stopCurrentPlayback]);
+
+    useEffect(() => {
+        handlePlaySongRef.current = handlePlaySong;
+    }, [handlePlaySong]);
+
     // Funciones de navegación de canciones
     const getNextSong = useCallback(() => {
         const list = activeTab === 'library' ? songs : youtubeResults;
@@ -92,8 +118,8 @@ export default function Home() {
 
     const handleNext = useCallback(() => {
         const nextSong = getNextSong();
-        if (nextSong) handlePlaySong(nextSong);
-    }, [getNextSong, handlePlaySong]);
+        if (nextSong) handlePlaySongRef.current(nextSong);
+    }, [getNextSong]);
 
     useEffect(() => {
         handleNextRef.current = handleNext;
@@ -104,8 +130,8 @@ export default function Home() {
         if (!list.length) return;
         const currentIndex = list.findIndex(s => s.id === currentSong?.id);
         const prevIndex = (currentIndex - 1 + list.length) % list.length;
-        handlePlaySong(list[prevIndex]);
-    }, [currentSong, activeTab, songs, youtubeResults, handlePlaySong]);
+        handlePlaySongRef.current(list[prevIndex]);
+    }, [currentSong, activeTab, songs, youtubeResults]);
 
     // Funciones de control de audio
     const playAudio = useCallback((song) => {
@@ -141,27 +167,6 @@ export default function Home() {
 
         soundRef.current.play();
     }, [volume, isMuted, currentSong?.duration, stopCurrentPlayback, startProgressTracker]);
-
-    // Función principal de reproducción
-    const handlePlaySong = useCallback((song) => {
-        if (!song) return;
-
-        if (currentSong && currentSong.id !== song.id) {
-            if (currentSong.source !== 'youtube') {
-                stopCurrentPlayback();
-            }
-            setIsPlaying(false);
-        }
-
-        setCurrentSong(song);
-        setProgress(0);
-
-        if (song.source === 'youtube') {
-            setIsPlaying(true);
-        } else {
-            playAudio(song);
-        }
-    }, [currentSong, playAudio, stopCurrentPlayback]);
 
     // Control de volumen y mute
     const handleVolumeChange = useCallback((newVolume) => {
