@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Howl } from "howler";
 import SongCard from "./SongCard";
 import AddSong from "./AddSong";
 import Modal from "./Modal";
@@ -12,93 +11,49 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        const fetchSongs = async () => {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                const normalizedSongs = data.map(song => ({
+                    id: song.id?.toString(),
+                    title: song.title || "Sin título",
+                    artist: song.artist || "Artista desconocido",
+                    url: song.cloudinary_url || song.url,
+                    thumbnail: ViniloDefault, // Imagen por defecto
+                    duration: Number(song.duration) || 0,
+                    public_id: song.cloudinary_public_id,
+                    source: 'cloudinary'
+                }));
+                setSongs(normalizedSongs);
+            } catch (err) {
+                console.error("Fetch error:", err);
+                setError("Error al cargar canciones");
+            } finally {
+                setLoading(false);
+            }
+        };
         fetchSongs();
     }, []);
 
-    const fetchSongs = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`);
-
-            if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-
-            const normalizedSongs = data.map(song => ({
-                id: song.id?.toString(), // Asegurar que es string
-                title: song.title?.trim() || "Título desconocido",
-                artist: song.artist?.trim() || "Artista desconocido",
-                url: song.cloudinary_url || song.url, // Compatibilidad con ambos nombres
-                duration: Number(song.duration) || 0,
-                public_id: song.cloudinary_public_id || song.public_id,
-                source: 'cloudinary'
-            }));
-
-            setSongs(normalizedSongs);
-        } catch (err) {
-            console.error("Error al obtener las canciones:", err);
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const generateThumbnailUrl = (publicId) => {
-        if (!publicId) return null;
-        return `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_300,h_300,c_thumb,g_faces/${publicId}.jpg`;
-    };
-
-    const handlePlay = (song) => {
-        if (onPlaySong) {
-            onPlaySong({
-                ...song,
-                url: song.url,
-                source: 'cloudinary'
-            });
-        }
-    };
-
-    const isSongPlaying = (song) => {
-        return currentPlayingSong?.id === song.id && isGlobalPlaying;
-    };
-
     const handleSongAdded = (newSong) => {
-        setSongs(prev => [
-            {
-                ...newSong,
-                id: newSong.public_id,
-                thumbnail: generateThumbnailUrl(newSong.public_id),
-                source: 'cloudinary'
-            },
-            ...prev
-        ]);
+        setSongs(prev => [{
+            ...newSong,
+            thumbnail: ViniloDefault // Forzar imagen por defecto
+        }, ...prev]);
         setShowAddSong(false);
     };
 
-    if (loading) {
-        return <div className="loading-container">Cargando tus canciones...</div>;
-    }
-
-    if (error) {
-        return (
-            <div className="error-container">
-                <p>Error al cargar las canciones: {error}</p>
-                <button onClick={fetchSongs}>Reintentar</button>
-            </div>
-        );
-    }
+    if (loading) return <div className="loading">Cargando...</div>;
+    if (error) return <div className="error">{error} <button onClick={() => window.location.reload()}>Reintentar</button></div>;
 
     return (
         <div className="my-music">
             <div className="header">
                 <h1>Mi Biblioteca Musical</h1>
-                <button
-                    className="add-song-btn"
-                    onClick={() => setShowAddSong(true)}
-                >
+                <button className="add-btn" onClick={() => setShowAddSong(true)}>
                     Agregar Canción
                 </button>
             </div>
@@ -111,23 +66,20 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
 
             <div className="song-grid">
                 {songs.length > 0 ? (
-                    songs.map((song) => (
+                    songs.map(song => (
                         <SongCard
                             key={song.id}
-                            song={{
-                                ...song,
-                                thumbnail: song.thumbnail || ViniloDefault
-                            }}
-                            isPlaying={isSongPlaying(song)}
-                            onPlay={() => handlePlay(song)}
-                            onPause={() => onPlaySong?.(null)}
+                            song={song}
+                            isPlaying={currentPlayingSong?.id === song.id && isGlobalPlaying}
+                            onPlay={() => onPlaySong(song)}
+                            onPause={() => onPlaySong(null)}
                         />
                     ))
                 ) : (
-                    <div className="no-songs-message">
-                        <p>No hay canciones en tu biblioteca</p>
+                    <div className="empty-state">
+                        <p>No hay canciones</p>
                         <button onClick={() => setShowAddSong(true)}>
-                            Agrega tu primera canción
+                            Agregar primera canción
                         </button>
                     </div>
                 )}
