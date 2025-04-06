@@ -7,18 +7,19 @@ export default function AddSong({ onSongAdded }) {
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState(null);
 
-
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-    if (file.size > MAX_FILE_SIZE) {
-        setError("El archivo es demasiado grande (máximo 10MB)");
-        return;
-    }
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
 
         if (!file) {
             setError("Por favor, selecciona un archivo de audio.");
+            return;
+        }
+
+        // Validar tamaño del archivo (10MB máximo)
+        const MAX_FILE_SIZE = 10 * 1024 * 1024;
+        if (file.size > MAX_FILE_SIZE) {
+            setError("El archivo es demasiado grande (máximo 10MB)");
             return;
         }
 
@@ -48,7 +49,7 @@ export default function AddSong({ onSongAdded }) {
                 reader.onerror = error => reject(error);
             });
 
-            // Enviar directamente al endpoint de /api/mymusic
+            // Enviar al backend
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`, {
                 method: "POST",
                 headers: {
@@ -57,7 +58,7 @@ export default function AddSong({ onSongAdded }) {
                 body: JSON.stringify({
                     title,
                     artist,
-                    audio: base64Audio  // Envía el archivo en base64
+                    audio: base64Audio
                 })
             });
 
