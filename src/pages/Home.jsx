@@ -40,7 +40,8 @@ export default function Home() {
                     ...song,
                     id: song.id || song.public_id,
                     source: 'cloudinary',
-                    thumbnail: song.thumbnail || generateCloudinaryThumbnail(song.public_id)
+                    thumbnail: song.thumbnail || generateCloudinaryThumbnail(song.public_id),
+                    url: song.url || generateCloudinaryAudioUrl(song.public_id)
                 })));
             } catch (err) {
                 setError({ library: err.message });
@@ -51,6 +52,18 @@ export default function Home() {
 
         fetchLibrary();
     }, []);
+
+    // Generar URL de audio desde Cloudinary
+    const generateCloudinaryAudioUrl = (publicId) => {
+        if (!publicId) return null;
+        return `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/video/upload/${publicId}`;
+    };
+
+    // Generar thumbnail desde Cloudinary con fallback
+    const generateCloudinaryThumbnail = (publicId) => {
+        if (!publicId) return null;
+        return `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_300,h_300,c_fill/${publicId}.jpg`;
+    };
 
     // Limpieza al desmontar
     useEffect(() => {
@@ -72,12 +85,6 @@ export default function Home() {
             stopCurrentPlayback();
         }
     }, [activeTab]);
-
-    // Generar thumbnail desde Cloudinary con fallback
-    const generateCloudinaryThumbnail = (publicId) => {
-        if (!publicId) return null;
-        return `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_300,h_300,c_fill/${publicId}.jpg`;
-    };
 
     // Buscar en YouTube con cancelación
     const searchYouTube = useCallback(async (query) => {
@@ -131,12 +138,6 @@ export default function Home() {
         return () => clearTimeout(timer);
     }, [searchQuery, activeTab, searchYouTube]);
 
-    // Función unificada de búsqueda
-    const handleSearch = useCallback((query) => {
-        setSearchQuery(query);
-        // El filtrado para 'library' se hace en el render
-    }, []);
-
     // Reproducción de audio (Howler)
     const playAudio = useCallback((song) => {
         stopCurrentPlayback();
@@ -161,11 +162,16 @@ export default function Home() {
                 console.error('Error al cargar audio:', err);
                 setError({ playback: 'Error al cargar el audio' });
                 setIsPlaying(false);
+            },
+            onplayerror: () => {
+                console.error('Error al reproducir audio');
+                setError({ playback: 'Error al reproducir el audio' });
+                setIsPlaying(false);
             }
         });
 
         soundRef.current.play();
-    }, [volume, isMuted]);
+    }, [volume, isMuted, currentSong?.duration, handleNext]);
 
     // Control principal de reproducción
     const handlePlaySong = useCallback((song) => {
@@ -179,12 +185,13 @@ export default function Home() {
         }
 
         setCurrentSong(song);
-        setIsPlaying(true);
         setProgress(0);
 
-        song.source === 'youtube'
-            ? setIsPlaying(true)
-            : playAudio(song);
+        if (song.source === 'youtube') {
+            setIsPlaying(true);
+        } else {
+            playAudio(song);
+        }
     }, [currentSong, playAudio]);
 
     // Navegación entre canciones
@@ -212,7 +219,7 @@ export default function Home() {
     const startProgressTracker = useCallback(() => {
         stopProgressTracker();
         progressInterval.current = setInterval(() => {
-            if (soundRef.current) {
+            if (soundRef.current?.playing()) {
                 const seek = soundRef.current.seek();
                 const duration = soundRef.current.duration();
                 if (duration > 0) {
@@ -234,6 +241,7 @@ export default function Home() {
             soundRef.current = null;
         }
         stopProgressTracker();
+        setIsPlaying(false);
     }, []);
 
     // Control de volumen
@@ -254,19 +262,30 @@ export default function Home() {
         setIsMuted(!isMuted);
     }, [isMuted, volume, handleVolumeChange]);
 
+    // Control de play/pause
+    const handlePlayPause = useCallback(() => {
+        if (!currentSong) return;
+
+        if (currentSong.source === 'youtube') {
+            setIsPlaying(!isPlaying);
+        } else {
+            if (isPlaying) {
+                soundRef.current?.pause();
+                setIsPlaying(false);
+                stopProgressTracker();
+            } else {
+                if (soundRef.current) {
+                    soundRef.current.play();
+                } else {
+                    playAudio(currentSong);
+                }
+                setIsPlaying(true);
+                startProgressTracker();
+            }
+        }
+    }, [currentSong, isPlaying, playAudio, startProgressTracker, stopProgressTracker]);
+
     // Funciones auxiliares
-    const handlePause = useCallback(() => {
-        if (soundRef.current) soundRef.current.pause();
-        setIsPlaying(false);
-        stopProgressTracker();
-    }, []);
-
-    const handleResume = useCallback(() => {
-        if (soundRef.current) soundRef.current.play();
-        setIsPlaying(true);
-        startProgressTracker();
-    }, []);
-
     const formatViews = (views) => {
         if (!views) return "0 vistas";
         const num = typeof views === 'string' ? parseInt(views.replace(/\D/g, '')) : views;
@@ -284,7 +303,6 @@ export default function Home() {
                 <SearchBar
                     value={searchQuery}
                     onChange={setSearchQuery}
-                    onSearch={handleSearch}
                     placeholder={`Buscar en ${activeTab === 'library' ? 'mi biblioteca' : 'YouTube'}`}
                 />
 
@@ -364,17 +382,20 @@ export default function Home() {
                 </div>
             )}
 
-            {currentSong?.source !== 'youtube' && currentSong && (
+            {(currentSong && (currentSong.source !== 'youtube' || isPlaying)) && (
                 <PlayerControls
                     currentSong={currentSong}
-                    isPlaying={isPlaying}
-                    onPlayPause={() => isPlaying ? handlePause() : handleResume()}
                     onNext={handleNext}
                     onPrevious={handlePrevious}
+                    onPlayPause={handlePlayPause}
+                    isPlaying={isPlaying}
                     progress={progress}
-                    onProgressChange={(newProgress) => {
+                    onSeek={(newProgress) => {
+                        if (currentSong.source === 'youtube') return;
+
                         if (soundRef.current) {
-                            soundRef.current.seek((newProgress / 100) * soundRef.current.duration());
+                            const newTime = (newProgress / 100) * soundRef.current.duration();
+                            soundRef.current.seek(newTime);
                         }
                         setProgress(newProgress);
                     }}
@@ -382,7 +403,6 @@ export default function Home() {
                     onVolumeChange={handleVolumeChange}
                     isMuted={isMuted}
                     onToggleMute={toggleMute}
-                    currentTime={soundRef.current?.seek() || 0}
                     duration={currentSong.duration || 0}
                 />
             )}
