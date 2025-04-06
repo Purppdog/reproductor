@@ -131,6 +131,12 @@ export default function Home() {
         return () => clearTimeout(timer);
     }, [searchQuery, activeTab, searchYouTube]);
 
+    // Función unificada de búsqueda
+    const handleSearch = useCallback((query) => {
+        setSearchQuery(query);
+        // El filtrado para 'library' se hace en el render
+    }, []);
+
     // Reproducción de audio (Howler)
     const playAudio = useCallback((song) => {
         stopCurrentPlayback();
@@ -213,7 +219,7 @@ export default function Home() {
                     setProgress((seek / duration) * 100);
                 }
             }
-        }, 200); // Actualización más frecuente
+        }, 200);
     }, []);
 
     const stopProgressTracker = useCallback(() => {
@@ -278,6 +284,7 @@ export default function Home() {
                 <SearchBar
                     value={searchQuery}
                     onChange={setSearchQuery}
+                    onSearch={handleSearch}
                     placeholder={`Buscar en ${activeTab === 'library' ? 'mi biblioteca' : 'YouTube'}`}
                 />
 

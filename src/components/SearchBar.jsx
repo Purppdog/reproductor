@@ -4,31 +4,26 @@ import '../styles/components/SearchBar.css';
 
 export default function SearchBar({
     onSearch,
-    placeholder = 'Buscar canciones...'
+    placeholder = 'Buscar canciones...',
+    value = '',
+    onChange = () => { }
 }) {
-    const [query, setQuery] = useState('');
-    const [source, _setSource] = useState('youtube'); // 'youtube' o 'local'
     const [isFocused, setIsFocused] = useState(false);
     const inputRef = useRef(null);
 
+    // Eliminado el estado interno de query, ahora se maneja desde el padre
     useEffect(() => {
-        if (query.trim() === '') {
-            onSearch('', source);
-            return;
-        }
+        if (typeof onSearch !== 'function') return;
 
         const delayDebounceFn = setTimeout(() => {
-            onSearch(query, source);
+            onSearch(value);
         }, 300);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [query, source, onSearch]);
-
-
+    }, [value, onSearch]);
 
     const handleClearSearch = () => {
-        setQuery('');
-        onSearch('', source);
+        onChange(''); // Limpia el valor mediante la prop onChange
         inputRef.current.focus();
     };
 
@@ -40,14 +35,14 @@ export default function SearchBar({
                     ref={inputRef}
                     type="text"
                     placeholder={placeholder}
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setTimeout(() => setIsFocused(false), 200)}
                     className="search-input"
                     aria-label="Buscar música"
                 />
-                {query && (
+                {value && (
                     <button
                         onClick={handleClearSearch}
                         className="clear-button"
