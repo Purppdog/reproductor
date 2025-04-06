@@ -2,8 +2,7 @@ export const searchYouTube = async (query) => {
     try {
         console.log(`Buscando en YouTube con query: ${query}`);
 
-        const response = await fetch(`http://localhost:3001/api/search?q=${encodeURIComponent(query)}`);
-
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/search?q=${encodeURIComponent(query)}`);
         if (!response.ok) {
             throw new Error('Error en la búsqueda');
         }

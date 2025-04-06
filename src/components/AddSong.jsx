@@ -7,6 +7,12 @@ export default function AddSong({ onSongAdded }) {
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState(null);
 
+
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    if (file.size > MAX_FILE_SIZE) {
+        setError("El archivo es demasiado grande (máximo 10MB)");
+        return;
+    }
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);

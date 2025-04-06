@@ -21,8 +21,9 @@ const app = express();
 // 1. Configuración CORS mejorada
 const allowedOrigins = [
     'http://localhost:5173',
-    'https://reproductor-lake.vercel.app',
+    'https://reproductor-ivory.vercel.app',
     'https://reproductornicolas.onrender.com'
+
 ];
 
 const corsOptions = {

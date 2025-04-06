@@ -28,14 +28,13 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
             const data = await response.json();
 
             const normalizedSongs = data.map(song => ({
-                ...song,
-                id: song.id || song.public_id,
-                title: song.title || "Título desconocido",
-                artist: song.artist || "Artista desconocido",
-                thumbnail: song.thumbnail || generateThumbnailUrl(song.public_id) || ViniloDefault,
-                url: song.cloudinary_url,  // Cambiado a cloudinary_url
-                source: 'cloudinary',
-                duration: song.duration || 0
+                id: song.id?.toString(), // Asegurar que es string
+                title: song.title?.trim() || "Título desconocido",
+                artist: song.artist?.trim() || "Artista desconocido",
+                url: song.cloudinary_url || song.url, // Compatibilidad con ambos nombres
+                duration: Number(song.duration) || 0,
+                public_id: song.cloudinary_public_id || song.public_id,
+                source: 'cloudinary'
             }));
 
             setSongs(normalizedSongs);
