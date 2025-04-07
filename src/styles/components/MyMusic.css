@@ -1,7 +1,7 @@
 /* Contenedor principal */
 .my-music {
     padding: 2rem;
-    background: linear-gradient(135deg, #181f18 0%, #151b15 100%);
+    background: linear-gradient(135deg, #0d120d 0%, #0a0f0a 100%);
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     margin: 1.5rem auto;
