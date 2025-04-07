@@ -1,7 +1,6 @@
 import { FaPlay, FaPause } from "react-icons/fa";
 import ViniloImage from "../assets/images/VINILO.jpeg";
 import "../styles/components/SongList.css";
-import "../styles/components/SongListHorizontal.css"; // Estilos para la vista horizontal
 
 export default function SongList({
     songs = [],
