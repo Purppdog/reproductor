@@ -1,130 +1,153 @@
-/* SongList.css - Versión Mejorada para YouTube y canciones locales */
+/* SongList.css - Versión Optimizada y Organizada */
 
+/* ============ VARIABLES ============ */
 :root {
     --primary-color: #1db954;
+    --youtube-red: #ff0000;
     --dark-bg: #121212;
     --card-bg: #181818;
     --hover-bg: #282828;
     --text-primary: #ffffff;
     --text-secondary: #b3b3b3;
-    --youtube-red: #ff0000;
+    --text-tertiary: #7a7a7a;
     --border-radius: 8px;
     --transition-speed: 0.3s;
 }
 
-/* Contenedor principal mejorado */
+/* ============ ESTILOS BASE ============ */
 .song-list-container {
-    padding: 1rem;
+    padding: 1.5rem;
     width: 100%;
     box-sizing: border-box;
 }
 
-/* Grid más flexible */
 .song-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 1.5rem;
-    width: 100%;
 }
 
-/* Tarjeta de canción mejorada */
-.song-card {
+/* ============ ESTILOS PARA CANCIONES LOCALES ============ */
+.local-song {
+    /* Contenedor principal */
     background: var(--card-bg);
     border-radius: var(--border-radius);
     overflow: hidden;
     transition: all var(--transition-speed) ease;
-    cursor: pointer;
-    position: relative;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    height: 100%;
 }
 
-.song-card:hover {
+.local-song:hover {
     background: var(--hover-bg);
-    transform: translateY(-5px);
+    transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Contenedor de thumbnail para YouTube */
+/* Thumbnail local */
+.local-song .thumbnail-container {
+    aspect-ratio: 1/1;
+    background: var(--dark-bg);
+}
+
+/* ============ ESTILOS PARA YOUTUBE ============ */
+.youtube-card {
+    /* Contenedor principal */
+    border-top: 3px solid var(--youtube-red);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.youtube-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(255, 0, 0, 0.2);
+}
+
+/* Thumbnail YouTube */
+.youtube-card .thumbnail-container {
+    aspect-ratio: 16/9;
+    background: #000;
+}
+
+/* ============ ELEMENTOS COMPARTIDOS ============ */
+/* Thumbnail (compartido) */
 .thumbnail-container {
     position: relative;
     width: 100%;
-    aspect-ratio: 16/9;
-    /* Cambiado a 16:9 para videos de YouTube */
     overflow: hidden;
-    background: #000;
-    /* Fondo negro para videos */
 }
 
-/* Miniaturas para YouTube */
 .song-thumbnail {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-speed) ease;
 }
 
-/* Badge de duración mejorado */
+.song-card:hover .song-thumbnail {
+    transform: scale(1.05);
+}
+
+/* Badge de duración */
 .duration-badge {
     position: absolute;
-    right: 8px;
     bottom: 8px;
+    right: 8px;
     background: rgba(0, 0, 0, 0.8);
     color: white;
-    padding: 3px 6px;
+    padding: 0.25rem 0.5rem;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 500;
     z-index: 2;
 }
 
-/* Indicador de play/pause más visible */
+/* Botón de play */
 .play-indicator {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
     background: rgba(0, 0, 0, 0.8);
-    width: 48px;
-    height: 48px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     transition: all var(--transition-speed) ease;
-    z-index: 2;
     color: white;
-    font-size: 1.2rem;
+    z-index: 2;
 }
 
-.song-card:hover .play-indicator {
+.song-card:hover .play-indicator,
+.song-card.playing .play-indicator {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1.1);
 }
 
 .song-card.playing .play-indicator {
     background: var(--primary-color);
-    opacity: 1;
 }
 
-/* Información de la canción para YouTube */
+/* Información de la canción */
 .song-info {
     padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 120px;
 }
 
 .song-title {
     font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin: 0 0 0.5rem 0;
+    margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     line-height: 1.4;
-    min-height: 3em;
-    /* Asegura espacio para dos líneas */
+    word-break: break-word;
 }
 
 .song-artist {
@@ -136,40 +159,96 @@
     text-overflow: ellipsis;
 }
 
-/* Estilo específico para YouTube */
-.song-card.youtube-card .song-info {
-    border-top: 2px solid var(--youtube-red);
+/* Estadísticas de YouTube */
+.youtube-stats {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: auto;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
 }
 
-.song-card.youtube-card .song-artist {
+.youtube-stats span {
+    display: flex;
+    align-items: center;
+}
+
+.youtube-stats span:not(:first-child)::before {
+    content: "•";
+    margin-right: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+/* Estilo específico para YouTube */
+.youtube-card .song-artist {
     color: var(--youtube-red);
     font-weight: 500;
 }
 
-/* Estadísticas de YouTube */
-.youtube-stats {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+/* Estado de reproducción (compartido) */
+.song-card.playing {
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(29, 185, 84, 0.2);
 }
 
-/* Mensajes de estado */
+/* ============ ESTADOS Y MENSAJES ============ */
 .error-container,
 .loading-container,
 .no-results {
     grid-column: 1 / -1;
     text-align: center;
-    padding: 3rem 1rem;
+    padding: 2rem;
     color: var(--text-secondary);
 }
 
-/* Responsive */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.loading-container .spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1024px) {
+    .song-info {
+        min-height: 100px;
+        padding: 0.8rem;
+    }
+
+    .song-title {
+        font-size: 0.95rem;
+    }
+}
+
 @media (max-width: 768px) {
     .song-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1.25rem;
+        gap: 1rem;
+    }
+
+    .song-info {
+        min-height: auto;
+    }
+
+    .youtube-stats {
+        font-size: 0.7rem;
+        gap: 0.5rem;
     }
 }
 
@@ -178,7 +257,29 @@
         grid-template-columns: 1fr;
     }
 
+    .song-info {
+        padding: 0.75rem;
+        min-height: auto;
+    }
+
     .song-title {
         font-size: 0.9rem;
     }
+
+    .song-artist {
+        font-size: 0.8rem;
+    }
+
+    .youtube-stats {
+        font-size: 0.65rem;
+    }
+
+    .youtube-stats span:not(:first-child)::before {
+        margin-right: 0.5rem;
+    }
+}
+
+/* Modo horizontal */
+.horizontal-layout .song-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 }
