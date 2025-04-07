@@ -86,7 +86,7 @@ export default function Home() {
     // Control de audio
     const playAudio = useCallback((song) => {
         if (!song?.url) {
-            console.error('Intento de reproducir canción sin URL válida:', song);
+            console.error('Intento de reproducir canción sin URL:', song);
             setError({ playback: 'La canción no tiene URL válida' });
             return;
         }
@@ -162,14 +162,6 @@ export default function Home() {
             return;
         }
 
-        // Si estamos cambiando entre tipos de contenido (YouTube <-> Biblioteca)
-        if (currentSong?.source !== song.source) {
-            stopCurrentPlayback();
-            setCurrentSong(song);
-            setIsPlaying(true);
-            return;
-        }
-
         if (currentSong?.id === song.id) {
             handlePlayPause();
             return;
@@ -184,7 +176,7 @@ export default function Home() {
         } else {
             playAudio(song);
         }
-    }, [currentSong, stopCurrentPlayback, handlePlayPause, playAudio]);
+    }, [currentSong, stopCurrentPlayback, handlePlayPause]);
 
     useEffect(() => {
         handlePlaySongRef.current = handlePlaySong;
@@ -287,6 +279,7 @@ export default function Home() {
                 console.log('Datos de la API:', data);
 
                 const processedSongs = data.map(song => {
+                    // Usamos EXACTAMENTE tus nombres de columna: cloudinary_public_id y cloudinary_url
                     const publicId = song.cloudinary_public_id;
                     const audioUrl = song.cloudinary_url || generateCloudinaryAudioUrl(publicId);
 
@@ -334,23 +327,13 @@ export default function Home() {
         };
     }, [stopProgressTracker]);
 
-    // Manejo del cambio de pestaña
-    const handleTabChange = useCallback((tab) => {
-        // Detener la reproducción actual al cambiar de pestaña
-        if (isPlaying) {
-            setIsPlaying(false);
-        }
-
-        // Limpiar la canción actual si cambiamos entre YouTube y Biblioteca
-        if ((activeTab === 'youtube' && tab === 'library') ||
-            (activeTab === 'library' && tab === 'youtube')) {
-            setCurrentSong(null);
-        }
-
-        setActiveTab(tab);
-    }, [activeTab, isPlaying]);
-
     // Efectos secundarios
+    useEffect(() => {
+        if (activeTab === 'youtube' && currentSong?.source !== 'youtube') {
+            stopCurrentPlayback();
+        }
+    }, [activeTab, currentSong?.source, stopCurrentPlayback]);
+
     useEffect(() => {
         const timer = setTimeout(() => {
             if (activeTab === 'youtube') searchYouTube(searchQuery);
@@ -372,13 +355,13 @@ export default function Home() {
                 <div className="tabs">
                     <button
                         className={activeTab === 'library' ? 'active' : ''}
-                        onClick={() => handleTabChange('library')}
+                        onClick={() => setActiveTab('library')}
                     >
                         Mi Biblioteca
                     </button>
                     <button
                         className={activeTab === 'youtube' ? 'active' : ''}
-                        onClick={() => handleTabChange('youtube')}
+                        onClick={() => setActiveTab('youtube')}
                     >
                         YouTube
                     </button>
@@ -400,7 +383,7 @@ export default function Home() {
                             : true
                     )}
                     onPlaySong={handlePlaySong}
-                    currentPlayingSong={currentSong?.source === 'library' ? currentSong : null}
+                    currentPlayingSong={currentSong}
                     isGlobalPlaying={isPlaying}
                     loading={loading.library}
                 />
@@ -445,8 +428,8 @@ export default function Home() {
                 </div>
             )}
 
-            {/* PlayerControls solo visible para canciones de la biblioteca */}
-            {activeTab === 'library' && currentSong?.source === 'library' && (
+            {/* PlayerControls solo visible en la pestaña de biblioteca */}
+            {activeTab === 'library' && currentSong && (
                 <PlayerControls
                     currentSong={currentSong}
                     onNext={handleNext}
