@@ -82,8 +82,6 @@
     padding-bottom: 56.25%;
     /* 16:9 aspect ratio */
     height: 0;
-    overflow: hidden;
-    background: #000;
     border-radius: 8px 8px 0 0;
     /* Solo redondeo arriba */
 }
@@ -143,7 +141,7 @@
     border-radius: 0 0 8px 8px;
     /* Solo redondeo abajo */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    margin-top: -1px;
+    margin-top: 30px;
     /* Elimina espacio entre reproductor e info */
 }
 
