@@ -2,48 +2,133 @@ import { pool } from "../models/db.js";
 
 export const getSavedSongs = async (req, res) => {
     try {
-        console.log("Conectando a la base de datos...");
-        const [rows] = await pool.query("SELECT id, title, artist FROM songs");
-        console.log("Resultados de la consulta:", rows);
-        res.json(rows || []);
+        console.log("Obteniendo canciones...");
+        const [rows] = await pool.query(`
+            SELECT 
+                id,
+                title, 
+                artist, 
+                cloudinary_public_id, 
+                cloudinary_url, 
+                duration,
+                source_type,
+                uploaded_at
+            FROM songs
+            ORDER BY uploaded_at DESC
+        `);
+
+        console.log(`Encontradas ${rows.length} canciones`);
+        res.json(rows);
     } catch (error) {
-        console.error("Error en /api/mymusic:", {
+        console.error("Error en getSavedSongs:", {
             message: error.message,
             code: error.code,
             stack: error.stack,
-            envVariables: { // Agrega esto para debug
-                host: process.env.MYSQLHOST,
-                port: process.env.MYSQLPORT,
-                user: process.env.MYSQLUSER,
-                database: process.env.MYSQLDATABASE,
-                ssl: process.env.SSL_CERT ? "Configurado" : "Falta SSL"
-            }
+            sqlMessage: error.sqlMessage
         });
+
         res.status(500).json({
+            success: false,
             error: "Error al obtener canciones",
-            details: error.code // Devuelve el código de error específico
+            details: {
+                code: error.code,
+                sqlMessage: error.sqlMessage
+            }
         });
     }
 };
 
-export const addSavedSong = async (songData, res) => {
+export const addSavedSong = async (req, res) => {
     try {
-        await pool.query(
-            "INSERT INTO songs (title, artist, cloudinary_public_id, cloudinary_url, duration, source_type) VALUES (?, ?, ?, ?, ?, 'cloudinary')",
-            [songData.title, songData.artist, songData.public_id, songData.url, songData.duration]
+        const {
+            title,
+            artist,
+            cloudinary_public_id,
+            cloudinary_url,
+            duration
+        } = req.body;
+
+        console.log("Datos recibidos para nueva canción:", req.body);
+
+        // Validaciones básicas
+        if (!cloudinary_public_id || !cloudinary_url) {
+            return res.status(400).json({
+                success: false,
+                error: "Faltan datos esenciales de Cloudinary"
+            });
+        }
+
+        const [result] = await pool.query(
+            `INSERT INTO songs 
+            (title, artist, cloudinary_public_id, cloudinary_url, duration, source_type) 
+            VALUES (?, ?, ?, ?, ?, 'cloudinary')`,
+            [
+                title || 'Sin título',
+                artist || 'Artista desconocido',
+                cloudinary_public_id,
+                cloudinary_url,
+                duration || 0
+            ]
         );
-        res.status(201).json({ message: "Canción guardada en Cloudinary" });
+
+        // Obtener la canción recién creada para devolverla
+        const [newSong] = await pool.query(
+            `SELECT * FROM songs WHERE id = ?`,
+            [result.insertId]
+        );
+
+        console.log("Canción agregada con éxito:", newSong[0]);
+
+        res.status(201).json({
+            success: true,
+            song: newSong[0]
+        });
     } catch (error) {
-        console.error("Error al guardar:", error);
-        res.status(500).json({ error: "Error al guardar en DB" });
+        console.error("Error en addSavedSong:", {
+            message: error.message,
+            code: error.code,
+            stack: error.stack,
+            sqlMessage: error.sqlMessage
+        });
+
+        res.status(500).json({
+            success: false,
+            error: "Error al guardar canción",
+            details: {
+                code: error.code,
+                sqlMessage: error.sqlMessage
+            }
+        });
     }
 };
+
 export const deleteSavedSong = async (req, res) => {
-    const { id } = req.params;
     try {
-        await pool.query("DELETE FROM songs WHERE id = ?", [id]);
-        res.json({ message: "Canción eliminada" });
+        const { id } = req.params;
+        console.log(`Eliminando canción con ID: ${id}`);
+
+        const [result] = await pool.query(
+            "DELETE FROM songs WHERE id = ?",
+            [id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                success: false,
+                error: "Canción no encontrada"
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "Canción eliminada correctamente"
+        });
     } catch (error) {
-        res.status(500).json({ error: "Error al eliminar" });
+        console.error("Error en deleteSavedSong:", error);
+        res.status(500).json({
+            success: false,
+            error: "Error al eliminar canción",
+            details: error.sqlMessage
+        });
     }
 };
