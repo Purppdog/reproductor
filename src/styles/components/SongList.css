@@ -51,9 +51,9 @@
 
 /* ============ ESTILOS PARA YOUTUBE ============ */
 .youtube-card {
-    /* Contenedor principal */
-    border-top: 3px solid var(--youtube-red);
-    background: rgba(0, 0, 0, 0.2);
+    border-top: none;
+    /* Elimina el borde rojo si no lo quieres */
+    background: var(--card-bg);
 }
 
 .youtube-card:hover {
@@ -142,21 +142,22 @@
 /* Información de la canción */
 .song-info {
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    min-width: 200px;
-    width: 30%;
-    flex-shrink: 0;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0;
 }
 
 
 .song-title {
     font-size: 1rem;
-    font-weight: 600;
-    color: white;
-    white-space: nowrap;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.4;
     margin: 0;
 }
 
@@ -197,8 +198,8 @@
 
 /* Estilo específico para YouTube */
 .youtube-card .song-artist {
-    color: var(--youtube-red);
-    font-weight: 500;
+    color: var(--text-secondary);
+    /* Cambia del rojo al gris */
 }
 
 /* Estado de reproducción (compartido) */

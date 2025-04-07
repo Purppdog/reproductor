@@ -424,7 +424,7 @@ export default function Home() {
                         onPause={() => setIsPlaying(false)}
                         isLoading={loading.youtube}
                         error={error?.youtube}
-                        hideButtons={true} // Oculta botones no deseados
+                        hideButtons={false} // Oculta botones no deseados
                     />
                 </div>
             )}

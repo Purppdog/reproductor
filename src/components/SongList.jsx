@@ -88,7 +88,8 @@ export default function SongList({
     }
 
     return (
-        <div className={`song-list-container ${horizontal ? 'horizontal' : ''}`}>
+        <div className={`song-list-container ${horizontal ? 'horizontal' : ''} ${songs.length > 0 && songs[0].source === 'youtube' ? 'youtube-list' : ''
+            }`}>
             {songs.length === 0 ? (
                 <p className="no-results">No se encontraron canciones</p>
             ) : (
@@ -102,7 +103,7 @@ export default function SongList({
                         return (
                             <div
                                 key={`${song.id}-${song.uploaded_at || ''}`}
-                                className={`song-card ${isPlaying ? 'playing' : ''} ${isYouTube ? 'youtube-card' : ''}`}
+                                className={`song-card ${isPlaying ? 'playing' : ''}`}
                                 onClick={() => handleSongClick(song)}
                                 role="button"
                                 tabIndex={0}
