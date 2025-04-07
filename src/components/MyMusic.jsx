@@ -3,7 +3,6 @@ import SongCard from "./SongCard";
 import AddSong from "./AddSong";
 import Modal from "./Modal";
 import ViniloDefault from '../assets/images/VINILO.jpeg';
-import "../styles/components/MyMusic.css";
 
 export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlaying }) {
     const [songs, setSongs] = useState([]);
