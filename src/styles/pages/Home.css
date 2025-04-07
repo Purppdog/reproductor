@@ -69,24 +69,22 @@
 }
 
 .youtube-player-container {
-    width: 95%;
-    padding-bottom: 0;
+    width: 100%;
     max-width: 1000px;
-    margin: 1rem auto;
-    border-radius: var(--border-radius);
-    overflow: hidden;
+    margin: 0 auto;
+    position: relative;
     background: transparent;
-    box-shadow: none;
 }
 
 .youtube-player-wrapper {
     position: relative;
     width: 100%;
-    overflow: visible;
     padding-bottom: 56.25%;
-    border-radius: 0;
+    /* Relación 16:9 */
     height: 0;
-    background: transparent;
+    overflow: hidden;
+    background: #000;
+    /* Fondo negro para bordes */
 }
 
 .youtube-player-wrapper>div,
@@ -129,20 +127,22 @@
 
 /* ============ INFORMACIÓN DEL VIDEO ============ */
 .video-info {
+    position: relative;
+    z-index: 10;
+    /* Asegura que esté sobre el video */
     width: 100%;
-    z-index: 2;
-    margin-top: -4px;
-    padding: 1.2rem;
-    text-align: center;
+    padding: 1.5rem 1rem;
     background: var(--card-bg);
+    margin-top: -5px;
+    /* Elimina espacio entre video e info */
 }
 
 .video-info h3 {
-    font-size: 1.3rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+    margin: 0 0 0.8rem 0;
     color: var(--text-primary);
     line-height: 1.3;
-    overflow-wrap: break-word;
+    text-align: center;
 }
 
 .video-info .artist {
@@ -219,10 +219,21 @@
 }
 
 /* ============ MEDIA QUERIES ============ */
-/* Pantallas grandes */
+/* Pantallas extra grandes (1600px+) */
+@media (max-width: 1920px) {
+    .youtube-player-container {
+        max-width: 1100px;
+    }
+
+    .video-info h3 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Pantallas grandes (1440px-1600px) */
 @media (max-width: 1600px) {
     .youtube-player-container {
-        max-width: 900px;
+        max-width: 1000px;
     }
 
     .video-info h3 {
@@ -230,7 +241,19 @@
     }
 }
 
+/* Pantallas medianas (1280px-1440px) */
 @media (max-width: 1440px) {
+    .youtube-player-container {
+        max-width: 900px;
+    }
+
+    .video-info h3 {
+        font-size: 1.35rem;
+    }
+}
+
+/* Pequeñas laptops (1024px-1280px) */
+@media (max-width: 1280px) {
     .youtube-player-container {
         max-width: 850px;
     }
@@ -240,11 +263,11 @@
     }
 }
 
-/* Tablets */
+/* Tablets grandes (900px-1024px) */
 @media (max-width: 1024px) {
     .youtube-player-container {
-        width: 94%;
-        max-width: 750px;
+        width: 96%;
+        max-width: 800px;
     }
 
     .video-info h3 {
@@ -252,49 +275,70 @@
     }
 
     .video-info .artist {
-        font-size: 1rem;
+        font-size: 1.05rem;
     }
 }
 
+/* Tablets (768px-900px) */
+@media (max-width: 900px) {
+    .youtube-player-container {
+        max-width: 750px;
+    }
+
+    .video-info h3 {
+        font-size: 1.2rem;
+    }
+}
+
+/* Tablets pequeñas (600px-768px) */
 @media (max-width: 768px) {
     .youtube-player-container {
         width: 100%;
         border-radius: 0;
-        margin: 0.5rem 0;
+        margin: 0.75rem 0;
     }
 
     .youtube-player-wrapper {
         border-radius: 0;
     }
 
-    .video-info h3 {
-        font-size: 1.2rem;
+    .video-info {
+        padding: 1rem 0.8rem;
     }
 
-    .action-btn {
-        padding: 0.5rem;
-        min-width: auto;
-    }
-}
-
-/* Móviles */
-@media (max-width: 640px) {
     .video-info h3 {
         font-size: 1.15rem;
     }
 
-    .video-actions {
-        gap: 0.5rem;
+    .action-btn {
+        padding: 0.6rem;
+        min-width: 100px;
     }
 }
 
-@media (max-width: 480px) {
-    .youtube-player-container {
-        margin: 0.25rem 0;
+/* Móviles grandes (480px-600px) */
+@media (max-width: 600px) {
+    .youtube-content {
+        padding: 0.75rem;
     }
 
     .video-info h3 {
         font-size: 1.1rem;
+    }
+
+    .video-stats {
+        font-size: 0.85rem;
+    }
+}
+
+/* Móviles medianos (400px-480px) */
+@media (max-width: 480px) {
+    .youtube-player-container {
+        margin: 0.5rem 0;
+    }
+
+    .video-info h3 {
+        font-size: 1.05rem;
         -webkit-line-clamp: 2;
         display: -webkit-box;
         -webkit-box-orient: vertical;
@@ -309,18 +353,35 @@
     }
 
     .action-btn {
-        width: 90%;
+        width: 100%;
+        max-width: 220px;
         padding: 0.5rem;
     }
 }
 
-@media (max-width: 375px) {
+/* Móviles pequeños (375px-400px) */
+@media (max-width: 400px) {
     .video-info {
-        padding: 0.7rem 0.5rem;
+        padding: 0.8rem 0.6rem;
     }
 
     .video-info h3 {
         font-size: 1rem;
+    }
+}
+
+/* Móviles muy pequeños (320px-375px) */
+@media (max-width: 375px) {
+    .youtube-content {
+        padding: 0.5rem;
+    }
+
+    .video-info {
+        padding: 0.7rem 0.5rem;
+    }
+
+    .video-stats {
+        font-size: 0.8rem;
     }
 }
 
