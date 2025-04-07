@@ -81,6 +81,7 @@
     border-radius: 8px;
     flex-shrink: 0;
     object-fit: cover;
+    background: transparent;
     transition: transform var(--transition-speed) ease;
 }
 

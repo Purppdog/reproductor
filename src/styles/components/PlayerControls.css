@@ -47,7 +47,7 @@
     height: 60px;
     border-radius: 8px;
     object-fit: cover;
-    background: linear-gradient(135deg, #535353 0%, #282828 100%);
+    background: transparent;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     flex-shrink: 0;
     transition: transform 0.3s ease;
