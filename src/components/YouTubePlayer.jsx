@@ -15,7 +15,7 @@ export default function YouTubePlayer({
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Cargar la API de YouTube solo una vez
+    // Cargar la API de YouTube
     useEffect(() => {
         if (window.YT) {
             setApiReady(true);
@@ -33,15 +33,23 @@ export default function YouTubePlayer({
             setLoading(false);
         };
 
+        const originalOnYouTubeIframeAPIReady = window.onYouTubeIframeAPIReady;
+
         window.onYouTubeIframeAPIReady = () => {
             setApiReady(true);
             setLoading(false);
+            if (originalOnYouTubeIframeAPIReady) {
+                originalOnYouTubeIframeAPIReady();
+            }
         };
 
         document.body.appendChild(tag);
 
         return () => {
-            if (window.onYouTubeIframeAPIReady) {
+            if (window.onYouTubeIframeAPIReady === window.onYouTubeIframeAPIReady) {
+                window.onYouTubeIframeAPIReady = originalOnYouTubeIframeAPIReady;
+            }
+            if (!window.onYouTubeIframeAPIReady) {
                 delete window.onYouTubeIframeAPIReady;
             }
         };
@@ -57,12 +65,14 @@ export default function YouTubePlayer({
                     videoId: videoId,
                     playerVars: {
                         autoplay: isPlaying ? 1 : 0,
-                        controls: 1, // Ocultamos controles nativos para usar los nuestros
-                        disablekb: 1,
+                        controls: 1, // Mostrar controles nativos
+                        disablekb: 0, // Habilitar teclado
                         modestbranding: 1,
                         rel: 0,
                         enablejsapi: 1,
-                        playsinline: 1
+                        playsinline: 1,
+                        fs: 1, // Permitir pantalla completa
+                        iv_load_policy: 3 // No mostrar anotaciones
                     },
                     events: {
                         'onReady': onPlayerReady,
@@ -71,129 +81,129 @@ export default function YouTubePlayer({
                     }
                 });
             } catch (err) {
-                setError("Error al inicializar el reproductor");
                 console.error("YouTube Player init error:", err);
+                setError("Error al inicializar el reproductor. Intenta recargar la página.");
+                setTimeout(() => setError(null), 5000);
             }
         };
 
-        if (playerInstanceRef.current) {
-            // Verificar si el video actual es diferente al nuevo
-            if (playerInstanceRef.current.getVideoData().video_id !== videoId) {
-                playerInstanceRef.current.loadVideoById({
-                    videoId: videoId,
-                    suggestedQuality: 'default'
-                });
-            }
-
-            if (isPlaying) {
-                playerInstanceRef.current.playVideo();
-            } else {
-                playerInstanceRef.current.pauseVideo();
-            }
-        } else {
+        if (!playerInstanceRef.current) {
             initializePlayer();
+        } else {
+            try {
+                const currentVideoId = playerInstanceRef.current.getVideoData()?.video_id;
+                if (currentVideoId !== videoId) {
+                    playerInstanceRef.current.loadVideoById(videoId);
+                }
+                handlePlayback();
+            } catch (err) {
+                console.error("Error updating player:", err);
+                initializePlayer(); // Reintentar inicialización
+            }
         }
 
         return () => {
-            // No destruimos la instancia para evitar parpadeos
-            // entre cambios de video
+            // Limpieza opcional
         };
-    }, [apiReady, videoId]); // Eliminamos isPlaying de las dependencias
+    }, [apiReady, videoId]);
 
-    // Control de reproducción/pausa
-    useEffect(() => {
-        if (!playerInstanceRef.current || !apiReady) return;
-
+    const handlePlayback = () => {
+        if (!playerInstanceRef.current) return;
         try {
             if (isPlaying) {
-                playerInstanceRef.current.playVideo();
+                playerInstanceRef.current.playVideo().catch(err => {
+                    console.warn("Autoplay prevented:", err);
+                    // Fallback para autoplay bloqueado
+                });
             } else {
                 playerInstanceRef.current.pauseVideo();
             }
         } catch (err) {
-            console.error("Error al controlar reproducción:", err);
+            console.error("Playback error:", err);
         }
-    }, [isPlaying, apiReady]);
-
-    // Manejar volumen
-    useEffect(() => {
-        if (!playerInstanceRef.current || !apiReady) return;
-
-        try {
-            playerInstanceRef.current.setVolume(isMuted ? 0 : volume * 100);
-        } catch (err) {
-            console.error("Error al ajustar volumen:", err);
-        }
-    }, [volume, isMuted, apiReady]);
+    };
 
     const onPlayerReady = (event) => {
         try {
             event.target.setVolume(isMuted ? 0 : volume * 100);
             if (isPlaying) {
-                event.target.playVideo();
+                setTimeout(() => { // Retraso para autoplay en móviles
+                    event.target.playVideo().catch(err => {
+                        console.warn("Autoplay prevented:", err);
+                    });
+                }, 300);
             }
         } catch (err) {
-            console.error("Error en onPlayerReady:", err);
+            console.error("onPlayerReady error:", err);
         }
     };
 
     const onPlayerStateChange = (event) => {
-        if (!event || !event.data) return;
-
+        if (!event?.data) return;
         try {
             switch (event.data) {
                 case window.YT.PlayerState.PLAYING:
-                    onPlay && onPlay();
+                    onPlay?.();
                     break;
                 case window.YT.PlayerState.PAUSED:
-                    onPause && onPause();
+                    onPause?.();
                     break;
                 case window.YT.PlayerState.ENDED:
-                    onEnd && onEnd();
-                    break;
-                case window.YT.PlayerState.UNSTARTED:
-                    // Manejar casos donde el video no inicia
+                    onEnd?.();
                     break;
                 default:
                     break;
             }
         } catch (err) {
-            console.error("Error en onPlayerStateChange:", err);
+            console.error("onPlayerStateChange error:", err);
         }
     };
 
     const onPlayerError = (event) => {
         const errorMessages = {
-            2: "La solicitud contiene un parámetro no válido",
-            5: "El contenido solicitado no se puede reproducir en un reproductor HTML5",
-            100: "El video solicitado no existe",
-            101: "El video no se puede reproducir en reproductores incrustados",
-            150: "Mismo error que 101"
+            2: "Parámetro no válido",
+            5: "No se puede reproducir en HTML5",
+            100: "El video no existe",
+            101: "No se puede reproducir en embebidos",
+            150: "Restricciones de reproducción"
         };
-
-        const message = errorMessages[event.data] || `Error al reproducir (Código: ${event.data})`;
-        console.error("YouTube Player Error:", message);
+        const message = errorMessages[event.data] || `Error (Código: ${event.data})`;
         setError(message);
+        setTimeout(() => setError(null), 5000);
+    };
+
+    const handleRetry = () => {
+        setError(null);
+        setLoading(true);
+        setApiReady(false);
+        // Forzar recarga del script
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        tag.async = true;
+        tag.defer = true;
+        document.body.appendChild(tag);
     };
 
     if (error) {
         return (
             <div className="youtube-error">
-                <p>{error}</p>
-                {error.includes("Código") && (
-                    <p>Intenta con otro video o verifica la URL</p>
-                )}
-                <button onClick={() => setError(null)}>Reintentar</button>
+                <p>Error: {error}</p>
+                <button onClick={handleRetry}>Reintentar</button>
             </div>
         );
     }
 
     if (loading) {
-        return <div className="youtube-loading">Cargando reproductor...</div>;
+        return (
+            <div className="youtube-loading">
+                <div className="spinner"></div>
+                <p>Cargando reproductor...</p>
+            </div>
+        );
     }
 
     return (
-        <div className="youtube-container">
+        <div className="youtube-player-wrapper">
             <div ref={playerRef} className="youtube-player"></div>
         </div>
     );

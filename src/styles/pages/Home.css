@@ -73,30 +73,56 @@
     width: 100%;
     max-width: 1200px;
     margin: 1.5rem auto;
-    border-radius: var(--border-radius);
+    border-radius: 8px;
     overflow: visible;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    background: var(--card-bg);
+    background: #181818;
 }
 
 .youtube-player-wrapper {
     position: relative;
     width: 100%;
     padding-bottom: 56.25%;
+    /* 16:9 aspect ratio */
     height: 0;
     background: #000;
-    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    border-radius: 8px 8px 0 0;
     overflow: hidden;
 }
 
-.youtube-player-wrapper iframe,
-.youtube-player-wrapper>div {
+.youtube-player-wrapper>div,
+.youtube-player-wrapper iframe {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     border: none;
+}
+
+.youtube-error {
+    padding: 1rem;
+    background: rgba(255, 50, 50, 0.15);
+    border-radius: 8px;
+    text-align: center;
+    color: #ff4d4d;
+    margin: 1rem 0;
+}
+
+.youtube-error button {
+    margin-top: 0.75rem;
+    padding: 0.5rem 1.25rem;
+    background: #1db954;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.youtube-loading {
+    padding: 2rem;
+    text-align: center;
+    color: #b3b3b3;
 }
 
 .youtube-player-wrapper>div {
@@ -211,10 +237,26 @@
     z-index: 100;
 }
 
-/* Media Queries optimizadas */
+/* Media Queries optimizadas para reproductor YouTube */
+@media (max-width: 1920px) {
+    .youtube-player-container {
+        max-width: 1400px;
+    }
+}
+
+@media (max-width: 1600px) {
+    .youtube-player-container {
+        max-width: 1200px;
+    }
+
+    .video-info h3 {
+        font-size: 1.5rem;
+    }
+}
+
 @media (max-width: 1440px) {
     .youtube-player-container {
-        max-width: 1000px;
+        max-width: 1100px;
     }
 
     .video-info h3 {
@@ -222,11 +264,17 @@
     }
 
     .video-info .artist {
-        font-size: 1.05rem;
+        font-size: 1.1rem;
     }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1280px) {
+    .youtube-player-container {
+        max-width: 1000px;
+    }
+}
+
+@media (max-width: 1152px) {
     .youtube-player-container {
         max-width: 900px;
     }
@@ -235,18 +283,23 @@
 @media (max-width: 1024px) {
     .youtube-player-container {
         width: 96%;
-        max-width: 800px;
-        margin: 1.25rem auto;
+        max-width: 850px;
     }
 
-    .video-info {
-        padding: 1.25rem 1rem;
+    .video-info h3 {
+        font-size: 1.35rem;
     }
 }
 
 @media (max-width: 900px) {
     .youtube-player-container {
-        max-width: 700px;
+        max-width: 800px;
+    }
+}
+
+@media (max-width: 834px) {
+    .youtube-player-container {
+        max-width: 750px;
     }
 }
 
@@ -255,11 +308,10 @@
         width: 100%;
         border-radius: 0;
         margin: 1rem 0;
-        box-shadow: none;
     }
 
-    .video-info {
-        padding: 1rem 0.75rem;
+    .youtube-player-wrapper {
+        border-radius: 0;
     }
 
     .video-info h3 {
@@ -267,32 +319,29 @@
     }
 
     .action-btn {
-        min-width: 110px;
         padding: 0.5rem 1rem;
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 667px) {
     .video-info h3 {
         font-size: 1.25rem;
     }
-
-    .video-actions {
-        gap: 0.75rem;
-    }
 }
 
-@media (max-width: 576px) {
-    .youtube-content {
-        padding: 0.75rem;
+@media (max-width: 600px) {
+    .youtube-player-container {
+        margin: 0.75rem 0;
     }
 
     .video-info {
-        padding: 1rem 0.5rem;
+        padding: 0.9rem 0.6rem;
     }
+}
 
-    .video-stats {
-        gap: 0.75rem;
+@media (max-width: 540px) {
+    .video-info h3 {
+        font-size: 1.2rem;
     }
 }
 
@@ -305,38 +354,34 @@
         overflow: hidden;
     }
 
-    .video-info .artist {
-        font-size: 0.95rem;
-    }
-
     .video-stats {
         flex-direction: column;
         gap: 0.3rem;
-        align-items: center;
     }
 
     .video-actions {
         flex-direction: column;
-        gap: 0.5rem;
     }
 
     .action-btn {
         width: 100%;
-        max-width: 200px;
+        max-width: none;
     }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 414px) {
     .video-info h3 {
         font-size: 1.1rem;
     }
+}
 
-    .video-info .artist {
-        font-size: 0.9rem;
+@media (max-width: 375px) {
+    .video-info {
+        padding: 0.8rem 0.5rem;
     }
 
-    .video-stats {
-        font-size: 0.85rem;
+    .video-info h3 {
+        font-size: 1.05rem;
     }
 }
 
@@ -344,9 +389,15 @@
     .youtube-content {
         padding: 0.5rem;
     }
+}
 
+@media (max-width: 320px) {
     .video-info {
-        padding: 0.9rem 0.4rem;
+        padding: 0.7rem 0.4rem;
+    }
+
+    .video-info h3 {
+        font-size: 1rem;
     }
 }
 
