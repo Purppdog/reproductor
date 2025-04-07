@@ -10,19 +10,26 @@ export default function AddSong({ onSongAdded }) {
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
+        if (!selectedFile) return;
 
-        // Validación básica del tipo de archivo
+        // Validación mejorada de tipos de archivo
         const validTypes = [
             'audio/mpeg', // MP3
             'audio/wav',  // WAV
             'audio/ogg',  // OGG
             'audio/x-m4a', // M4A
-            'audio/aac'   // AAC
+            'audio/aac',   // AAC
+            'audio/x-aac', // AAC alternativo
+            'audio/x-m4a'  // M4A alternativo
         ];
 
-        if (selectedFile && !validTypes.includes(selectedFile.type)) {
-            setError("Formato de audio no soportado. Use MP3, WAV, OGG o M4A");
-            e.target.value = ""; // Limpiar el input
+        const fileExtension = selectedFile.name.split('.').pop().toLowerCase();
+        const isValidType = validTypes.includes(selectedFile.type) ||
+            ['mp3', 'wav', 'ogg', 'm4a', 'aac'].includes(fileExtension);
+
+        if (!isValidType) {
+            setError(`Formato no soportado: ${selectedFile.type || fileExtension}`);
+            e.target.value = "";
             return;
         }
 
@@ -30,9 +37,8 @@ export default function AddSong({ onSongAdded }) {
         setError(null);
 
         // Autocompletar título si está vacío
-        if (!title && selectedFile) {
-            const fileName = selectedFile.name.replace(/\.[^/.]+$/, "");
-            setTitle(fileName);
+        if (!title.trim()) {
+            setTitle(selectedFile.name.replace(/\.[^/.]+$/, ""));
         }
     };
 
@@ -41,11 +47,7 @@ export default function AddSong({ onSongAdded }) {
         setError(null);
         setSuccess(null);
 
-        // Validaciones
-        if (!file) {
-            return setError("Selecciona un archivo de audio");
-        }
-
+        if (!file) return setError("Selecciona un archivo de audio");
         if (file.size > 15 * 1024 * 1024) {
             return setError("El archivo excede el límite de 15MB");
         }
@@ -55,43 +57,32 @@ export default function AddSong({ onSongAdded }) {
         try {
             const formData = new FormData();
             formData.append('audio', file);
-            formData.append('title', title.trim());
-            formData.append('artist', artist.trim());
-
-            // Mostrar el contenido del FormData para debug (opcional)
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}:`, value);
-            }
+            formData.append('title', title.trim() || "Sin título");
+            formData.append('artist', artist.trim() || "Artista desconocido");
 
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`, {
                 method: 'POST',
                 body: formData
-                // No incluir 'Content-Type': Multer lo maneja automáticamente
             });
 
-            const data = await response.json();
-
             if (!response.ok) {
-                throw new Error(data.error || "Error al subir la canción");
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `Error ${response.status}`);
             }
 
-            console.log("Canción subida exitosamente:", data.song);
-
-            // Notificar al componente padre
-            onSongAdded(data.song);
-
-            // Mostrar mensaje de éxito
+            const data = await response.json();
             setSuccess("Canción subida correctamente");
+            onSongAdded(data.song);
 
             // Resetear formulario
             setTitle("");
             setArtist("");
             setFile(null);
-            document.getElementById("audio-file").value = ""; // Limpiar input file
+            document.getElementById("audio-file").value = "";
 
         } catch (err) {
-            console.error("Error en el proceso de subida:", err);
-            setError(err.message || "Ocurrió un error durante la subida");
+            console.error("Error en la subida:", err);
+            setError(err.message || "Error al subir la canción");
         } finally {
             setUploading(false);
         }
@@ -104,7 +95,7 @@ export default function AddSong({ onSongAdded }) {
             {error && (
                 <div className="error-message">
                     <p>{error}</p>
-                    <small>Intenta con otro archivo si el problema persiste</small>
+                    <small>Formatos aceptados: MP3, WAV, OGG, M4A, AAC (Máx. 15MB)</small>
                 </div>
             )}
 
@@ -116,9 +107,7 @@ export default function AddSong({ onSongAdded }) {
 
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label htmlFor="title">
-                        Título:
-                    </label>
+                    <label htmlFor="title">Título:</label>
                     <input
                         id="title"
                         type="text"
@@ -131,9 +120,7 @@ export default function AddSong({ onSongAdded }) {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="artist">
-                        Artista:
-                    </label>
+                    <label htmlFor="artist">Artista:</label>
                     <input
                         id="artist"
                         type="text"
@@ -146,9 +133,7 @@ export default function AddSong({ onSongAdded }) {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="audio-file">
-                        Archivo de audio:
-                    </label>
+                    <label htmlFor="audio-file">Archivo de audio:</label>
                     <input
                         id="audio-file"
                         type="file"
@@ -156,12 +141,17 @@ export default function AddSong({ onSongAdded }) {
                         onChange={handleFileChange}
                         required
                     />
-                    <small>Formatos soportados: MP3, WAV, OGG, M4A (Máx. 15MB)</small>
+                    {file && (
+                        <small>
+                            Archivo seleccionado: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                        </small>
+                    )}
                 </div>
 
                 <button
                     type="submit"
                     disabled={uploading}
+                    aria-busy={uploading}
                 >
                     {uploading ? "Subiendo..." : "Subir Canción"}
                 </button>

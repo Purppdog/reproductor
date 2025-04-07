@@ -5,32 +5,30 @@ export default function SongList({
     songs = [],
     currentSong,
     onPlay,
-    onPause,
     isLoading = false,
     error = null,
     horizontal = false
 }) {
-    // Función para determinar la fuente de la miniatura
+    // Función para obtener la miniatura de la canción
     const getThumbnailSrc = (song) => {
         if (song.thumbnail) return song.thumbnail;
 
-        switch (song.source) {
-            case 'youtube':
-                return `https://img.youtube.com/vi/${song.id}/mqdefault.jpg`;
-            case 'cloudinary':
-                return song.public_id
-                    ? `https://res.cloudinary.com/dh5v8wspm/image/upload/w_300,h_300,c_thumb/${song.public_id}.jpg`
-                    : ViniloImage;
-            default:
-                return ViniloImage;
+        if (song.source === 'youtube') {
+            return `https://img.youtube.com/vi/${song.id}/mqdefault.jpg`;
         }
+
+        if (song.source === 'cloudinary' && song.public_id) {
+            return `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_300,h_300,c_fill/${song.public_id}.jpg`;
+        }
+
+        return ViniloImage;
     };
 
-    // Formatear duración para cualquier fuente
+    // Formatear duración de manera consistente
     const formatDuration = (duration) => {
-        if (!duration) return "--:--";
+        if (!duration) return "0:00";
 
-        // Si es número (segundos)
+        // Si es un número (segundos)
         if (typeof duration === 'number') {
             const minutes = Math.floor(duration / 60);
             const seconds = Math.floor(duration % 60);
@@ -40,47 +38,27 @@ export default function SongList({
         // Si es formato ISO 8601 (YouTube)
         if (typeof duration === 'string') {
             const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-            if (!match) return "--:--";
+            if (!match) return "0:00";
 
-            const hours = parseInt(match[1]) || 0;
-            const minutes = parseInt(match[2]) || 0;
+            const minutes = (parseInt(match[1]) || 0) * 60 + (parseInt(match[2]) || 0);
             const seconds = parseInt(match[3]) || 0;
-
-            return hours > 0
-                ? `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-                : `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
-        return "--:--";
+        return "0:00";
     };
 
-    // Formatear visualizaciones (para YouTube)
-    const formatViews = (views) => {
-        if (!views) return null;
-
-        const num = typeof views === 'string'
-            ? parseInt(views.replace(/\D/g, ''))
-            : views;
-
-        if (isNaN(num)) return views;
-
-        return num >= 1000000
-            ? `${(num / 1000000).toFixed(1)}M`
-            : num >= 1000
-                ? `${(num / 1000).toFixed(1)}K`
-                : num.toString();
-    };
-
+    // Manejar clic en la canción
     const handleSongClick = (song) => {
         const isPlaying = currentSong?.id === song.id;
-        isPlaying ? onPause?.() : onPlay?.(song);
+        isPlaying ? onPlay?.(null) : onPlay?.(song);
     };
 
     if (error) {
         return (
             <div className="error-container">
                 <p className="error-message">
-                    {error.message || "Error al cargar contenido"}
+                    {typeof error === 'string' ? error : error.message || "Error al cargar canciones"}
                 </p>
             </div>
         );
@@ -90,7 +68,7 @@ export default function SongList({
         return (
             <div className="loading-container">
                 <div className="loading-spinner"></div>
-                <p>Cargando...</p>
+                <p>Cargando canciones...</p>
             </div>
         );
     }
@@ -98,23 +76,22 @@ export default function SongList({
     return (
         <div className={`song-list-container ${horizontal ? 'horizontal' : ''}`}>
             {songs.length === 0 ? (
-                <p className="no-results">No se encontraron resultados</p>
+                <p className="no-results">No se encontraron canciones</p>
             ) : (
                 <div className={`song-grid ${horizontal ? 'horizontal-layout' : ''}`}>
                     {songs.map((song) => {
                         const isPlaying = currentSong?.id === song.id;
                         const thumbnailSrc = getThumbnailSrc(song);
                         const durationText = formatDuration(song.duration);
-                        const viewsText = song.source === 'youtube' ? formatViews(song.views) : null;
 
                         return (
                             <div
-                                key={song.id}
+                                key={`${song.id}-${song.uploaded_at || ''}`}
                                 className={`song-card ${isPlaying ? 'playing' : ''}`}
                                 onClick={() => handleSongClick(song)}
                                 role="button"
                                 tabIndex={0}
-                                aria-label={`Reproducir ${song.title}`}
+                                aria-label={`${isPlaying ? 'Pausar' : 'Reproducir'} ${song.title}`}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' || e.key === ' ') {
                                         handleSongClick(song);
@@ -124,8 +101,8 @@ export default function SongList({
                                 <div className="thumbnail-container">
                                     <img
                                         src={thumbnailSrc}
-                                        alt={`Miniatura de ${song.title}`}
-                                        className={`song-thumbnail ${song.source || 'local'}-thumbnail`}
+                                        alt={`Portada de ${song.title}`}
+                                        className="song-thumbnail"
                                         onError={(e) => {
                                             e.target.src = ViniloImage;
                                             e.target.classList.add('default-thumbnail');
@@ -133,23 +110,18 @@ export default function SongList({
                                         loading="lazy"
                                     />
                                     <div className="duration-badge">{durationText}</div>
-                                    {isPlaying && (
-                                        <div className="playing-indicator">
-                                            <FaPause />
-                                        </div>
-                                    )}
+                                    <div className="play-indicator">
+                                        {isPlaying ? <FaPause /> : <FaPlay />}
+                                    </div>
                                 </div>
 
-                                <div className="song-content">
+                                <div className="song-info">
                                     <h3 className="song-title" title={song.title}>
-                                        {song.title}
+                                        {song.title || "Sin título"}
                                     </h3>
-                                    <p className="song-artist">{song.artist || 'Artista desconocido'}</p>
-                                    {viewsText && (
-                                        <div className="song-stats">
-                                            <span>{viewsText} visualizaciones</span>
-                                        </div>
-                                    )}
+                                    <p className="song-artist" title={song.artist}>
+                                        {song.artist || "Artista desconocido"}
+                                    </p>
                                 </div>
                             </div>
                         );
