@@ -1,4 +1,5 @@
 import { useState } from "react";
+import '../styles/components/AddSong.css';
 
 export default function AddSong({ onSongAdded }) {
     const [title, setTitle] = useState("");

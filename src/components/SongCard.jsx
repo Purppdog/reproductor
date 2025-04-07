@@ -1,5 +1,6 @@
 import { FaPlay, FaPause } from 'react-icons/fa';
 import ViniloDefault from '../assets/images/VINILO.jpeg';
+import '../styles/components/SongCard.css';
 
 export default function SongCard({ song, isPlaying, onPlay, onPause }) {
     const getThumbnail = () => {

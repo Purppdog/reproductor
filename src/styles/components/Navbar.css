@@ -29,7 +29,7 @@
     font-size: 1.5rem;
     font-weight: 700;
     margin: 0;
-    background: linear-gradient(90deg, #4cc9f0, #4361ee);
+    background: linear-gradient(90deg, #5b9c35, #0ed64a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: 1px;
@@ -155,7 +155,7 @@
 }
 
 .navbar-mobile-link.navbar-link-active {
-    color: #4cc9f0;
+    color: #1cbb16;
     background: rgba(76, 201, 240, 0.1);
 }
 
