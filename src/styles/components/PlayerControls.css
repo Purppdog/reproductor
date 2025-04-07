@@ -41,6 +41,7 @@
     overflow: hidden;
 }
 
+
 .song-thumbnail {
     width: 60px;
     height: 60px;
@@ -70,25 +71,35 @@
 }
 
 .song-title {
-    font-size: 0.95rem;
+    font-size: 1rem;
+    /* Tamaño ligeramente mayor */
     font-weight: 600;
     color: white;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 0;
-    line-height: 1.4;
+    line-height: 1.3;
+    /* Ajuste de interlineado */
     letter-spacing: 0.3px;
+    text-transform: none;
+    /* Asegura que no haya transformación de texto */
+    font-family: inherit;
+    /* Usa la fuente por defecto o la que tengas definida */
 }
 
 .song-artist {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    /* Tamaño ligeramente mayor */
     color: #b3b3b3;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin: 3px 0 0 0;
+    margin: 2px 0 0 0;
+    /* Ajuste fino del margen superior */
     font-weight: 500;
+    letter-spacing: 0.2px;
+    /* Pequeño ajuste de espaciado */
 }
 
 /* Controles de reproducción centrales */
