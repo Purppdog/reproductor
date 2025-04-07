@@ -428,8 +428,8 @@ export default function Home() {
                 </div>
             )}
 
-            {/* PlayerControls solo visible para canciones que no son de YouTube */}
-            {currentSong?.source !== 'youtube' && (
+            {/* PlayerControls solo visible en la pestaña de biblioteca */}
+            {activeTab === 'library' && currentSong && (
                 <PlayerControls
                     currentSong={currentSong}
                     onNext={handleNext}
