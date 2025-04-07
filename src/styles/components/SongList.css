@@ -239,18 +239,8 @@
 }
 
 /* ============ RESPONSIVE ============ */
-@media (max-width: 1024px) {
-    .song-info {
-        min-height: 110px;
-        max-height: 110px;
-    }
-
-    .song-title {
-        font-size: 0.95rem;
-    }
-}
-
-@media (max-width: 768px) {
+/* Tablets y móviles en horizontal */
+@media (min-width: 481px) and (max-width: 768px) {
     .song-info {
         min-height: 100px;
         max-height: 100px;
@@ -261,15 +251,73 @@
     }
 }
 
-@media (max-width: 480px) {
+/* Pantallas medianas (laptops) */
+@media (min-width: 769px) and (max-width: 1024px) {
     .song-info {
-        min-height: 90px;
-        max-height: 90px;
-        padding: 0.75rem;
+        min-height: 110px;
+        max-height: 110px;
     }
 
     .song-title {
-        font-size: 0.85rem;
+        font-size: 0.95rem;
+    }
+}
+
+/* Tu resolución específica (1440x900) */
+@media (min-width: 1025px) and (max-width: 1600px) {
+    .song-info {
+        min-height: 125px;
+        max-height: 125px;
+    }
+
+    .song-title {
+        font-size: 1.05rem;
+        -webkit-line-clamp: 2;
+        /* Asegura 2 líneas */
+    }
+}
+
+/* Pantallas grandes (HD+) */
+@media (min-width: 1601px) and (max-width: 1920px) {
+    .song-info {
+        min-height: 135px;
+        max-height: 135px;
+    }
+
+    .song-title {
+        font-size: 1.1rem;
+    }
+}
+
+/* Pantallas muy grandes (2K/4K) */
+@media (min-width: 1921px) {
+    .song-info {
+        min-height: 150px;
+        max-height: 150px;
+    }
+
+    .song-title {
+        font-size: 1.15rem;
+        -webkit-line-clamp: 2;
+    }
+}
+
+/* ============ AJUSTES PARA TV ============ */
+/* Modo TV/pantalla grande con zoom */
+@media (min-width: 1200px) and (min-height: 800px) and (orientation: landscape) {
+    .song-info {
+        min-height: 140px;
+        max-height: 140px;
+        padding: 1.2rem;
+    }
+
+    .song-title {
+        font-size: 1.2rem;
+        line-height: 1.5;
+    }
+
+    .youtube-card .song-title {
+        font-size: 1.25rem;
     }
 }
 
