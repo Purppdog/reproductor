@@ -446,7 +446,7 @@ export default function Home() {
             )}
 
             {/* PlayerControls solo visible para canciones de la biblioteca */}
-            {activeTab === 'library' && currentSong && currentSong.source !== 'youtube' && (
+            {activeTab === 'library' && currentSong?.source === 'library' && (
                 <PlayerControls
                     currentSong={currentSong}
                     onNext={handleNext}
