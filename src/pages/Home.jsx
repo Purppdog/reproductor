@@ -428,8 +428,8 @@ export default function Home() {
                 </div>
             )}
 
-            {/* PlayerControls solo visible en la pestaña de biblioteca */}
-            {activeTab === 'library' && currentSong && (
+            {/* PlayerControls modificado */}
+            {activeTab === 'library' && currentSong && currentSong.source !== 'youtube' && (
                 <PlayerControls
                     currentSong={currentSong}
                     onNext={handleNext}
