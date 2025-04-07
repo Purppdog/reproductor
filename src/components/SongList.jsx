@@ -40,12 +40,25 @@ export default function SongList({
             const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
             if (!match) return "0:00";
 
-            const minutes = (parseInt(match[1]) || 0) * 60 + (parseInt(match[2]) || 0);
+            const hours = parseInt(match[1]) || 0;
+            const minutes = parseInt(match[2]) || 0;
             const seconds = parseInt(match[3]) || 0;
-            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            return `${hours > 0 ? hours + ':' : ''}${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
         return "0:00";
+    };
+
+    // Formatear fecha para YouTube
+    const formatDate = (dateString) => {
+        if (!dateString) return "";
+        return new Date(dateString).toLocaleDateString('es-ES');
+    };
+
+    // Formatear vistas para YouTube
+    const formatViews = (views) => {
+        if (!views) return "0 vistas";
+        return parseInt(views).toLocaleString('es-ES') + " vistas";
     };
 
     // Manejar clic en la canción
@@ -83,11 +96,12 @@ export default function SongList({
                         const isPlaying = currentSong?.id === song.id;
                         const thumbnailSrc = getThumbnailSrc(song);
                         const durationText = formatDuration(song.duration);
+                        const isYouTube = song.source === 'youtube';
 
                         return (
                             <div
                                 key={`${song.id}-${song.uploaded_at || ''}`}
-                                className={`song-card ${isPlaying ? 'playing' : ''}`}
+                                className={`song-card ${isPlaying ? 'playing' : ''} ${isYouTube ? 'youtube-card' : ''}`}
                                 onClick={() => handleSongClick(song)}
                                 role="button"
                                 tabIndex={0}
@@ -122,6 +136,13 @@ export default function SongList({
                                     <p className="song-artist" title={song.artist}>
                                         {song.artist || "Artista desconocido"}
                                     </p>
+
+                                    {isYouTube && (
+                                        <div className="youtube-stats">
+                                            <span>{formatViews(song.views)}</span>
+                                            <span>{formatDate(song.publishedAt)}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         );
