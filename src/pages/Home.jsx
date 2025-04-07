@@ -396,22 +396,26 @@ export default function Home() {
                     )}
 
                     {currentSong?.source === 'youtube' && (
-                        <div className="youtube-player-container">
-                            <YouTubePlayer
-                                videoId={currentSong.id}
-                                isPlaying={isPlaying}
-                                onPlay={() => setIsPlaying(true)}
-                                onPause={() => setIsPlaying(false)}
-                                onEnd={handleNext}
-                                volume={volume}
-                                isMuted={isMuted}
-                            />
-                            <div className="video-info">
-                                <h3 className="truncate">{currentSong.title}</h3>
-                                <p className="artist">{currentSong.artist}</p>
-                                <div className="video-stats">
-                                    <span>{formatViews(currentSong.views)}</span>
-                                    <span>{formatDate(currentSong.publishedAt)}</span>
+                        <div className="youtube-content">
+                            <div className="youtube-player-container">
+                                <div className="youtube-player-wrapper">
+                                    <YouTubePlayer
+                                        videoId={currentSong.id}
+                                        isPlaying={isPlaying}
+                                        onPlay={() => setIsPlaying(true)}
+                                        onPause={() => setIsPlaying(false)}
+                                        onEnd={handleNext}
+                                        volume={volume}
+                                        isMuted={isMuted}
+                                    />
+                                </div>
+                                <div className="video-info">
+                                    <h3 className="truncate">{currentSong.title}</h3>
+                                    <p className="artist">{currentSong.artist}</p>
+                                    <div className="video-stats">
+                                        <span>{formatViews(currentSong.views)}</span>
+                                        <span>{formatDate(currentSong.publishedAt)}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
