@@ -70,10 +70,19 @@
 
 .youtube-player-container {
     width: 100%;
+    padding-bottom: 56.25%;
     max-width: 1000px;
     margin: 0 auto 1.5rem;
     background: transparent;
     position: relative;
+}
+
+.youtube-player-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .youtube-player-wrapper {
@@ -318,6 +327,17 @@
         min-width: 110px;
     }
 }
+
+@media (max-width: 420px) {
+    .youtube-player-container {
+        padding-bottom: 60%;
+    }
+
+    .video-info h3 {
+        font-size: 0.95rem;
+    }
+}
+
 
 /* Móviles grandes (480px-600px) */
 @media (max-width: 600px) {
