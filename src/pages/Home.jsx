@@ -424,7 +424,6 @@ export default function Home() {
                                     <span>{formatDate(currentSong.publishedAt)}</span>
                                 </div>
                                 <div className="video-actions">
-                                    <button className="action-btn">Ver más</button>
                                     <button className="action-btn">Compartir</button>
                                 </div>
                             </div>
@@ -437,7 +436,7 @@ export default function Home() {
                         onPause={() => setIsPlaying(false)}
                         isLoading={loading.youtube}
                         error={error?.youtube}
-                        hideButtons={false} // Oculta botones no deseados
+                        hideButtons={true} // Oculta botones no deseados
                     />
                 </div>
             )}

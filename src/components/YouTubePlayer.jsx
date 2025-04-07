@@ -33,24 +33,20 @@ export default function YouTubePlayer({
             setLoading(false);
         };
 
-        const originalOnYouTubeIframeAPIReady = window.onYouTubeIframeAPIReady;
+        const originalCallback = window.onYouTubeIframeAPIReady;
 
         window.onYouTubeIframeAPIReady = () => {
             setApiReady(true);
             setLoading(false);
-            if (originalOnYouTubeIframeAPIReady) {
-                originalOnYouTubeIframeAPIReady();
-            }
+            originalCallback?.();
         };
 
         document.body.appendChild(tag);
 
         return () => {
+            // Limpiar callback solo si es el nuestro
             if (window.onYouTubeIframeAPIReady === window.onYouTubeIframeAPIReady) {
-                window.onYouTubeIframeAPIReady = originalOnYouTubeIframeAPIReady;
-            }
-            if (!window.onYouTubeIframeAPIReady) {
-                delete window.onYouTubeIframeAPIReady;
+                window.onYouTubeIframeAPIReady = originalCallback || undefined;
             }
         };
     }, []);
@@ -65,14 +61,14 @@ export default function YouTubePlayer({
                     videoId: videoId,
                     playerVars: {
                         autoplay: isPlaying ? 1 : 0,
-                        controls: 1, // Mostrar controles nativos
-                        disablekb: 0, // Habilitar teclado
+                        controls: 1,
+                        disablekb: 0,
                         modestbranding: 1,
                         rel: 0,
                         enablejsapi: 1,
                         playsinline: 1,
-                        fs: 1, // Permitir pantalla completa
-                        iv_load_policy: 3 // No mostrar anotaciones
+                        fs: 1,
+                        iv_load_policy: 3
                     },
                     events: {
                         'onReady': onPlayerReady,
@@ -82,8 +78,8 @@ export default function YouTubePlayer({
                 });
             } catch (err) {
                 console.error("YouTube Player init error:", err);
-                setError("Error al inicializar el reproductor. Intenta recargar la página.");
-                setTimeout(() => setError(null), 5000);
+                setError("Error al inicializar el reproductor");
+                setTimeout(() => setError(null), 3000);
             }
         };
 
@@ -95,42 +91,38 @@ export default function YouTubePlayer({
                 if (currentVideoId !== videoId) {
                     playerInstanceRef.current.loadVideoById(videoId);
                 }
-                handlePlayback();
+                if (isPlaying) {
+                    playerInstanceRef.current.playVideo();
+                } else {
+                    playerInstanceRef.current.pauseVideo();
+                }
             } catch (err) {
                 console.error("Error updating player:", err);
-                initializePlayer(); // Reintentar inicialización
+                initializePlayer();
             }
         }
 
         return () => {
-            // Limpieza opcional
+            // No destruir la instancia para evitar parpadeos
         };
-    }, [apiReady, videoId]);
+    }, [apiReady, videoId, isPlaying]);
 
-    const handlePlayback = () => {
-        if (!playerInstanceRef.current) return;
+    // Manejar volumen
+    useEffect(() => {
+        if (!playerInstanceRef.current || !apiReady) return;
         try {
-            if (isPlaying) {
-                playerInstanceRef.current.playVideo().catch(err => {
-                    console.warn("Autoplay prevented:", err);
-                    // Fallback para autoplay bloqueado
-                });
-            } else {
-                playerInstanceRef.current.pauseVideo();
-            }
+            playerInstanceRef.current.setVolume(isMuted ? 0 : volume * 100);
         } catch (err) {
-            console.error("Playback error:", err);
+            console.error("Volume error:", err);
         }
-    };
+    }, [volume, isMuted, apiReady]);
 
     const onPlayerReady = (event) => {
         try {
             event.target.setVolume(isMuted ? 0 : volume * 100);
             if (isPlaying) {
-                setTimeout(() => { // Retraso para autoplay en móviles
-                    event.target.playVideo().catch(err => {
-                        console.warn("Autoplay prevented:", err);
-                    });
+                setTimeout(() => {
+                    event.target.playVideo().catch(console.warn);
                 }, 300);
             }
         } catch (err) {
@@ -162,21 +154,17 @@ export default function YouTubePlayer({
     const onPlayerError = (event) => {
         const errorMessages = {
             2: "Parámetro no válido",
-            5: "No se puede reproducir en HTML5",
-            100: "El video no existe",
-            101: "No se puede reproducir en embebidos",
+            5: "Error de contenido HTML5",
+            100: "Video no encontrado",
+            101: "Reproducción no permitida",
             150: "Restricciones de reproducción"
         };
-        const message = errorMessages[event.data] || `Error (Código: ${event.data})`;
-        setError(message);
-        setTimeout(() => setError(null), 5000);
+        setError(errorMessages[event.data] || `Error (Código: ${event.data})`);
     };
 
     const handleRetry = () => {
         setError(null);
         setLoading(true);
-        setApiReady(false);
-        // Forzar recarga del script
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         tag.async = true;
@@ -187,7 +175,7 @@ export default function YouTubePlayer({
     if (error) {
         return (
             <div className="youtube-error">
-                <p>Error: {error}</p>
+                <p>{error}</p>
                 <button onClick={handleRetry}>Reintentar</button>
             </div>
         );
@@ -203,8 +191,6 @@ export default function YouTubePlayer({
     }
 
     return (
-        <div className="youtube-player-wrapper">
-            <div ref={playerRef} className="youtube-player"></div>
-        </div>
+        <div ref={playerRef} className="youtube-player"></div>
     );
 }
