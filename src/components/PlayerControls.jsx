@@ -4,7 +4,7 @@ import {
     FaStepForward, FaStepBackward
 } from 'react-icons/fa';
 import ViniloDefault from '../assets/images/VINILO.jpeg';
-import '../styles/components/PlayerControls.css';
+import "../styles/components/PlayerControls.css";
 
 export default function PlayerControls({
     currentSong,

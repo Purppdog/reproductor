@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { FiHome, FiMusic, FiSearch } from 'react-icons/fi';
 import { useState } from 'react';
-import '../styles/components/Navbar.css';
+import "../styles/components/Navbar.css";
 
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
