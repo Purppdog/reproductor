@@ -428,27 +428,29 @@ export default function Home() {
                 </div>
             )}
 
-            <PlayerControls
-                currentSong={currentSong}
-                onNext={handleNext}
-                onPrevious={handlePrevious}
-                onPlayPause={handlePlayPause}
-                isPlaying={isPlaying}
-                progress={progress}
-                onSeek={(newProgress) => {
-                    if (currentSong?.source === 'youtube') return;
-                    if (soundRef.current) {
-                        const newTime = (newProgress / 100) * soundRef.current.duration();
-                        soundRef.current.seek(newTime);
-                    }
-                    setProgress(newProgress);
-                }}
-                volume={volume}
-                onVolumeChange={handleVolumeChange}
-                isMuted={isMuted}
-                onToggleMute={toggleMute}
-                duration={currentSong?.duration || 0}
-            />
+            {/* PlayerControls solo visible para canciones que no son de YouTube */}
+            {currentSong?.source !== 'youtube' && (
+                <PlayerControls
+                    currentSong={currentSong}
+                    onNext={handleNext}
+                    onPrevious={handlePrevious}
+                    onPlayPause={handlePlayPause}
+                    isPlaying={isPlaying}
+                    progress={progress}
+                    onSeek={(newProgress) => {
+                        if (soundRef.current) {
+                            const newTime = (newProgress / 100) * soundRef.current.duration();
+                            soundRef.current.seek(newTime);
+                        }
+                        setProgress(newProgress);
+                    }}
+                    volume={volume}
+                    onVolumeChange={handleVolumeChange}
+                    isMuted={isMuted}
+                    onToggleMute={toggleMute}
+                    duration={currentSong?.duration || 0}
+                />
+            )}
         </div>
     );
 }

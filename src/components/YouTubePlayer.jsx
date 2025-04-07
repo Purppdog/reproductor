@@ -57,7 +57,7 @@ export default function YouTubePlayer({
                     videoId: videoId,
                     playerVars: {
                         autoplay: isPlaying ? 1 : 0,
-                        controls: 0, // Ocultamos controles nativos para usar los nuestros
+                        controls: 1, // Ocultamos controles nativos para usar los nuestros
                         disablekb: 1,
                         modestbranding: 1,
                         rel: 0,
