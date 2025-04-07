@@ -154,6 +154,10 @@
     /* Agrega guiones cuando sea necesario */
     overflow-wrap: break-word;
     /* Asegura el salto de palabras */
+    min-height: 2.8em;
+    /* Altura mínima basada en 2 líneas */
+    max-height: 2.8em;
+    /* Altura máxima para mantener consistencia */
     padding: 0.1rem 0.2rem;
     /* Pequeño padding interno */
 }
