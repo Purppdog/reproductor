@@ -58,7 +58,8 @@
 }
 
 .navbar-link-active {
-    color: #4cc9f0;
+    color: #0ed64a;
+    /* Cambiado de #4cc9f0 a #0ed64a */
 }
 
 .navbar-link-active::after {
@@ -68,7 +69,8 @@
     left: 0;
     width: 100%;
     height: 2px;
-    background: #4cc9f0;
+    background: #0ed64a;
+    /* Cambiado de #4cc9f0 a #0ed64a */
     border-radius: 2px;
 }
 
@@ -155,8 +157,10 @@
 }
 
 .navbar-mobile-link.navbar-link-active {
-    color: #1cbb16;
-    background: rgba(76, 201, 240, 0.1);
+    color: #0ed64a;
+    /* Cambiado de #1cbb16 a #0ed64a */
+    background: rgba(14, 214, 74, 0.1);
+    /* Cambiado de rgba(76, 201, 240, 0.1) */
 }
 
 /* Responsive Design */
