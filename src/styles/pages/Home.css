@@ -1,11 +1,12 @@
+/* styles/pages/Home.css - Optimizado para tu JSX */
+
 :root {
     --primary-color: #1db954;
-    --dark-bg: #0d120d;
+    --dark-bg: #121212;
     --card-bg: #181818;
     --hover-bg: #282828;
     --text-primary: #ffffff;
     --text-secondary: #b3b3b3;
-    --metallic-text: #a0a0a0;
     --border-radius: 8px;
     --transition-speed: 0.3s;
     --player-height: 80px;
@@ -21,18 +22,16 @@
     padding-bottom: var(--player-height);
 }
 
-/* Barra de búsqueda */
+/* Barra de búsqueda y tabs */
 .search-container {
-    padding: 1.5rem;
+    padding: 1rem;
     position: sticky;
     top: 0;
-    background: rgba(10, 20, 10, 0.95);
-    backdrop-filter: blur(10px);
+    background-color: var(--card-bg);
     z-index: 10;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Tabs */
 .tabs {
     display: flex;
     margin-top: 1rem;
@@ -62,110 +61,85 @@
 
 /* Contenido YouTube */
 .youtube-content {
-    padding: 1.5rem;
+    padding: 1rem;
     flex: 1;
-    animation: fadeIn 0.5s ease-out;
 }
 
 .youtube-player-container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 900px;
     margin: 2rem auto;
+    /* Más margen superior/inferior */
     border-radius: var(--border-radius);
     overflow: hidden;
-    background: #000;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Centrado horizontal */
 }
 
 .youtube-player-wrapper {
     width: 100%;
     aspect-ratio: 16/9;
+    /* Mantener relación de aspecto */
     background: #000;
 }
 
 .video-info {
-    padding: 1.5rem;
-    max-width: 1200px;
+    padding: 1rem 0;
+    /* Padding solo arriba/abajo */
+    max-width: 900px;
     margin: 0 auto;
+    width: 100%;
+    text-align: center;
+    /* Texto centrado */
 }
 
 .video-info h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
     color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.4;
+    word-break: break-word;
+    /* Para títulos largos */
+    padding: 0 1rem;
+    /* Padding para no pegar a bordes */
 }
 
 .video-info p {
     color: var(--text-secondary);
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 .video-stats {
     display: flex;
+    justify-content: center;
+    /* Centrado horizontal */
     gap: 1.5rem;
-    font-size: 0.9rem;
-    color: var(--metallic-text);
-    font-family: 'Courier New', monospace;
+    /* Más espacio entre elementos */
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+    /* Para móviles */
 }
 
-/* Tarjetas de canciones */
-.song-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-    padding: 1.5rem;
+.video-stats::before {
+    content: "•";
+    margin-right: 0.5rem;
+    color: var(--text-secondary);
 }
 
-.song-card {
-    background: var(--card-bg);
+/* Mensajes de error */
+.error-message {
+    padding: 1rem;
+    color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.1);
     border-radius: var(--border-radius);
-    padding: 1.25rem;
-    transition: all var(--transition-speed);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    cursor: pointer;
+    margin: 1rem;
+    text-align: center;
 }
 
-.song-card:hover {
-    background: var(--hover-bg);
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-}
-
-.song-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.song-title {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.4;
-}
-
-.song-meta {
-    display: flex;
-    justify-content: space-between;
-    color: var(--metallic-text);
-    font-size: 0.85rem;
-    font-family: 'Courier New', monospace;
-}
-
-/* Ocultar botones no deseados */
-.song-card button.unwanted-button,
-.song-card .action-button {
-    display: none !important;
-}
-
-/* Reproductor */
+/* Controles de reproducción (solo en biblioteca) */
 .player-controls {
     position: fixed;
     bottom: 0;
@@ -176,8 +150,64 @@
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: center;
-    padding: 0 2rem;
+    padding: 0 1rem;
     z-index: 100;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .youtube-player-container {
+        margin-bottom: 1.5rem;
+    }
+
+    .video-info h3 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Responsive Design - Ajustes mejorados */
+@media (max-width: 768px) {
+    .youtube-player-container {
+        margin: 1.5rem auto;
+    }
+
+    .video-info h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .video-stats {
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .youtube-player-container {
+        margin: 1rem auto;
+        border-radius: 0;
+        /* Más espacio en móviles */
+    }
+
+    .video-info {
+        padding: 0.75rem 0;
+    }
+
+    .video-info h3 {
+        font-size: 1rem;
+        padding: 0 0.5rem;
+    }
+
+    .video-stats {
+        flex-direction: row;
+        /* Mantener en línea */
+        gap: 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .video-stats span:not(:first-child)::before {
+        content: "•";
+        margin-right: 0.75rem;
+    }
 }
 
 /* Animaciones */
@@ -193,108 +223,6 @@
     }
 }
 
-/* ----------------------------- */
-/* MEDIA QUERIES PARA TODOS LOS DISPOSITIVOS */
-/* ----------------------------- */
-
-/* 4K TVs (2560px en adelante) */
-@media (min-width: 2560px) {
-    .song-list {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        max-width: 2400px;
-        margin: 0 auto;
-    }
-
-    .video-info h3 {
-        font-size: 2rem;
-    }
-
-    .song-title {
-        font-size: 1.3rem;
-    }
-}
-
-/* Laptops grandes y escritorios (1440px - 2559px) */
-@media (min-width: 1440px) and (max-width: 2559px) {
-    .song-list {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    }
-
-    .video-info {
-        padding: 2rem;
-    }
-}
-
-/* Laptops estándar (1024px - 1439px) */
-@media (min-width: 1024px) and (max-width: 1439px) {
-    .song-list {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    }
-
-    .video-info h3 {
-        font-size: 1.3rem;
-    }
-}
-
-/* Tablets (768px - 1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-    .song-list {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-
-    .video-info {
-        padding: 1rem;
-    }
-
-    .video-info h3 {
-        font-size: 1.2rem;
-    }
-}
-
-/* Móviles grandes (425px - 767px) */
-@media (min-width: 425px) and (max-width: 767px) {
-    .song-list {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        padding: 1rem;
-    }
-
-    .video-info h3 {
-        font-size: 1.1rem;
-        white-space: normal;
-        -webkit-line-clamp: 2;
-        display: -webkit-box;
-    }
-
-    .video-stats {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-}
-
-/* Móviles pequeños (hasta 424px) */
-@media (max-width: 424px) {
-    .song-list {
-        grid-template-columns: 1fr;
-    }
-
-    .search-container {
-        padding: 1rem;
-    }
-
-    .video-info {
-        padding: 0.5rem;
-    }
-
-    .video-info h3 {
-        font-size: 1rem;
-    }
-
-    .player-controls {
-        padding: 0 1rem;
-    }
-
-    .song-title {
-        -webkit-line-clamp: 1;
-    }
+.youtube-content {
+    animation: fadeIn 0.5s ease-out;
 }
