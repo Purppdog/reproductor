@@ -76,10 +76,20 @@
 }
 
 .song-thumbnail {
-    width: 100%;
-    height: 100%;
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    flex-shrink: 0;
     object-fit: cover;
     transition: transform var(--transition-speed) ease;
+}
+
+.song-text-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    flex-grow: 1;
 }
 
 .song-card:hover .song-thumbnail {
@@ -130,33 +140,23 @@
 
 /* Información de la canción */
 .song-info {
-    padding: 1rem;
     display: flex;
-    flex-direction: column;
-    min-height: 120px;
-    max-height: 120px;
-    /* Altura fija para consistencia */
-    overflow: hidden;
-    /* Importante */
+    align-items: center;
+    gap: 1rem;
+    min-width: 200px;
+    width: 30%;
+    flex-shrink: 0;
 }
+
 
 .song-title {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 0.25rem 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    color: white;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.4;
-    word-break: break-word;
-    max-width: 100%;
-    /* Asegura que no desborde */
-    padding: 0;
-    flex-shrink: 0;
-    /* Evita compresión */
+    margin: 0;
 }
 
 .youtube-card .song-title {
@@ -165,12 +165,12 @@
 }
 
 .song-artist {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin: 0;
+    font-size: 0.85rem;
+    color: #b3b3b3;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin: 3px 0 0 0;
 }
 
 /* Estadísticas de YouTube */

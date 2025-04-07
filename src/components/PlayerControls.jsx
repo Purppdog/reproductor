@@ -45,17 +45,21 @@ export default function PlayerControls({
             {/* Información de la canción */}
             <div className="song-info">
                 <img
-                    src={currentSong.thumbnail || ViniloDefault}
-                    alt={`Portada de ${currentSong.title}`}
-                    className="song-thumbnail"
+                    src={currentSong?.thumbnail || ViniloDefault}
+                    alt={`Portada de ${currentSong?.title || 'canción'}`}
+                    className={`song-thumbnail ${!currentSong?.thumbnail ? 'default-thumbnail' : ''}`}
                     onError={(e) => {
                         e.target.src = ViniloDefault;
                         e.target.classList.add('default-thumbnail');
                     }}
                 />
                 <div className="song-text-container">
-                    <p className="song-title">{currentSong.title || 'Sin título'}</p>
-                    <p className="song-artist">{currentSong.artist || 'Artista desconocido'}</p>
+                    <p className="song-title">
+                        {currentSong?.title || 'Sin título'}
+                    </p>
+                    <p className="song-artist">
+                        {currentSong?.artist || 'Artista desconocido'}
+                    </p>
                 </div>
             </div>
 
