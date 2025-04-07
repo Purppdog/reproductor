@@ -1,33 +1,37 @@
-/* PlayerControls.css - Versión Premium */
+/* PlayerControls.css - Versión Mejorada */
 
-/* Contenedor principal - Barra de reproducción */
+/* Contenedor principal */
 .player-controls {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(24, 24, 24, 0.95);
+    background: rgba(26, 26, 46, 0.95);
     backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 0.8rem 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.8rem 2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1.5rem;
+    gap: 2rem;
     z-index: 1000;
     height: 90px;
     transition: all 0.3s ease;
 }
 
-/* Efecto de vidrio esmerilado para navegadores que lo soportan */
-@supports (backdrop-filter: blur(10px)) {
-    .player-controls {
-        background: rgba(24, 24, 24, 0.8);
-    }
+.player-controls.inactive {
+    justify-content: center;
+    background: rgba(26, 26, 46, 0.8);
+}
+
+.inactive-message {
+    color: #b3b3b3;
+    font-size: 1rem;
+    font-weight: 500;
 }
 
 /* Sección de información de la canción */
-.player-song-info {
+.song-info {
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -37,7 +41,7 @@
     overflow: hidden;
 }
 
-.player-thumbnail {
+.song-thumbnail {
     width: 60px;
     height: 60px;
     border-radius: 8px;
@@ -48,11 +52,16 @@
     transition: transform 0.3s ease;
 }
 
-.player-thumbnail:hover {
+.song-thumbnail:hover {
     transform: scale(1.05);
 }
 
-.player-text-container {
+.default-thumbnail {
+    background-image: url('../assets/images/VINILO.jpeg');
+    background-size: cover;
+}
+
+.song-text-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -60,7 +69,7 @@
     overflow: hidden;
 }
 
-.player-title {
+.song-title {
     font-size: 0.95rem;
     font-weight: 600;
     color: white;
@@ -72,7 +81,7 @@
     letter-spacing: 0.3px;
 }
 
-.player-artist {
+.song-artist {
     font-size: 0.8rem;
     color: #b3b3b3;
     white-space: nowrap;
@@ -99,7 +108,7 @@
     gap: 1.5rem;
 }
 
-.control-button {
+.transport-controls button {
     background: transparent;
     border: none;
     color: #b3b3b3;
@@ -114,14 +123,20 @@
     border-radius: 50%;
 }
 
-.control-button:hover {
+.transport-controls button:hover {
     color: white;
     background: rgba(255, 255, 255, 0.1);
     transform: scale(1.1);
 }
 
-.control-button:active {
+.transport-controls button:active {
     transform: scale(0.95);
+}
+
+.transport-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
 }
 
 .play-pause-button {
@@ -156,6 +171,14 @@
     width: 100%;
 }
 
+.progress-container span {
+    font-size: 0.75rem;
+    color: #b3b3b3;
+    min-width: 40px;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+}
+
 .progress-bar {
     flex-grow: 1;
     height: 5px;
@@ -185,15 +208,12 @@
 
 .progress-bar::-webkit-slider-thumb:hover {
     transform: scale(1.2);
-    background: #1db954;
+    background: #4cc9f0;
 }
 
-.time-display {
-    font-size: 0.75rem;
-    color: #b3b3b3;
-    min-width: 40px;
-    font-feature-settings: "tnum";
-    font-variant-numeric: tabular-nums;
+.progress-bar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* Controles de volumen */
@@ -205,7 +225,7 @@
     justify-content: flex-end;
 }
 
-.volume-button {
+.volume-controls button {
     background: none;
     border: none;
     color: #b3b3b3;
@@ -220,7 +240,7 @@
     border-radius: 50%;
 }
 
-.volume-button:hover {
+.volume-controls button:hover {
     color: white;
     background: rgba(255, 255, 255, 0.1);
 }
@@ -253,16 +273,45 @@
 
 .volume-slider::-webkit-slider-thumb:hover {
     transform: scale(1.2);
-    background: #1db954;
+    background: #4cc9f0;
 }
 
-/* Efecto de onda en la barra de progreso (opcional) */
+/* Efecto de onda en la barra de progreso */
 .progress-bar {
     background: linear-gradient(to right,
-            #1db954 0%,
-            #1db954 var(--progress, 0%),
+            #4cc9f0 0%,
+            #4cc9f0 var(--progress, 0%),
             rgba(83, 83, 83, 0.5) var(--progress, 0%),
             rgba(83, 83, 83, 0.5) 100%);
+}
+
+/* Animaciones */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes rotateVinyl {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.is-playing .song-thumbnail {
+    animation: rotateVinyl 5s linear infinite;
 }
 
 /* Diseño responsive */
@@ -274,7 +323,7 @@
         gap: 0.8rem;
     }
 
-    .player-song-info {
+    .song-info {
         width: 100%;
         order: 1;
     }
@@ -293,7 +342,7 @@
         gap: 1rem;
     }
 
-    .control-button {
+    .transport-controls button {
         font-size: 1rem;
         width: 32px;
         height: 32px;
@@ -303,23 +352,4 @@
         width: 40px;
         height: 40px;
     }
-}
-
-/* Animaciones */
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.05);
-    }
-
-    100% {
-        transform: scale(1);
-    }
-}
-
-.is-playing .player-thumbnail {
-    animation: pulse 2s infinite ease-in-out;
 }

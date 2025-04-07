@@ -41,7 +41,7 @@
 }
 
 /* Botón de agregar canción */
-.add-song-btn {
+.add-btn {
     background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
     color: white;
     border: none;
@@ -57,19 +57,14 @@
     box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
 }
 
-.add-song-btn:hover {
+.add-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
     background: linear-gradient(135deg, #3aa8d8 0%, #3a56e8 100%);
 }
 
-.add-song-btn:active {
+.add-btn:active {
     transform: translateY(0);
-}
-
-.add-song-btn::before {
-    content: '+';
-    font-size: 1.2rem;
 }
 
 /* Grid de canciones */
@@ -78,10 +73,11 @@
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 1.5rem;
     margin-top: 1rem;
+    animation: fadeIn 0.5s ease-out;
 }
 
-/* Mensaje cuando no hay canciones */
-.no-songs-message {
+/* Estado vacío */
+.empty-state {
     text-align: center;
     grid-column: 1 / -1;
     padding: 3rem 1rem;
@@ -91,13 +87,13 @@
     margin: 1rem 0;
 }
 
-.no-songs-message p {
+.empty-state p {
     font-size: 1.1rem;
     color: #a1a1a1;
     margin-bottom: 1.5rem;
 }
 
-.no-songs-message button {
+.empty-state button {
     background: rgba(255, 255, 255, 0.1);
     color: #4cc9f0;
     border: 1px solid #4cc9f0;
@@ -108,71 +104,48 @@
     font-size: 0.9rem;
 }
 
-.no-songs-message button:hover {
+.empty-state button:hover {
     background: rgba(76, 201, 240, 0.1);
     transform: translateY(-2px);
 }
 
-/* Modal */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
-}
-
-.modal-content {
-    background: #1a1a2e;
+/* Estado de carga */
+.loading {
+    text-align: center;
     padding: 2rem;
-    border-radius: 12px;
-    max-width: 500px;
-    width: 90%;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #a1a1a1;
 }
 
-/* Efectos de hover para las tarjetas de canción */
-.song-card-container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top: 4px solid #4cc9f0;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .song-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 1rem;
-    }
-
-    .header h1 {
-        font-size: 1.5rem;
-    }
-
-    .add-song-btn {
-        padding: 8px 16px;
-        font-size: 0.85rem;
-    }
+/* Estado de error */
+.error {
+    text-align: center;
+    padding: 2rem;
+    color: #ff6b6b;
 }
 
-@media (max-width: 480px) {
-    .my-music {
-        padding: 1.5rem 1rem;
-    }
+.error button {
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
+    border: 1px solid #ff6b6b;
+    padding: 8px 16px;
+    border-radius: 20px;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
 
-    .song-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .no-songs-message {
-        padding: 2rem 1rem;
-    }
+.error button:hover {
+    background: rgba(255, 107, 107, 0.2);
 }
 
 /* Animaciones */
@@ -188,31 +161,39 @@
     }
 }
 
-.song-grid {
-    animation: fadeIn 0.5s ease-out;
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
-/* Scroll personalizado */
-.song-grid-container {
-    max-height: 60vh;
-    overflow-y: auto;
-    padding-right: 10px;
+/* Responsive Design */
+@media (max-width: 768px) {
+    .song-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .add-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
 }
 
-.song-grid-container::-webkit-scrollbar {
-    width: 8px;
-}
+@media (max-width: 480px) {
+    .my-music {
+        padding: 1.5rem 1rem;
+    }
 
-.song-grid-container::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-}
+    .song-grid {
+        grid-template-columns: 1fr;
+    }
 
-.song-grid-container::-webkit-scrollbar-thumb {
-    background: #4cc9f0;
-    border-radius: 10px;
-}
-
-.song-grid-container::-webkit-scrollbar-thumb:hover {
-    background: #3aa8d8;
+    .empty-state {
+        padding: 2rem 1rem;
+    }
 }

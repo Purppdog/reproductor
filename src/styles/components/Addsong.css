@@ -1,5 +1,5 @@
 /* Contenedor principal */
-.add-song-container {
+.add-song-form {
     max-width: 500px;
     margin: 2rem auto;
     padding: 2rem;
@@ -12,13 +12,13 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.add-song-container:hover {
+.add-song-form:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
 }
 
 /* Título */
-.add-song-container h2 {
+.add-song-form h2 {
     text-align: center;
     margin-bottom: 1.5rem;
     font-size: 1.8rem;
@@ -29,7 +29,7 @@
     padding-bottom: 10px;
 }
 
-.add-song-container h2::after {
+.add-song-form h2::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -56,8 +56,9 @@
     transition: all 0.3s ease;
 }
 
-/* Inputs de texto */
-.form-group input[type="text"] {
+/* Inputs */
+.form-group input[type="text"],
+.form-group input[type="file"] {
     width: 100%;
     padding: 12px 15px;
     background: rgba(255, 255, 255, 0.1);
@@ -69,7 +70,8 @@
     backdrop-filter: blur(5px);
 }
 
-.form-group input[type="text"]:focus {
+.form-group input[type="text"]:focus,
+.form-group input[type="file"]:focus {
     outline: none;
     border-color: #3498db;
     background: rgba(255, 255, 255, 0.15);
@@ -80,64 +82,31 @@
     color: rgba(255, 255, 255, 0.5);
 }
 
-/* Input de archivo personalizado */
-.file-input-container {
-    position: relative;
-    margin-top: 1rem;
-}
-
-.file-input-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    border: 2px dashed rgba(255, 255, 255, 0.3);
+/* Mensajes */
+.error-message {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+    padding: 12px;
     border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.05);
-    text-align: center;
-}
-
-.file-input-label:hover {
-    border-color: #3498db;
-    background: rgba(52, 152, 219, 0.1);
-}
-
-.file-input-label i {
-    font-size: 2rem;
-    color: #3498db;
-    margin-bottom: 0.5rem;
-}
-
-.file-input-label span {
-    color: #ecf0f1;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #e74c3c;
     font-size: 0.9rem;
+    animation: fadeIn 0.3s ease-out;
 }
 
-.file-input-label .file-name {
-    margin-top: 0.5rem;
-    font-size: 0.8rem;
-    color: #3498db;
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 100%;
+.success-message {
+    background: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #2ecc71;
+    font-size: 0.9rem;
+    animation: fadeIn 0.3s ease-out;
 }
 
-.file-input {
-    position: absolute;
-    width: 0.1px;
-    height: 0.1px;
-    opacity: 0;
-    overflow: hidden;
-    z-index: -1;
-}
-
-/* Botón de submit */
-.submit-button {
+/* Botón */
+.add-song-form button {
     width: 100%;
     padding: 14px;
     background: linear-gradient(to right, #3498db, #2980b9);
@@ -155,25 +124,25 @@
     box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
 }
 
-.submit-button:hover {
+.add-song-form button:hover {
     background: linear-gradient(to right, #2980b9, #3498db);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
 }
 
-.submit-button:active {
+.add-song-form button:active {
     transform: translateY(0);
 }
 
-.submit-button:disabled {
+.add-song-form button:disabled {
     background: #7f8c8d;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
 }
 
-/* Spinner de carga */
-.spinner {
+.add-song-form button[aria-busy="true"]::before {
+    content: '';
     display: inline-block;
     width: 20px;
     height: 20px;
@@ -184,22 +153,11 @@
     margin-right: 10px;
 }
 
+/* Animaciones */
 @keyframes spin {
     to {
         transform: rotate(360deg);
     }
-}
-
-/* Mensaje de error */
-.error-message {
-    background: rgba(231, 76, 60, 0.2);
-    color: #e74c3c;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    border-left: 4px solid #e74c3c;
-    font-size: 0.9rem;
-    animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
@@ -214,30 +172,14 @@
     }
 }
 
-/* Texto pequeño */
-.small-text {
-    font-size: 0.75rem;
-    color: #bdc3c7;
-    margin-top: 0.5rem;
-    text-align: center;
-}
-
-/* Efecto de focus para accesibilidad */
-.form-group input[type="text"]:focus-visible,
-.file-input-label:focus-within,
-.submit-button:focus-visible {
-    outline: 2px solid #3498db;
-    outline-offset: 2px;
-}
-
 /* Responsive */
 @media (max-width: 600px) {
-    .add-song-container {
+    .add-song-form {
         padding: 1.5rem;
         margin: 1rem;
     }
 
-    .add-song-container h2 {
+    .add-song-form h2 {
         font-size: 1.5rem;
     }
 }
