@@ -83,21 +83,32 @@ export default function Home() {
         setIsPlaying(false);
     }, [stopProgressTracker]);
 
-    // Control de audio - Definido primero para evitar dependencias circulares
+    // Control de audio
     const playAudio = useCallback((song) => {
+        if (!song?.url) {
+            console.error('Intento de reproducir canción sin URL:', song);
+            setError({ playback: 'La canción no tiene URL válida' });
+            return;
+        }
+
         stopCurrentPlayback();
+
+        console.log('Intentando reproducir:', song.url);
 
         soundRef.current = new Howl({
             src: [song.url],
             html5: true,
             volume: isMuted ? 0 : volume,
             onplay: () => {
+                console.log('Reproducción iniciada');
                 setIsPlaying(true);
                 startProgressTracker();
-                if (!song.duration) {
+
+                if (!song.duration && soundRef.current) {
+                    const duration = soundRef.current.duration();
                     setCurrentSong(prev => ({
                         ...prev,
-                        duration: soundRef.current.duration()
+                        duration: isFinite(duration) ? duration : 0
                     }));
                 }
             },
@@ -105,17 +116,22 @@ export default function Home() {
             onend: () => handleNextRef.current?.(),
             onloaderror: (_, err) => {
                 console.error('Error al cargar audio:', err);
-                setError({ playback: 'Error al cargar el audio' });
+                setError({ playback: `Error al cargar: ${err.message || 'Verifica la URL'}` });
                 setIsPlaying(false);
             },
-            onplayerror: () => {
-                console.error('Error al reproducir audio');
-                setError({ playback: 'Error al reproducir el audio' });
+            onplayerror: (_, err) => {
+                console.error('Error al reproducir:', err);
+                setError({ playback: `Error al reproducir: ${err.message || 'Formato no soportado'}` });
                 setIsPlaying(false);
             }
         });
 
-        soundRef.current.play();
+        try {
+            soundRef.current.play();
+        } catch (err) {
+            console.error('Error al iniciar reproducción:', err);
+            setError({ playback: 'Error al iniciar reproducción' });
+        }
     }, [volume, isMuted, stopCurrentPlayback, startProgressTracker]);
 
     // Control de play/pause
@@ -130,11 +146,7 @@ export default function Home() {
                 setIsPlaying(false);
                 stopProgressTracker();
             } else {
-                if (soundRef.current) {
-                    soundRef.current.play();
-                } else {
-                    playAudio(currentSong);
-                }
+                soundRef.current?.play() || playAudio(currentSong);
                 setIsPlaying(true);
                 startProgressTracker();
             }
@@ -150,7 +162,7 @@ export default function Home() {
             return;
         }
 
-        if (currentSong && currentSong.id === song.id) {
+        if (currentSong?.id === song.id) {
             handlePlayPause();
             return;
         }
@@ -256,21 +268,42 @@ export default function Home() {
         }
     }, []);
 
-    // Efectos
+    // Carga inicial de canciones
     useEffect(() => {
         const fetchLibrary = async () => {
             try {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`);
-                const data = await response.json();
+                if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
 
-                setSongs(data.map(song => ({
-                    ...song,
-                    id: song.id || song.public_id,
-                    source: 'cloudinary',
-                    thumbnail: song.thumbnail || generateCloudinaryThumbnail(song.public_id),
-                    url: song.url || generateCloudinaryAudioUrl(song.public_id)
-                })));
+                const data = await response.json();
+                console.log('Datos de la API:', data);
+
+                const processedSongs = data.map(song => {
+                    // Usamos EXACTAMENTE tus nombres de columna: cloudinary_public_id y cloudinary_url
+                    const publicId = song.cloudinary_public_id;
+                    const audioUrl = song.cloudinary_url || generateCloudinaryAudioUrl(publicId);
+
+                    if (!audioUrl) {
+                        console.warn('Canción sin URL válida:', song);
+                        return null;
+                    }
+
+                    return {
+                        id: song.id.toString(),
+                        title: song.title || "Sin título",
+                        artist: song.artist || "Artista desconocido",
+                        url: audioUrl,
+                        thumbnail: generateCloudinaryThumbnail(publicId),
+                        duration: Number(song.duration) || 0,
+                        public_id: publicId,
+                        source: song.source_type || 'cloudinary'
+                    };
+                }).filter(Boolean);
+
+                console.log('Canciones procesadas:', processedSongs);
+                setSongs(processedSongs);
             } catch (err) {
+                console.error("Error al cargar biblioteca:", err);
                 setError({ library: err.message });
             } finally {
                 setLoading(prev => ({ ...prev, library: false }));
@@ -280,6 +313,7 @@ export default function Home() {
         fetchLibrary();
     }, []);
 
+    // Limpieza al desmontar
     useEffect(() => {
         return () => {
             if (soundRef.current) {
@@ -293,6 +327,7 @@ export default function Home() {
         };
     }, [stopProgressTracker]);
 
+    // Efectos secundarios
     useEffect(() => {
         if (activeTab === 'youtube' && currentSong?.source !== 'youtube') {
             stopCurrentPlayback();
