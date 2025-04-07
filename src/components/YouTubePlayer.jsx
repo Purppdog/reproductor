@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import '../styles/components/YouTubePlayer.css';
 
 export default function YouTubePlayer({
     videoId,
