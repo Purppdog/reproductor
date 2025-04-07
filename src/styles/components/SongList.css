@@ -304,8 +304,9 @@
             margin-right: 0.5rem;
         }
     }
+}
 
-    /* Modo horizontal */
-    .horizontal-layout .song-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    }
+/* Modo horizontal */
+.horizontal-layout .song-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
