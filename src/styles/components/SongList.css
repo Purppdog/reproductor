@@ -133,8 +133,11 @@
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
     min-height: 120px;
+    max-height: 120px;
+    /* Altura fija para consistencia */
+    overflow: hidden;
+    /* Importante */
 }
 
 .song-title {
@@ -149,11 +152,11 @@
     text-overflow: ellipsis;
     line-height: 1.4;
     word-break: break-word;
-    hyphens: auto;
-    min-height: 2.8em;
-    /* Altura fija para 2 líneas */
-    max-height: 2.8em;
-    padding: 0.1rem;
+    max-width: 100%;
+    /* Asegura que no desborde */
+    padding: 0;
+    flex-shrink: 0;
+    /* Evita compresión */
 }
 
 .youtube-card .song-title {
@@ -237,28 +240,36 @@
 
 /* ============ RESPONSIVE ============ */
 @media (max-width: 1024px) {
+    .song-info {
+        min-height: 110px;
+        max-height: 110px;
+    }
+
     .song-title {
         font-size: 0.95rem;
-        min-height: 2.6em;
-        max-height: 2.6em;
     }
 }
 
 @media (max-width: 768px) {
+    .song-info {
+        min-height: 100px;
+        max-height: 100px;
+    }
+
     .song-title {
         font-size: 0.9rem;
-        -webkit-line-clamp: 2;
-        min-height: 2.4em;
-        max-height: 2.4em;
     }
 }
 
 @media (max-width: 480px) {
+    .song-info {
+        min-height: 90px;
+        max-height: 90px;
+        padding: 0.75rem;
+    }
+
     .song-title {
         font-size: 0.85rem;
-        -webkit-line-clamp: 2;
-        min-height: 2.2em;
-        max-height: 2.2em;
     }
 }
 
