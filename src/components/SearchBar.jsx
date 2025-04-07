@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
+import "../styles/components/SearchBar.css";
 
 export default function SearchBar({
     onSearch,
