@@ -14,12 +14,12 @@ export default function YouTubePlayer({
     const [apiReady, setApiReady] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [playerReady, setPlayerReady] = useState(false);
 
-    // Cargar la API de YouTube
+    // Cargar la API de YouTube solo una vez
     useEffect(() => {
         if (window.YT) {
             setApiReady(true);
+            setLoading(false);
             return;
         }
 
@@ -57,15 +57,12 @@ export default function YouTubePlayer({
                     videoId: videoId,
                     playerVars: {
                         autoplay: isPlaying ? 1 : 0,
-                        controls: 1, // Mostrar controles nativos
-                        disablekb: 0, // Permitir teclado
+                        controls: 1, // Ocultamos controles nativos para usar los nuestros
+                        disablekb: 1,
                         modestbranding: 1,
                         rel: 0,
                         enablejsapi: 1,
-                        playsinline: 1,
-                        fs: 1, // Permitir pantalla completa
-                        iv_load_policy: 3, // Ocultar anotaciones
-                        cc_load_policy: 0 // Subtítulos ocultos por defecto
+                        playsinline: 1
                     },
                     events: {
                         'onReady': onPlayerReady,
@@ -80,67 +77,60 @@ export default function YouTubePlayer({
         };
 
         if (playerInstanceRef.current) {
-            const currentVideoId = playerInstanceRef.current.getVideoData()?.video_id;
-
-            if (currentVideoId !== videoId) {
+            // Verificar si el video actual es diferente al nuevo
+            if (playerInstanceRef.current.getVideoData().video_id !== videoId) {
                 playerInstanceRef.current.loadVideoById({
                     videoId: videoId,
-                    suggestedQuality: 'hd720'
+                    suggestedQuality: 'default'
                 });
             }
 
-            handlePlayback();
-            handleVolume();
+            if (isPlaying) {
+                playerInstanceRef.current.playVideo();
+            } else {
+                playerInstanceRef.current.pauseVideo();
+            }
         } else {
             initializePlayer();
         }
 
         return () => {
-            // Limpieza opcional si es necesaria
+            // No destruimos la instancia para evitar parpadeos
+            // entre cambios de video
         };
-    }, [apiReady, videoId]);
+    }, [apiReady, videoId]); // Eliminamos isPlaying de las dependencias
 
-    // Manejar reproducción/pausa y volumen
+    // Control de reproducción/pausa
     useEffect(() => {
-        if (!playerReady || !playerInstanceRef.current) return;
+        if (!playerInstanceRef.current || !apiReady) return;
 
-        handlePlayback();
-        handleVolume();
-    }, [isPlaying, volume, isMuted, playerReady]);
-
-    const handlePlayback = () => {
         try {
             if (isPlaying) {
-                playerInstanceRef.current?.playVideo();
+                playerInstanceRef.current.playVideo();
             } else {
-                playerInstanceRef.current?.pauseVideo();
+                playerInstanceRef.current.pauseVideo();
             }
         } catch (err) {
             console.error("Error al controlar reproducción:", err);
         }
-    };
+    }, [isPlaying, apiReady]);
 
-    const handleVolume = () => {
+    // Manejar volumen
+    useEffect(() => {
+        if (!playerInstanceRef.current || !apiReady) return;
+
         try {
-            playerInstanceRef.current?.setVolume(isMuted ? 0 : volume * 100);
+            playerInstanceRef.current.setVolume(isMuted ? 0 : volume * 100);
         } catch (err) {
             console.error("Error al ajustar volumen:", err);
         }
-    };
+    }, [volume, isMuted, apiReady]);
 
     const onPlayerReady = (event) => {
         try {
-            setPlayerReady(true);
             event.target.setVolume(isMuted ? 0 : volume * 100);
-
-            // Solución para autoplay en móviles
             if (isPlaying) {
-                setTimeout(() => {
-                    event.target.playVideo().catch(err => {
-                        console.warn("Autoplay prevented:", err);
-                        // Fallback: Mostrar botón de play manual
-                    });
-                }, 500);
+                event.target.playVideo();
             }
         } catch (err) {
             console.error("Error en onPlayerReady:", err);
@@ -148,22 +138,21 @@ export default function YouTubePlayer({
     };
 
     const onPlayerStateChange = (event) => {
-        if (!event?.data) return;
+        if (!event || !event.data) return;
 
         try {
             switch (event.data) {
                 case window.YT.PlayerState.PLAYING:
-                    onPlay?.();
+                    onPlay && onPlay();
                     break;
                 case window.YT.PlayerState.PAUSED:
-                    onPause?.();
+                    onPause && onPause();
                     break;
                 case window.YT.PlayerState.ENDED:
-                    onEnd?.();
+                    onEnd && onEnd();
                     break;
-                case window.YT.PlayerState.BUFFERING:
-                case window.YT.PlayerState.CUED:
-                    // Estados adicionales para manejar
+                case window.YT.PlayerState.UNSTARTED:
+                    // Manejar casos donde el video no inicia
                     break;
                 default:
                     break;
@@ -175,57 +164,37 @@ export default function YouTubePlayer({
 
     const onPlayerError = (event) => {
         const errorMessages = {
-            2: "Parámetro no válido",
-            5: "No se puede reproducir en HTML5",
-            100: "El video no existe",
-            101: "No se puede reproducir en embebidos",
-            150: "Restricciones de reproducción"
+            2: "La solicitud contiene un parámetro no válido",
+            5: "El contenido solicitado no se puede reproducir en un reproductor HTML5",
+            100: "El video solicitado no existe",
+            101: "El video no se puede reproducir en reproductores incrustados",
+            150: "Mismo error que 101"
         };
 
-        const message = errorMessages[event.data] || `Error (Código: ${event.data})`;
-        console.error("YouTube Error:", message);
+        const message = errorMessages[event.data] || `Error al reproducir (Código: ${event.data})`;
+        console.error("YouTube Player Error:", message);
         setError(message);
-
-        // Reintentar después de 5 segundos
-        setTimeout(() => {
-            playerInstanceRef.current?.loadVideoById(videoId);
-            setError(null);
-        }, 5000);
-    };
-
-    const handleRetry = () => {
-        setError(null);
-        setLoading(true);
-        if (playerInstanceRef.current) {
-            playerInstanceRef.current.loadVideoById(videoId);
-        }
     };
 
     if (error) {
         return (
             <div className="youtube-error">
-                <p>Error: {error}</p>
-                <button onClick={handleRetry}>Reintentar</button>
+                <p>{error}</p>
+                {error.includes("Código") && (
+                    <p>Intenta con otro video o verifica la URL</p>
+                )}
+                <button onClick={() => setError(null)}>Reintentar</button>
             </div>
         );
     }
 
     if (loading) {
-        return (
-            <div className="youtube-loading">
-                <div className="spinner"></div>
-                <p>Cargando reproductor...</p>
-            </div>
-        );
+        return <div className="youtube-loading">Cargando reproductor...</div>;
     }
 
     return (
         <div className="youtube-container">
-            <div
-                ref={playerRef}
-                className="youtube-player"
-                aria-label="Reproductor de YouTube"
-            />
+            <div ref={playerRef} className="youtube-player"></div>
         </div>
     );
 }
