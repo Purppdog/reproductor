@@ -407,8 +407,8 @@ export default function Home() {
                                 isMuted={isMuted}
                             />
                             <div className="video-info">
-                                <h3>{currentSong.title}</h3>
-                                <p>{currentSong.artist}</p>
+                                <h3 className="truncate">{currentSong.title}</h3>
+                                <p className="artist">{currentSong.artist}</p>
                                 <div className="video-stats">
                                     <span>{formatViews(currentSong.views)}</span>
                                     <span>{formatDate(currentSong.publishedAt)}</span>
@@ -424,6 +424,7 @@ export default function Home() {
                         onPause={() => setIsPlaying(false)}
                         isLoading={loading.youtube}
                         error={error?.youtube}
+                        hideButtons={true} // Oculta botones no deseados
                     />
                 </div>
             )}
