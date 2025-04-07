@@ -141,13 +141,28 @@
     font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin: 0;
+    margin: 0 0 0.25rem 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    /* Limita a 2 líneas */
     -webkit-box-orient: vertical;
     overflow: hidden;
     line-height: 1.4;
     word-break: break-word;
+    /* Rompe palabras largas */
+    hyphens: auto;
+    /* Agrega guiones cuando sea necesario */
+    overflow-wrap: break-word;
+    /* Asegura el salto de palabras */
+    padding: 0.1rem 0.2rem;
+    /* Pequeño padding interno */
+}
+
+.youtube-card .song-title {
+    font-size: 1.05rem;
+    /* Ligeramente más grande para YouTube */
+    letter-spacing: 0.02em;
+    /* Mejor espaciado */
 }
 
 .song-artist {
@@ -237,6 +252,12 @@
 }
 
 @media (max-width: 768px) {
+    .song-title {
+        font-size: 0.95rem;
+        -webkit-line-clamp: 2;
+        /* Mantener 2 líneas en tablet */
+    }
+
     .song-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 1rem;
@@ -253,33 +274,38 @@
 }
 
 @media (max-width: 480px) {
-    .song-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .song-info {
-        padding: 0.75rem;
-        min-height: auto;
-    }
-
     .song-title {
         font-size: 0.9rem;
+        line-height: 1.3;
+        word-break: normal;
+
+        .song-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .song-info {
+            padding: 0.75rem;
+            min-height: auto;
+        }
+
+        .song-title {
+            font-size: 0.9rem;
+        }
+
+        .song-artist {
+            font-size: 0.8rem;
+        }
+
+        .youtube-stats {
+            font-size: 0.65rem;
+        }
+
+        .youtube-stats span:not(:first-child)::before {
+            margin-right: 0.5rem;
+        }
     }
 
-    .song-artist {
-        font-size: 0.8rem;
+    /* Modo horizontal */
+    .horizontal-layout .song-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
-
-    .youtube-stats {
-        font-size: 0.65rem;
-    }
-
-    .youtube-stats span:not(:first-child)::before {
-        margin-right: 0.5rem;
-    }
-}
-
-/* Modo horizontal */
-.horizontal-layout .song-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-}
