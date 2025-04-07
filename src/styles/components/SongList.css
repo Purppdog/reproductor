@@ -50,21 +50,74 @@
 }
 
 /* ============ ESTILOS PARA YOUTUBE ============ */
-.youtube-card {
-    /* Contenedor principal */
+.youtube-card,
+.youtube-list .song-card {
+    display: flex;
+    flex-direction: column;
+    background: rgba(30, 30, 30, 0.8);
+    border-radius: var(--border-radius);
+    overflow: hidden;
     border-top: 3px solid var(--youtube-red);
-    background: rgba(0, 0, 0, 0.2);
+    transition: all var(--transition-speed);
 }
 
-.youtube-card:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 10px 25px rgba(255, 0, 0, 0.2);
+.youtube-card:hover,
+.youtube-list .song-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(255, 0, 0, 0.15);
 }
 
 /* Thumbnail YouTube */
-.youtube-card .thumbnail-container {
+.youtube-card .thumbnail-container,
+.youtube-list .thumbnail-container {
+    width: 100%;
     aspect-ratio: 16/9;
+    position: relative;
     background: #000;
+}
+
+/* Contenedor de información */
+.youtube-card .song-info,
+.youtube-list .song-info {
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Título */
+.youtube-card .song-title,
+.youtube-list .song-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+    margin: 0;
+}
+
+/* Artista */
+.youtube-card .song-artist,
+.youtube-list .song-artist {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Estadísticas */
+.youtube-card .youtube-stats,
+.youtube-list .youtube-stats {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
 }
 
 /* ============ ELEMENTOS COMPARTIDOS ============ */
@@ -161,11 +214,6 @@
     margin: 0;
 }
 
-.youtube-card .song-title {
-    font-size: 1.05rem;
-    letter-spacing: 0.02em;
-}
-
 .song-artist {
     font-size: 0.85rem;
     color: #b3b3b3;
@@ -173,33 +221,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 3px 0 0 0;
-}
-
-/* Estadísticas de YouTube */
-.youtube-stats {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: auto;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    flex-wrap: wrap;
-}
-
-.youtube-stats span {
-    display: flex;
-    align-items: center;
-}
-
-.youtube-stats span:not(:first-child)::before {
-    content: "•";
-    margin-right: 0.75rem;
-    color: var(--text-tertiary);
-}
-
-/* Estilo específico para YouTube */
-.youtube-card .song-artist {
-    color: var(--youtube-red);
-    font-weight: 500;
 }
 
 /* Estado de reproducción (compartido) */
@@ -234,191 +255,109 @@
     animation: spin 1s linear infinite;
 }
 
-.youtube-list .song-card {
-    background: rgba(30, 30, 30, 0.8);
-    border-top: 3px solid var(--youtube-red);
-}
-
-.youtube-list .song-card:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 8px 20px rgba(255, 0, 0, 0.1);
-}
-
-.youtube-list .thumbnail-container {
-    aspect-ratio: 16/9;
-    /* YouTube */
-}
-
-.youtube-list .song-info {
-    padding: 0.75rem 0 0;
-}
-
-.youtube-list .song-title {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.3;
-    min-height: 2.6em;
-    margin: 0;
-}
-
-.youtube-list .song-artist {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.youtube-list .youtube-stats {
-    display: flex;
-    justify-content: space-between;
-    font-family: 'Courier New', monospace;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    margin-top: 0.5rem;
-}
-
 @keyframes spin {
     to {
         transform: rotate(360deg);
     }
 }
 
-/* ============ RESPONSIVE ============ */
-/* Tablets y móviles en horizontal */
-@media (min-width: 481px) and (max-width: 768px) {
+/* ============ RESPONSIVE DESIGN ============ */
+/* Móviles (vertical) - hasta 480px */
+@media (max-width: 480px) {
+
+    .youtube-card .song-info,
+    .youtube-list .song-info {
+        padding: 0.5rem;
+    }
+
+    .youtube-card .song-title,
     .youtube-list .song-title {
+        font-size: 0.85rem;
         -webkit-line-clamp: 1;
         min-height: auto;
     }
 
-    .youtube-list .song-info {
-        padding: 0.5rem 0 0;
-    }
-
-    .song-info {
-        min-height: 100px;
-        max-height: 100px;
-    }
-
-    .song-title {
-        font-size: 0.9rem;
+    .youtube-card .youtube-stats,
+    .youtube-list .youtube-stats {
+        flex-direction: column;
+        gap: 0.25rem;
     }
 }
 
-/* Pantallas medianas (laptops) */
-@media (min-width: 769px) and (max-width: 1024px) {
+/* Tablets y móviles horizontal (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+
+    .youtube-card .song-title,
     .youtube-list .song-title {
+        font-size: 0.9rem;
         -webkit-line-clamp: 1;
-        min-height: auto;
     }
+}
 
-    .youtube-list .song-info {
-        padding: 0.5rem 0 0;
-    }
+/* Laptops pequeñas (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
 
-    .song-info {
-        min-height: 110px;
-        max-height: 110px;
-    }
-
-    .song-title {
+    .youtube-card .song-title,
+    .youtube-list .song-title {
         font-size: 0.95rem;
     }
 }
 
-/* Tu resolución específica (1440x900) */
-@media (min-width: 1025px) and (max-width: 1600px) {
+/* Resolución HD (1025px - 1440px) */
+@media (min-width: 1025px) and (max-width: 1440px) {
+
+    .youtube-card .song-title,
     .youtube-list .song-title {
-        -webkit-line-clamp: 1;
-        min-height: auto;
+        font-size: 1rem;
+        -webkit-line-clamp: 2;
     }
+}
 
-    .youtube-list .song-info {
-        padding: 0.5rem 0 0;
-    }
+/* Pantallas Full HD (1441px - 1920px) */
+@media (min-width: 1441px) and (max-width: 1920px) {
 
-    .song-info {
-        min-height: 125px;
-        max-height: 125px;
-    }
-
-    .song-title {
+    .youtube-card .song-title,
+    .youtube-list .song-title {
         font-size: 1.05rem;
-        -webkit-line-clamp: 2;
-        /* Asegura 2 líneas */
-    }
-}
-
-/* Pantallas grandes (HD+) */
-@media (min-width: 1601px) and (max-width: 1920px) {
-    .youtube-list .song-title {
-        -webkit-line-clamp: 1;
-        min-height: auto;
     }
 
+    .youtube-card .song-info,
     .youtube-list .song-info {
-        padding: 0.5rem 0 0;
-    }
-
-    .song-info {
-        min-height: 135px;
-        max-height: 135px;
-    }
-
-    .song-title {
-        font-size: 1.1rem;
+        padding: 0.85rem;
     }
 }
 
-/* Pantallas muy grandes (2K/4K) */
+/* Pantallas 2K/4K (1921px en adelante) */
 @media (min-width: 1921px) {
+
+    .youtube-card .song-title,
     .youtube-list .song-title {
-        -webkit-line-clamp: 1;
-        min-height: auto;
-    }
-
-    .youtube-list .song-info {
-        padding: 0.5rem 0 0;
-    }
-
-    .song-info {
-        min-height: 150px;
-        max-height: 150px;
-    }
-
-    .song-title {
         font-size: 1.15rem;
-        -webkit-line-clamp: 2;
+    }
+
+    .youtube-card .song-info,
+    .youtube-list .song-info {
+        padding: 1rem;
     }
 }
 
-/* ============ AJUSTES PARA TV ============ */
-/* Modo TV/pantalla grande con zoom */
+/* Modo TV/Pantalla grande */
 @media (min-width: 1200px) and (min-height: 800px) and (orientation: landscape) {
+
+    .youtube-card,
+    .youtube-list .song-card {
+        max-width: 320px;
+    }
+
+    .youtube-card .song-title,
     .youtube-list .song-title {
-        -webkit-line-clamp: 1;
-        min-height: auto;
-    }
-
-    .youtube-list .song-info {
-        padding: 0.5rem 0 0;
-    }
-
-    .song-info {
-        min-height: 140px;
-        max-height: 140px;
-        padding: 1.2rem;
-    }
-
-    .song-title {
         font-size: 1.2rem;
-        line-height: 1.5;
+        line-height: 1.4;
+    }
+
+    .youtube-card .song-artist,
+    .youtube-list .song-artist {
+        font-size: 0.95rem;
     }
 }
 
