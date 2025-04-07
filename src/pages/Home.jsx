@@ -396,31 +396,40 @@ export default function Home() {
                     )}
 
                     {currentSong?.source === 'youtube' && (
-                        <div className="youtube-content">
-                            <div className="youtube-player-container">
-                                <div className="youtube-player-wrapper">
-                                    <YouTubePlayer
-                                        videoId={currentSong.id}
-                                        isPlaying={isPlaying}
-                                        onPlay={() => setIsPlaying(true)}
-                                        onPause={() => setIsPlaying(false)}
-                                        onEnd={handleNext}
-                                        volume={volume}
-                                        isMuted={isMuted}
-                                    />
+                        <div className="youtube-player-container">
+                            <div className="youtube-player-wrapper">
+                                <YouTubePlayer
+                                    videoId={currentSong.id}
+                                    isPlaying={isPlaying}
+                                    onPlay={() => setIsPlaying(true)}
+                                    onPause={() => setIsPlaying(false)}
+                                    onEnd={handleNext}
+                                    volume={volume}
+                                    isMuted={isMuted}
+                                    opts={{
+                                        playerVars: {
+                                            autoplay: isPlaying ? 1 : 0,
+                                            controls: 1, // Asegura que los controles estén habilitados
+                                            modestbranding: 1,
+                                            rel: 0
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div className="video-info">
+                                <h3 className="truncate">{currentSong.title}</h3>
+                                <p className="artist">{currentSong.artist}</p>
+                                <div className="video-stats">
+                                    <span>{formatViews(currentSong.views)}</span>
+                                    <span>{formatDate(currentSong.publishedAt)}</span>
                                 </div>
-                                <div className="video-info">
-                                    <h3 className="truncate">{currentSong.title}</h3>
-                                    <p className="artist">{currentSong.artist}</p>
-                                    <div className="video-stats">
-                                        <span>{formatViews(currentSong.views)}</span>
-                                        <span>{formatDate(currentSong.publishedAt)}</span>
-                                    </div>
+                                <div className="video-actions">
+                                    <button className="action-btn">Ver más</button>
+                                    <button className="action-btn">Compartir</button>
                                 </div>
                             </div>
                         </div>
                     )}
-
                     <SongList
                         songs={youtubeResults}
                         currentSong={currentSong}
