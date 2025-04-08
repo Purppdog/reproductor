@@ -38,9 +38,12 @@
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    min-width: 0;
-    width: 40%;
-    flex-shrink: 1;
+    min-width: 120px;
+    /* Ancho mínimo garantizado */
+    width: auto;
+    /* Cambiado de porcentaje fijo a auto */
+    flex: 1 1 auto;
+    /* Flexibilidad para crecer/encoger */
     overflow: hidden;
 }
 
@@ -292,6 +295,11 @@
 
     .song-info {
         width: 25%;
+        min-width: 250px;
+    }
+
+    .song-text-container {
+        min-width: 180px;
     }
 
     .playback-controls {
@@ -312,6 +320,12 @@
 
     .song-info {
         width: 25%;
+        min-width: 220px;
+
+    }
+
+    .song-text-container {
+        min-width: 150px;
     }
 
     .playback-controls {
@@ -342,7 +356,11 @@
 
     .song-info {
         width: 25%;
-        min-width: 160px;
+        min-width: 200px;
+    }
+
+    .song-text-container {
+        min-width: 150px;
     }
 
     .song-thumbnail {
@@ -376,6 +394,14 @@
         width: 55%;
     }
 
+    .song-info {
+        min-width: 160px;
+    }
+
+    .song-text-container {
+        min-width: 100px;
+    }
+
     .song-info,
     .volume-controls {
         width: 22.5%;
@@ -393,10 +419,16 @@
     }
 
     .song-info {
-        width: 25%;
+        width: 30%;
+        /* Más espacio para info */
+        min-width: 150px;
         order: 1;
-        min-width: 0;
-        flex-shrink: 1;
+        flex-shrink: 0;
+        /* No se reduce más */
+    }
+
+    .song-text-container {
+        min-width: 100px;
     }
 
     .playback-controls {
@@ -433,7 +465,12 @@
     }
 
     .song-info {
-        width: 30%;
+        min-width: 140px;
+    }
+
+    .song-title {
+        font-size: 0.95rem;
+        /* Tamaño legible */
     }
 
     .playback-controls {
@@ -453,7 +490,9 @@
     }
 
     .song-info {
-        width: 30%;
+        width: 35%;
+        /* Más espacio relativo */
+        min-width: 130px;
     }
 
     .playback-controls {
@@ -473,10 +512,18 @@
 
     .song-title {
         font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100px;
     }
 
     .song-artist {
         font-size: 0.8rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100px;
     }
 
     .transport-controls {
@@ -512,7 +559,11 @@
 
     /* Phones pequeños */
     .song-info {
-        width: 35%;
+        min-width: 120px;
+    }
+
+    .song-text-container {
+        min-width: 80px;
     }
 
     .playback-controls {
@@ -536,12 +587,18 @@
         height: 40px;
     }
 
+    .song-info {
+        min-width: 110px;
+    }
+
     .song-title {
         font-size: 0.85rem;
+        max-width: 80px;
     }
 
     .song-artist {
         font-size: 0.75rem;
+        max-width: 80px;
     }
 
     .transport-controls {
@@ -561,7 +618,16 @@
     }
 
     .song-info {
-        width: 40%;
+        min-width: 100px;
+    }
+
+    .song-text-container {
+        min-width: 60px;
+    }
+
+    .song-title,
+    .song-artist {
+        max-width: 60px;
     }
 
     .playback-controls {
