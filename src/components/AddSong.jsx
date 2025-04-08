@@ -117,8 +117,8 @@ export default function AddSong({ onSongAdded, onClose }) {
                                 required
                             />
                             <label htmlFor="audio-file" className="file-input-label">
-                                Seleccionar archivo
-                                <span>Formatos soportados: MP3, WAV, FLAC, etc.</span>
+                                <span>Seleccionar archivo</span>
+                                <small>Formatos soportados: MP3, WAV, FLAC, etc.</small>
                             </label>
                             {file && (
                                 <div className="file-info">

@@ -13,6 +13,7 @@
     backdrop-filter: blur(5px);
 }
 
+
 /* Contenido del formulario */
 .add-song-content {
     width: 90%;
@@ -24,6 +25,10 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: #ffffff;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Centra horizontalmente los elementos hijos */
 }
 
 /* Botón de cerrar */
@@ -46,18 +51,29 @@
     transform: scale(1.1);
 }
 
+.add-song-content form {
+    width: 100%;
+    /* Ocupa todo el ancho del contenedor */
+    max-width: 400px;
+    /* Ancho máximo para mejor legibilidad */
+}
+
 /* Título del formulario */
 .add-song-content h2 {
     font-size: 1.8rem;
     font-weight: 600;
     margin: 0 0 2rem 0;
-    text-align: center;
     color: #ffffff;
+    text-align: center;
+    width: 100%;
+    /* Asegura que ocupe todo el ancho disponible */
 }
 
 /* Grupos de formulario */
 .form-group {
     margin-bottom: 1.8rem;
+    width: 100%;
+    /* Asegura que ocupe todo el ancho disponible */
 }
 
 .form-group label {
@@ -90,20 +106,24 @@
 .file-input-container {
     position: relative;
     margin-top: 0.5rem;
+    width: 100%;
 }
 
 .file-input-label {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    padding: 1.2rem;
+    padding: 1.5rem;
     background: rgba(10, 10, 20, 0.3);
     border: 1px dashed rgba(255, 255, 255, 0.2);
     border-radius: 10px;
-    text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
     color: rgba(255, 255, 255, 0.7);
     font-size: 0.95rem;
+    text-align: center;
 }
 
 .file-input-label:hover {
@@ -151,6 +171,9 @@
     display: flex;
     gap: 1rem;
     margin-top: 2rem;
+    width: 100%;
+    justify-content: center;
+    /* Centra los botones horizontalmente */
 }
 
 .cancel-button,
