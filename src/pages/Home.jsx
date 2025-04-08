@@ -5,6 +5,7 @@ import SongList from '../components/SongList';
 import MyMusic from '../components/MyMusic';
 import PlayerControls from '../components/PlayerControls';
 import SearchBar from '../components/SearchBar';
+import AddSong from '../components/AddSong';
 import '../styles/pages/Home.css';
 
 export default function Home() {
