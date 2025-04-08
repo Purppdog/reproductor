@@ -1,55 +1,275 @@
+/* Estilos base del modal - Efecto vidrio (glassmorphism) */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.85);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
+    z-index: 10000;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+.modal-overlay.closing {
+    opacity: 0;
+    backdrop-filter: blur(0);
 }
 
 .modal-content {
-    background: #1a1a2e;
-    padding: 2rem;
-    border-radius: 12px;
-    min-width: 300px;
-    max-width: 500px;
-    width: 90%;
-    text-align: center;
     position: relative;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    animation: fadeIn 0.3s ease-out;
+    background: rgba(26, 26, 46, 0.95);
+    border-radius: 18px;
+    padding: 2.5rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow:
+        0 12px 28px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transform-origin: center;
+    animation: scaleIn 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    overflow: hidden;
 }
 
+.modal-content.closing {
+    animation: scaleOut 0.3s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* Efecto de borde sutil */
+.modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #4a80f0, #6a9ff0);
+}
+
+/* Botón de cerrar moderno */
 .close-btn {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
+    top: 18px;
+    right: 18px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
     border: none;
-    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     color: #a1a1a1;
-    transition: color 0.3s ease;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    z-index: 10;
 }
 
 .close-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
     color: #ffffff;
+    transform: rotate(90deg);
 }
 
-@keyframes fadeIn {
+/* Barra de progreso */
+.upload-progress {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    margin: 1.5rem 0;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4a80f0, #6a9ff0);
+    border-radius: 4px;
+    transition: width 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+    position: relative;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0),
+            rgba(255, 255, 255, 0.3),
+            rgba(255, 255, 255, 0));
+    animation: progressShine 2s infinite;
+}
+
+.progress-text {
+    position: absolute;
+    top: 12px;
+    right: 0;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #a1a1a1;
+}
+
+/* Alertas */
+.alert {
+    padding: 0.9rem 1.2rem;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+    animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+
+.alert-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.alert-success {
+    background: rgba(46, 204, 113, 0.15);
+    border-color: rgba(46, 204, 113, 0.3);
+    color: #2ecc71;
+}
+
+.alert-error {
+    background: rgba(231, 76, 60, 0.15);
+    border-color: rgba(231, 76, 60, 0.3);
+    color: #e74c3c;
+}
+
+/* Efecto de luz dinámica */
+.modal-content::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center,
+            rgba(74, 128, 240, 0.08) 0%,
+            transparent 70%);
+    pointer-events: none;
+    animation: rotateLight 20s linear infinite;
+    z-index: 0;
+}
+
+/* Contenido del modal (para los children) */
+.modal-content>*:not(.close-btn):not(.alert):not(.upload-progress) {
+    position: relative;
+    z-index: 2;
+}
+
+/* Animaciones */
+@keyframes scaleIn {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: scale(0.95) translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes scaleOut {
+    to {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
     }
 
     to {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+@keyframes rotateLight {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes progressShine {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    20% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .modal-content {
+        padding: 2rem 1.5rem;
+        border-radius: 14px;
+    }
+
+    .close-btn {
+        top: 14px;
+        right: 14px;
+        width: 32px;
+        height: 32px;
+    }
+
+    .alert {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .alert-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* Efecto de pulsación para llamar la atención */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.alert.pulse {
+    animation: pulse 1.5s infinite;
 }
