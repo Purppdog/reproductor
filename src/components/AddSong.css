@@ -11,12 +11,13 @@
     align-items: center;
     z-index: 1000;
     backdrop-filter: blur(5px);
+    padding: 1rem;
+    box-sizing: border-box;
 }
-
 
 /* Contenido del formulario */
 .add-song-content {
-    width: 90%;
+    width: 52%;
     max-width: 500px;
     background: rgba(30, 30, 46, 0.95);
     border-radius: 16px;
@@ -28,7 +29,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* Centra horizontalmente los elementos hijos */
+    margin: 1rem;
+    box-sizing: border-box;
 }
 
 /* Botón de cerrar */
@@ -51,13 +53,6 @@
     transform: scale(1.1);
 }
 
-.add-song-content form {
-    width: 100%;
-    /* Ocupa todo el ancho del contenedor */
-    max-width: 400px;
-    /* Ancho máximo para mejor legibilidad */
-}
-
 /* Título del formulario */
 .add-song-content h2 {
     font-size: 1.8rem;
@@ -66,14 +61,18 @@
     color: #ffffff;
     text-align: center;
     width: 100%;
-    /* Asegura que ocupe todo el ancho disponible */
+}
+
+/* Formulario */
+.add-song-content form {
+    width: 100%;
+    max-width: 400px;
 }
 
 /* Grupos de formulario */
 .form-group {
     margin-bottom: 1.8rem;
     width: 100%;
-    /* Asegura que ocupe todo el ancho disponible */
 }
 
 .form-group label {
@@ -94,6 +93,7 @@
     color: #ffffff;
     font-size: 1rem;
     transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 .form-group input[type="text"]:focus {
@@ -102,7 +102,7 @@
     box-shadow: 0 0 0 3px rgba(74, 128, 240, 0.2);
 }
 
-/* Estilo mejorado para el input de archivo */
+/* Área de subida de archivos */
 .file-input-container {
     position: relative;
     margin-top: 0.5rem;
@@ -124,6 +124,7 @@
     color: rgba(255, 255, 255, 0.7);
     font-size: 0.95rem;
     text-align: center;
+    box-sizing: border-box;
 }
 
 .file-input-label:hover {
@@ -158,12 +159,14 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    word-break: break-word;
 }
 
 .file-info::before {
     content: "✓";
     color: #4a80f0;
     font-weight: bold;
+    margin-right: 0.5rem;
 }
 
 /* Botones */
@@ -173,7 +176,6 @@
     margin-top: 2rem;
     width: 100%;
     justify-content: center;
-    /* Centra los botones horizontalmente */
 }
 
 .cancel-button,
@@ -186,6 +188,8 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    min-width: 120px;
+    box-sizing: border-box;
 }
 
 .cancel-button {
@@ -220,6 +224,8 @@
     border-radius: 10px;
     margin-bottom: 1.5rem;
     font-size: 0.95rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .alert.error {
@@ -263,17 +269,73 @@
     }
 }
 
-/* Responsive */
+/* Media Queries para responsive */
+@media (max-width: 768px) {
+    .add-song-content {
+        padding: 2rem;
+        width: 85%;
+    }
+}
+
 @media (max-width: 600px) {
     .add-song-content {
-        padding: 1.8rem;
-    }
-
-    .form-actions {
-        flex-direction: column;
+        padding: 1.5rem;
+        width: 90%;
     }
 
     .add-song-content h2 {
         font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group input[type="text"] {
+        padding: 0.8rem 1rem;
+    }
+
+    .file-input-label {
+        padding: 1.2rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .cancel-button,
+    .submit-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 375px) {
+    .add-song-content {
+        padding: 1.2rem;
+        width: 95%;
+    }
+
+    .add-song-content h2 {
+        font-size: 1.3rem;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-group input[type="text"] {
+        padding: 0.7rem 0.9rem;
+        font-size: 0.95rem;
+    }
+
+    .file-input-label {
+        padding: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .file-input-label span {
+        font-size: 0.8rem;
     }
 }
