@@ -8,16 +8,23 @@ export default function AddSong({ onSongAdded, onUploadProgress, onUploadStatus 
     const [error, setError] = useState(null);
     const fileInputRef = useRef(null);
 
+    const isValidAudioFile = (file) => {
+        if (!file) return false;
+
+        // Validar por extensión del archivo
+        const validExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.aac'];
+        const fileExtension = file.name.toLowerCase().slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2);
+
+        return validExtensions.includes(`.${fileExtension}`);
+    };
+
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (!selectedFile) return;
 
-        const validTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/x-m4a', 'audio/aac'];
-        const fileExtension = selectedFile.name.split('.').pop().toLowerCase();
-
-        if (!validTypes.includes(selectedFile.type) &&
-            !['mp3', 'wav', 'ogg', 'm4a', 'aac'].includes(fileExtension)) {
-            setError(`Formato no soportado: ${fileExtension}`);
+        // Validación más flexible
+        if (!isValidAudioFile(selectedFile)) {
+            setError(`Formato no soportado: ${selectedFile.name.split('.').pop()}`);
             e.target.value = "";
             return;
         }
@@ -50,7 +57,10 @@ export default function AddSong({ onSongAdded, onUploadProgress, onUploadStatus 
         setError(null);
         if (onUploadStatus) onUploadStatus(null);
 
-        if (!file) return setError("Selecciona un archivo de audio");
+        if (!file) {
+            setError("Debes seleccionar un archivo de audio");
+            return;
+        }
 
         setUploading(true);
         if (onUploadProgress) onUploadProgress(0);
@@ -76,7 +86,13 @@ export default function AddSong({ onSongAdded, onUploadProgress, onUploadStatus 
                         if (xhr.status === 200) {
                             resolve(JSON.parse(xhr.responseText));
                         } else {
-                            reject(new Error(xhr.statusText || 'Error en la subida'));
+                            // Manejar errores específicos del servidor
+                            try {
+                                const errorData = JSON.parse(xhr.responseText);
+                                reject(new Error(errorData.message || 'Error en la subida'));
+                            } catch {
+                                reject(new Error(xhr.statusText || 'Error en la subida'));
+                            }
                         }
                     }
                 };
@@ -89,14 +105,12 @@ export default function AddSong({ onSongAdded, onUploadProgress, onUploadStatus 
             if (onUploadStatus) onUploadStatus('success');
             onSongAdded(data.song);
 
-            // Resetear formulario después de 2 segundos
-            setTimeout(() => {
-                setTitle("");
-                setArtist("");
-                setFile(null);
-                if (onUploadProgress) onUploadProgress(0);
-                if (fileInputRef.current) fileInputRef.current.value = "";
-            }, 2000);
+            // Resetear formulario
+            setTitle("");
+            setArtist("");
+            setFile(null);
+            if (onUploadProgress) onUploadProgress(0);
+            if (fileInputRef.current) fileInputRef.current.value = "";
 
         } catch (err) {
             console.error("Error en la subida:", err);
