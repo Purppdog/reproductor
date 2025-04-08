@@ -35,9 +35,9 @@ export default function Modal({ children, onClose, uploadProgress = 0, uploadSta
 
                 {/* Barra de progreso */}
                 {uploadProgress > 0 && uploadProgress < 100 && (
-                    <div className="upload-progress">
+                    <div className="upload-progress-container">
                         <div
-                            className="progress-bar"
+                            className="upload-progress-bar"
                             style={{ width: `${uploadProgress}%` }}
                         ></div>
                         <span className="progress-text">{uploadProgress}%</span>
