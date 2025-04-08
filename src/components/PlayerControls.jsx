@@ -30,7 +30,7 @@ export default function PlayerControls({
     if (!currentSong) {
         return (
             <div className="player-controls inactive">
-                <div className="inactive-message">
+                <div className="player-inactive-message">
                     Selecciona una canción para comenzar
                 </div>
             </div>
@@ -43,39 +43,40 @@ export default function PlayerControls({
     return (
         <div className={`player-controls ${isPlaying ? 'is-playing' : ''}`}>
             {/* Información de la canción */}
-            <div className="song-info">
+            <div className="player-track-info">
                 <img
                     src={currentSong?.thumbnail || ViniloDefault}
                     alt={`Portada de ${currentSong?.title || 'canción'}`}
-                    className={`song-thumbnail ${!currentSong?.thumbnail ? 'default-thumbnail' : ''}`}
+                    className={`player-thumbnail ${!currentSong?.thumbnail ? 'player-default-thumbnail' : ''}`}
                     onError={(e) => {
                         e.target.src = ViniloDefault;
-                        e.target.classList.add('default-thumbnail');
+                        e.target.classList.add('player-default-thumbnail');
                     }}
                 />
-                <div className="song-text-container">
-                    <p className="song-title">
+                <div className="player-track-text">
+                    <p className="player-track-title">
                         {currentSong?.title || 'Sin título'}
                     </p>
-                    <p className="song-artist">
+                    <p className="player-track-artist">
                         {currentSong?.artist || 'Artista desconocido'}
                     </p>
                 </div>
             </div>
 
             {/* Controles de reproducción */}
-            <div className="playback-controls">
-                <div className="transport-controls">
+            <div className="player-playback-controls">
+                <div className="player-transport-controls">
                     <button
                         onClick={onPrevious}
                         aria-label="Anterior"
                         disabled={!currentSong}
+                        className="player-control-btn"
                     >
                         <FaStepBackward />
                     </button>
                     <button
                         onClick={onPlayPause}
-                        className="play-pause-button"
+                        className="player-play-pause-btn"
                         aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
                         disabled={!currentSong}
                     >
@@ -85,32 +86,34 @@ export default function PlayerControls({
                         onClick={onNext}
                         aria-label="Siguiente"
                         disabled={!currentSong}
+                        className="player-control-btn"
                     >
                         <FaStepForward />
                     </button>
                 </div>
 
                 {/* Barra de progreso */}
-                <div className="progress-container">
-                    <span>{formatTime(currentTime)}</span>
+                <div className="player-progress-container">
+                    <span className="player-time">{formatTime(currentTime)}</span>
                     <input
                         type="range"
                         min="0"
                         max="100"
                         value={progress}
                         onChange={(e) => onSeek(parseFloat(e.target.value))}
-                        className="progress-bar"
+                        className="player-progress-bar"
                         disabled={!canSeek}
                     />
-                    <span>{formatTime(duration)}</span>
+                    <span className="player-time">{formatTime(duration)}</span>
                 </div>
             </div>
 
             {/* Control de volumen */}
-            <div className="volume-controls">
+            <div className="player-volume-controls">
                 <button
                     onClick={onToggleMute}
                     aria-label={isMuted ? 'Desmutear' : 'Mutear'}
+                    className="player-volume-btn"
                 >
                     {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
                 </button>
@@ -121,7 +124,7 @@ export default function PlayerControls({
                     step="0.01"
                     value={isMuted ? 0 : volume}
                     onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
-                    className="volume-slider"
+                    className="player-volume-slider"
                 />
             </div>
         </div>

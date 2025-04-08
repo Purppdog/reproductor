@@ -1,4 +1,4 @@
-/* PlayerControls.css - Versión Optimizada y Responsiva */
+/* PlayerControls.css - Versión Actualizada con Prefijos */
 
 /* Variables CSS para consistencia */
 :root {
@@ -35,7 +35,7 @@
     background: rgba(26, 26, 46, 0.8);
 }
 
-.inactive-message {
+.player-inactive-message {
     color: var(--text-secondary);
     font-size: clamp(0.9rem, 2vw, 1rem);
     font-weight: 500;
@@ -43,17 +43,16 @@
     text-align: center;
 }
 
-/* Sección de información de la canción */
-.song-info {
+/* Sección de información de la pista */
+.player-track-info {
     display: flex;
     align-items: center;
     gap: clamp(0.6rem, 2vw, 0.8rem);
     min-width: 0;
-    /* Permite el truncado de texto */
     justify-self: start;
 }
 
-.song-thumbnail {
+.player-thumbnail {
     width: clamp(40px, 10vw, 48px);
     height: clamp(40px, 10vw, 48px);
     border-radius: 6px;
@@ -64,25 +63,24 @@
     transition: transform 0.2s ease;
 }
 
-.song-thumbnail:hover {
+.player-thumbnail:hover {
     transform: scale(1.05);
 }
 
-.default-thumbnail {
+.player-default-thumbnail {
     background-image: url('../assets/images/VINILO.jpeg');
     background-size: cover;
     background-position: center;
 }
 
-.song-text-container {
+.player-track-text {
     display: flex;
     flex-direction: column;
     min-width: 0;
-    /* Permite el truncado */
     overflow: hidden;
 }
 
-.song-title {
+.player-track-title {
     font-size: clamp(0.85rem, 2vw, 0.9rem);
     font-weight: 600;
     color: var(--text-primary);
@@ -90,17 +88,16 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin-right: auto;
-    /* Empuja metadata a la derecha */
 }
 
-.song-meta {
+.player-track-meta {
     display: flex;
     gap: 0.5rem;
     justify-content: space-between;
     width: 100%;
 }
 
-.song-artist {
+.player-track-artist {
     font-size: clamp(0.7rem, 1.8vw, 0.75rem);
     color: var(--text-secondary);
     white-space: nowrap;
@@ -108,7 +105,7 @@
     text-overflow: ellipsis;
 }
 
-.song-duration {
+.player-track-duration {
     font-size: clamp(0.7rem, 1.8vw, 0.75rem);
     color: var(--text-secondary);
     font-feature-settings: "tnum";
@@ -117,7 +114,7 @@
 }
 
 /* Controles de reproducción centrales */
-.playback-controls {
+.player-playback-controls {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -126,13 +123,13 @@
     justify-self: center;
 }
 
-.transport-controls {
+.player-transport-controls {
     display: flex;
     align-items: center;
     gap: clamp(0.5rem, 1.5vw, 0.8rem);
 }
 
-.transport-controls button {
+.player-control-btn {
     background: transparent;
     border: none;
     color: var(--text-primary);
@@ -148,22 +145,22 @@
     transition: all 0.2s ease;
 }
 
-.transport-controls button:hover {
+.player-control-btn:hover {
     background: var(--control-hover);
     transform: scale(1.1);
 }
 
-.transport-controls button:active {
+.player-control-btn:active {
     transform: scale(0.95);
 }
 
-.transport-controls button:disabled {
+.player-control-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none !important;
 }
 
-.play-pause-button {
+.player-play-pause-btn {
     background: var(--text-primary);
     border-radius: 50%;
     width: clamp(36px, 10vw, 42px);
@@ -177,24 +174,24 @@
     color: black;
 }
 
-.play-pause-button:hover {
+.player-play-pause-btn:hover {
     transform: scale(1.1);
     background: #f2f2f2;
 }
 
-.play-pause-button:active {
+.player-play-pause-btn:active {
     transform: scale(0.95);
 }
 
 /* Barra de progreso */
-.progress-container {
+.player-progress-container {
     display: flex;
     align-items: center;
     gap: clamp(0.3rem, 1vw, 0.5rem);
     width: 100%;
 }
 
-.progress-container span {
+.player-time {
     font-size: clamp(0.65rem, 1.8vw, 0.7rem);
     color: var(--text-secondary);
     min-width: 36px;
@@ -202,7 +199,7 @@
     font-variant-numeric: tabular-nums;
 }
 
-.progress-bar {
+.player-progress-bar {
     flex-grow: 1;
     height: 4px;
     cursor: pointer;
@@ -214,11 +211,11 @@
     transition: height 0.2s ease;
 }
 
-.progress-bar:hover {
+.player-progress-bar:hover {
     height: 6px;
 }
 
-.progress-bar::-webkit-slider-thumb {
+.player-progress-bar::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 10px;
     height: 10px;
@@ -228,7 +225,7 @@
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
-.progress-bar {
+.player-progress-bar {
     background: linear-gradient(to right,
             var(--progress-active) 0%,
             var(--progress-active) var(--progress, 0%),
@@ -237,7 +234,7 @@
 }
 
 /* Controles de volumen */
-.volume-controls {
+.player-volume-controls {
     display: flex;
     align-items: center;
     gap: clamp(0.4rem, 1.5vw, 0.6rem);
@@ -245,7 +242,7 @@
     min-width: 120px;
 }
 
-.volume-button {
+.player-volume-btn {
     background: none;
     border: none;
     color: var(--text-secondary);
@@ -260,12 +257,12 @@
     border-radius: 50%;
 }
 
-.volume-button:hover {
+.player-volume-btn:hover {
     color: var(--text-primary);
     background: var(--control-hover);
 }
 
-.volume-slider {
+.player-volume-slider {
     width: clamp(60px, 15vw, 80px);
     height: 4px;
     cursor: pointer;
@@ -276,11 +273,11 @@
     transition: all 0.2s ease;
 }
 
-.volume-slider:hover {
+.player-volume-slider:hover {
     height: 6px;
 }
 
-.volume-slider::-webkit-slider-thumb {
+.player-volume-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 10px;
     height: 10px;
@@ -301,7 +298,7 @@
     }
 }
 
-.is-playing .song-thumbnail {
+.is-playing .player-thumbnail {
     animation: rotateVinyl 5s linear infinite;
 }
 
@@ -312,11 +309,11 @@
         gap: 0.8rem;
     }
 
-    .song-info {
+    .player-track-info {
         max-width: 180px;
     }
 
-    .volume-controls {
+    .player-volume-controls {
         min-width: auto;
     }
 }
@@ -325,31 +322,31 @@
     .player-controls {
         grid-template-columns: 1fr auto;
         grid-template-areas:
-            "song-info volume"
+            "track-info volume"
             "playback playback";
     }
 
-    .song-info {
-        grid-area: song-info;
+    .player-track-info {
+        grid-area: track-info;
         max-width: 100%;
     }
 
-    .playback-controls {
+    .player-playback-controls {
         grid-area: playback;
         width: 100%;
     }
 
-    .volume-controls {
+    .player-volume-controls {
         grid-area: volume;
     }
 
-    .song-meta {
+    .player-track-meta {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.2rem;
     }
 
-    .song-duration {
+    .player-track-duration {
         margin-left: 0;
     }
 }
