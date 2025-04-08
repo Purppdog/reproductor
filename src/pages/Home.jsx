@@ -5,7 +5,6 @@ import SongList from '../components/SongList';
 import MyMusic from '../components/MyMusic';
 import PlayerControls from '../components/PlayerControls';
 import SearchBar from '../components/SearchBar';
-import AddSong from '../components/AddSong';
 import '../styles/pages/Home.css';
 
 export default function Home() {
@@ -105,7 +104,6 @@ export default function Home() {
             setSongs(prev => [...prev, processedSong]);
             setShowAddSong(false);
 
-            // Opcional: Mostrar feedback positivo
             setError({ library: null, success: 'Canción agregada exitosamente' });
             setTimeout(() => setError(prev => ({ ...prev, success: null })), 3000);
 
@@ -128,14 +126,11 @@ export default function Home() {
 
         stopCurrentPlayback();
 
-        console.log('Intentando reproducir:', song.url);
-
         soundRef.current = new Howl({
             src: [song.url],
             html5: true,
             volume: isMuted ? 0 : volume,
             onplay: () => {
-                console.log('Reproducción iniciada');
                 setIsPlaying(true);
                 startProgressTracker();
 
@@ -311,10 +306,7 @@ export default function Home() {
                 if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
 
                 const data = await response.json();
-                console.log('Datos de la API:', data);
-
                 const processedSongs = data.map(song => {
-                    // Usamos EXACTAMENTE tus nombres de columna: cloudinary_public_id y cloudinary_url
                     const publicId = song.cloudinary_public_id;
                     const audioUrl = song.cloudinary_url || generateCloudinaryAudioUrl(publicId);
 
@@ -335,7 +327,6 @@ export default function Home() {
                     };
                 }).filter(Boolean);
 
-                console.log('Canciones procesadas:', processedSongs);
                 setSongs(processedSongs);
             } catch (err) {
                 console.error("Error al cargar biblioteca:", err);
@@ -389,18 +380,19 @@ export default function Home() {
 
                 <div className="header-actions">
                     <div className="tabs">
-                        <button className={activeTab === 'library' ? 'active' : ''} onClick={() => setActiveTab('library')}>
+                        <button
+                            className={activeTab === 'library' ? 'active' : ''}
+                            onClick={() => setActiveTab('library')}
+                        >
                             Mi Biblioteca
                         </button>
-                        <button className={activeTab === 'youtube' ? 'active' : ''} onClick={() => setActiveTab('youtube')}>
+                        <button
+                            className={activeTab === 'youtube' ? 'active' : ''}
+                            onClick={() => setActiveTab('youtube')}
+                        >
                             YouTube
                         </button>
                     </div>
-                    {activeTab === 'library' && (
-                        <button className="add-song-button" onClick={() => setShowAddSong(true)}>
-                            Agregar Canción
-                        </button>
-                    )}
                 </div>
             </div>
 
@@ -423,8 +415,6 @@ export default function Home() {
                 />
             )}
 
-
-
             {activeTab === 'library' ? (
                 <MyMusic
                     songs={songs.filter(song =>
@@ -436,7 +426,8 @@ export default function Home() {
                     onPlaySong={handlePlaySong}
                     currentPlayingSong={currentSong}
                     isGlobalPlaying={isPlaying}
-                    loading={loading.library}
+                    showAddSong={showAddSong}
+                    setShowAddSong={setShowAddSong}
                 />
             ) : (
                 <div className="youtube-content">
@@ -460,7 +451,7 @@ export default function Home() {
                                     opts={{
                                         playerVars: {
                                             autoplay: isPlaying ? 1 : 0,
-                                            controls: 1, // Asegura que los controles estén habilitados
+                                            controls: 1,
                                             modestbranding: 1,
                                             rel: 0
                                         }
@@ -474,9 +465,6 @@ export default function Home() {
                                     <span>{formatViews(currentSong.views)}</span>
                                     <span>{formatDate(currentSong.publishedAt)}</span>
                                 </div>
-                                <div className="video-actions">
-                                    <button className="action-btn">Compartir</button>
-                                </div>
                             </div>
                         </div>
                     )}
@@ -484,16 +472,13 @@ export default function Home() {
                         songs={youtubeResults}
                         currentSong={currentSong}
                         onPlay={handlePlaySong}
-                        onPause={() => setIsPlaying(false)}
                         isLoading={loading.youtube}
                         error={error?.youtube}
-                        hideButtons={true} // Oculta botones no deseados
                     />
                 </div>
             )}
 
-            {/* PlayerControls modificado */}
-            {activeTab === 'library' && currentSong && currentSong.source !== 'youtube' && (
+            {currentSong && (
                 <PlayerControls
                     currentSong={currentSong}
                     onNext={handleNext}

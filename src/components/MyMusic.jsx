@@ -4,9 +4,14 @@ import AddSong from "./AddSong";
 import ViniloDefault from '../assets/images/VINILO.jpeg';
 import "../styles/components/MyMusic.css";
 
-export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlaying }) {
+export default function MyMusic({
+    onPlaySong,
+    currentPlayingSong,
+    isGlobalPlaying,
+    showAddSong,        // Recibido como prop
+    setShowAddSong      // Recibido como prop
+}) {
     const [songs, setSongs] = useState([]);
-    const [showAddSong, setShowAddSong] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastUpdated, setLastUpdated] = useState(Date.now());
@@ -76,7 +81,7 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
         }, ...prev]);
         setShowAddSong(false);
         setLastUpdated(Date.now()); // Forzar recarga
-    }, []);
+    }, [setShowAddSong]);
 
     // Estado de carga
     if (loading) return (
@@ -99,9 +104,9 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
     return (
         <div className="my-music">
             <div className="header">
-                <h1>Mi Biblioteca Musical</h1>
+                <h1>Mi Biblioteca</h1>
                 <button
-                    className="add-btn"
+                    className="add-song-button" // Clase actualizada para mantener estilos
                     onClick={() => setShowAddSong(true)}
                     aria-label="Agregar canción"
                 >
@@ -109,7 +114,12 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
                 </button>
             </div>
 
-            {showAddSong && <AddSong onSongAdded={handleSongAdded} onClose={() => setShowAddSong(false)} />}
+            {showAddSong && (
+                <AddSong
+                    onSongAdded={handleSongAdded}
+                    onClose={() => setShowAddSong(false)}
+                />
+            )}
 
             <div className="song-grid">
                 {songs.length > 0 ? (
@@ -124,9 +134,6 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
                 ) : (
                     <div className="empty-state">
                         <p>No hay canciones en tu biblioteca</p>
-                        <button onClick={() => setShowAddSong(true)}>
-                            Agregar primera canción
-                        </button>
                     </div>
                 )}
             </div>
