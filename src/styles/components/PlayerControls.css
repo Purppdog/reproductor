@@ -314,33 +314,39 @@
 @media (max-width: 768px) {
     .player-controls {
         flex-wrap: nowrap;
-        /* Cambiado de wrap a nowrap */
         height: auto;
         padding: 0.8rem;
         gap: 0.8rem;
+        justify-content: space-between;
     }
 
     .song-info {
-        width: 30%;
-        /* Cambiado de 100% a 30% */
+        width: 25%;
+        /* Reducido para balancear espacio */
         order: 1;
         min-width: 0;
+        flex-shrink: 1;
     }
 
     .playback-controls {
-        width: 40%;
-        /* Ajustado el ancho */
+        width: 50%;
+        /* Ancho aumentado */
         order: 2;
         min-width: auto;
         padding: 0;
+        margin: 0 auto;
+        /* Centrado horizontal */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        /* Centrado interno */
     }
 
     .volume-controls {
-        width: 30%;
-        /* Ajustado el ancho */
+        width: 25%;
+        /* Reducido para balancear */
         order: 3;
         justify-content: flex-end;
-        /* Cambiado de center a flex-end */
         padding-top: 0;
         min-width: auto;
     }
@@ -365,12 +371,14 @@
     }
 
     .playback-controls {
-        width: 50%;
-        /* Aumentado el ancho */
+        width: 60%;
+        /* Más espacio para centrar controles */
+        justify-content: center;
+        /* Centrado adicional */
     }
 
     .volume-controls {
-        width: 25%;
+        width: 20%;
         /* Reducido el ancho */
         justify-content: flex-end;
     }
