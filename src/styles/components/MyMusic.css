@@ -37,14 +37,12 @@
     width: 50px;
     height: 3px;
     background: #0ed64a;
-    /* Cambiado de #4cc9f0 a #0ed64a */
     border-radius: 3px;
 }
 
 /* Botón de agregar canción */
-.add-btn {
+.add-song-button {
     background: linear-gradient(135deg, #0ed64a 0%, #5b9c35 100%);
-    /* Cambiado a verde */
     color: white;
     border: none;
     padding: 10px 20px;
@@ -57,18 +55,15 @@
     align-items: center;
     gap: 8px;
     box-shadow: 0 4px 15px rgba(11, 180, 63, 0.3);
-    /* Sombra verde */
 }
 
-.add-btn:hover {
+.add-song-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(11, 180, 63, 0.4);
-    /* Sombra verde */
     background: linear-gradient(135deg, #0bc23f 0%, #4a8a2b 100%);
-    /* Verde más oscuro */
 }
 
-.add-btn:active {
+.add-song-button:active {
     transform: translateY(0);
 }
 
@@ -101,9 +96,7 @@
 .empty-state button {
     background: rgba(255, 255, 255, 0.1);
     color: #0ed64a;
-    /* Cambiado a verde */
     border: 1px solid #0ed64a;
-    /* Cambiado a verde */
     padding: 8px 16px;
     border-radius: 20px;
     cursor: pointer;
@@ -113,7 +106,6 @@
 
 .empty-state button:hover {
     background: rgba(14, 214, 74, 0.1);
-    /* Verde con transparencia */
     transform: translateY(-2px);
 }
 
@@ -128,7 +120,6 @@
     border: 4px solid rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     border-top: 4px solid #0ed64a;
-    /* Cambiado a verde */
     width: 40px;
     height: 40px;
     animation: spin 1s linear infinite;
@@ -187,7 +178,7 @@
         font-size: 1.5rem;
     }
 
-    .add-btn {
+    .add-song-button {
         padding: 8px 16px;
         font-size: 0.85rem;
     }

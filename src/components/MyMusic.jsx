@@ -106,7 +106,7 @@ export default function MyMusic({
             <div className="header">
                 <h1>Mi Biblioteca</h1>
                 <button
-                    className="add-song-button" // Clase actualizada para mantener estilos
+                    className="add-song-button"
                     onClick={() => setShowAddSong(true)}
                     aria-label="Agregar canción"
                 >
