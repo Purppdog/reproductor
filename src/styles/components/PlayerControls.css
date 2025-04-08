@@ -646,3 +646,18 @@
         width: 35px;
     }
 }
+
+.song-info {
+    display: flex !important;
+    /* Fuerza display flex */
+    visibility: visible !important;
+    /* Garantiza visibilidad */
+    opacity: 1 !important;
+}
+
+.song-text-container {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
