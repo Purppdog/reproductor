@@ -1,13 +1,11 @@
 import { useState, useRef } from "react";
 
-export default function AddSong({ onSongAdded }) {
+export default function AddSong({ onSongAdded, onUploadProgress, onUploadStatus }) {
     const [title, setTitle] = useState("");
     const [artist, setArtist] = useState("");
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
-    const [uploadProgress, setUploadProgress] = useState(0);
     const fileInputRef = useRef(null);
 
     const handleFileChange = (e) => {
@@ -17,8 +15,15 @@ export default function AddSong({ onSongAdded }) {
         const validTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/x-m4a', 'audio/aac'];
         const fileExtension = selectedFile.name.split('.').pop().toLowerCase();
 
-        if (!validTypes.includes(selectedFile.type) && !['mp3', 'wav', 'ogg', 'm4a', 'aac'].includes(fileExtension)) {
+        if (!validTypes.includes(selectedFile.type) &&
+            !['mp3', 'wav', 'ogg', 'm4a', 'aac'].includes(fileExtension)) {
             setError(`Formato no soportado: ${fileExtension}`);
+            e.target.value = "";
+            return;
+        }
+
+        if (selectedFile.size > 25 * 1024 * 1024) {
+            setError("El archivo excede el límite de 25MB");
             e.target.value = "";
             return;
         }
@@ -26,21 +31,29 @@ export default function AddSong({ onSongAdded }) {
         setFile(selectedFile);
         setError(null);
 
+        // Autocompletar título si está vacío
         if (!title.trim()) {
-            setTitle(selectedFile.name.replace(/\.[^/.]+$/, ""));
+            const fileName = selectedFile.name.replace(/\.[^/.]+$/, "");
+            setTitle(fileName);
+
+            // Intenta extraer artista si el formato es "Artista - Canción"
+            const artistMatch = fileName.match(/(.+?)\s*-\s*(.+)/);
+            if (artistMatch && !artist.trim()) {
+                setArtist(artistMatch[1].trim());
+                setTitle(artistMatch[2].trim());
+            }
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
-        setSuccess(null);
+        if (onUploadStatus) onUploadStatus(null);
 
         if (!file) return setError("Selecciona un archivo de audio");
-        if (file.size > 25 * 1024 * 1024) return setError("El archivo excede el límite de 25MB");
 
         setUploading(true);
-        setUploadProgress(0);
+        if (onUploadProgress) onUploadProgress(0);
 
         try {
             const formData = new FormData();
@@ -48,27 +61,47 @@ export default function AddSong({ onSongAdded }) {
             formData.append('title', title.trim() || "Sin título");
             formData.append('artist', artist.trim() || "Artista desconocido");
 
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`, {
-                method: 'POST',
-                body: formData
+            const xhr = new XMLHttpRequest();
+
+            xhr.upload.addEventListener('progress', (event) => {
+                if (event.lengthComputable) {
+                    const progress = Math.round((event.loaded / event.total) * 100);
+                    if (onUploadProgress) onUploadProgress(progress);
+                }
             });
 
-            if (!response.ok) throw new Error(`Error ${response.status}`);
+            const uploadPromise = new Promise((resolve, reject) => {
+                xhr.onreadystatechange = () => {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            resolve(JSON.parse(xhr.responseText));
+                        } else {
+                            reject(new Error(xhr.statusText || 'Error en la subida'));
+                        }
+                    }
+                };
 
-            const data = await response.json();
-            setSuccess("Canción subida correctamente");
+                xhr.open('POST', `${import.meta.env.VITE_API_URL}/api/mymusic`, true);
+                xhr.send(formData);
+            });
+
+            const data = await uploadPromise;
+            if (onUploadStatus) onUploadStatus('success');
             onSongAdded(data.song);
 
-            // Resetear formulario
-            setTitle("");
-            setArtist("");
-            setFile(null);
-            setUploadProgress(0);
-            fileInputRef.current.value = "";
+            // Resetear formulario después de 2 segundos
+            setTimeout(() => {
+                setTitle("");
+                setArtist("");
+                setFile(null);
+                if (onUploadProgress) onUploadProgress(0);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+            }, 2000);
 
         } catch (err) {
             console.error("Error en la subida:", err);
             setError(err.message || "Error al subir la canción");
+            if (onUploadStatus) onUploadStatus('error');
         } finally {
             setUploading(false);
         }
@@ -85,12 +118,6 @@ export default function AddSong({ onSongAdded }) {
                 </div>
             )}
 
-            {success && (
-                <div className="alert success">
-                    <p>{success}</p>
-                </div>
-            )}
-
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label htmlFor="title">Título:</label>
@@ -101,6 +128,7 @@ export default function AddSong({ onSongAdded }) {
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Nombre de la canción"
                         required
+                        maxLength={100}
                     />
                 </div>
 
@@ -113,6 +141,7 @@ export default function AddSong({ onSongAdded }) {
                         onChange={(e) => setArtist(e.target.value)}
                         placeholder="Nombre del artista"
                         required
+                        maxLength={100}
                     />
                 </div>
 
@@ -126,20 +155,23 @@ export default function AddSong({ onSongAdded }) {
                         onChange={handleFileChange}
                         required
                     />
-                    {file && <small>Archivo seleccionado: {file.name}</small>}
+                    {file && (
+                        <small>
+                            Archivo seleccionado: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                        </small>
+                    )}
                 </div>
-
-                {uploadProgress > 0 && uploadProgress < 100 && (
-                    <div className="upload-progress-container">
-                        <div className="upload-progress-bar" style={{ width: `${uploadProgress}%` }}></div>
-                    </div>
-                )}
 
                 <button
                     type="submit"
                     disabled={uploading || !file}
                 >
-                    {uploading ? "Subiendo..." : "Subir Canción"}
+                    {uploading ? (
+                        <>
+                            <span className="spinner"></span>
+                            Subiendo...
+                        </>
+                    ) : "Subir Canción"}
                 </button>
             </form>
         </div>
