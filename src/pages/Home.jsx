@@ -85,37 +85,7 @@ export default function Home() {
         setIsPlaying(false);
     }, [stopProgressTracker]);
 
-    const handleSongAdded = (newSong) => {
-        try {
-            if (!newSong?.id) {
-                throw new Error('La canción no se agregó correctamente');
-            }
 
-            const processedSong = {
-                id: newSong.id.toString(),
-                title: newSong.title,
-                artist: newSong.artist,
-                url: newSong.url || generateCloudinaryAudioUrl(newSong.public_id),
-                thumbnail: generateCloudinaryThumbnail(newSong.public_id),
-                duration: Number(newSong.duration) || 0,
-                public_id: newSong.public_id,
-                source: 'cloudinary'
-            };
-
-            setSongs(prev => [...prev, processedSong]);
-            setShowAddSong(false);
-
-            setError({ library: null, success: 'Canción agregada exitosamente' });
-            setTimeout(() => setError(prev => ({ ...prev, success: null })), 3000);
-
-        } catch (err) {
-            console.error("Error al agregar canción:", err);
-            setError({
-                library: `Error al agregar canción: ${err.message}`,
-                success: null
-            });
-        }
-    };
 
     // Control de audio
     const playAudio = useCallback((song) => {
@@ -409,12 +379,6 @@ export default function Home() {
                 </div>
             )}
 
-            {showAddSong && (
-                <AddSong
-                    onSongAdded={handleSongAdded}
-                    onClose={() => setShowAddSong(false)}
-                />
-            )}
 
             {activeTab === 'library' ? (
                 <MyMusic

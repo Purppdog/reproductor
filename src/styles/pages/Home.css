@@ -234,35 +234,6 @@
     z-index: 100;
 }
 
-.header-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.success-message {
-    padding: 0.8rem;
-    background: rgba(46, 204, 113, 0.2);
-    color: #2ecc71;
-    border-radius: 4px;
-    margin: 0.5rem 0;
-}
-
-.add-song-button {
-    padding: 0.5rem 1rem;
-    background: #4a80f0;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.add-song-button:hover {
-    background: #3a70e0;
-}
-
 /* ============ MEDIA QUERIES OPTIMIZADOS ============ */
 /* Pantallas extra grandes (1920px+) */
 @media (max-width: 1920px) {
