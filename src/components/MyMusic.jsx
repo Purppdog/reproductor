@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import SongCard from "./SongCard";
 import AddSong from "./AddSong";
-import Modal from "./Modal";
 import ViniloDefault from '../assets/images/VINILO.jpeg';
 import "../styles/components/MyMusic.css";
 
@@ -110,11 +109,7 @@ export default function MyMusic({ onPlaySong, currentPlayingSong, isGlobalPlayin
                 </button>
             </div>
 
-            {showAddSong && (
-                <Modal onClose={() => setShowAddSong(false)}>
-                    <AddSong onSongAdded={handleSongAdded} />
-                </Modal>
-            )}
+            {showAddSong && <AddSong onSongAdded={handleSongAdded} onClose={() => setShowAddSong(false)} />}
 
             <div className="song-grid">
                 {songs.length > 0 ? (
