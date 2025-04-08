@@ -21,6 +21,7 @@
     box-sizing: border-box;
 }
 
+
 .player-controls.inactive {
     justify-content: center;
     background: rgba(26, 26, 46, 0.8);
@@ -282,14 +283,65 @@
 }
 
 /* Media Queries para Responsividad */
+@media (min-width: 1600px) {
+
+    /* Pantallas muy grandes */
+    .player-controls {
+        padding: 1rem 2rem;
+    }
+
+    .song-info {
+        width: 25%;
+    }
+
+    .playback-controls {
+        width: 50%;
+    }
+
+    .volume-controls {
+        width: 25%;
+    }
+}
+
+@media (min-width: 1280px) and (max-width: 1599px) {
+
+    /* Pantallas grandes HD */
+    .player-controls {
+        padding: 1rem 1.5rem;
+    }
+
+    .song-info {
+        width: 25%;
+    }
+
+    .playback-controls {
+        width: 50%;
+        max-width: 600px;
+    }
+
+    .volume-controls {
+        width: 25%;
+    }
+}
+
+@media (max-width: 1279px) {
+
+    /* Laptops medianas */
+    .player-controls {
+        padding: 0.8rem 1.5rem;
+    }
+}
+
 @media (max-width: 1024px) {
+
+    /* Tablets grandes y laptops pequeñas */
     .player-controls {
         padding: 0.8rem 1.2rem;
         gap: 1.2rem;
     }
 
     .song-info {
-        width: 30%;
+        width: 25%;
         min-width: 160px;
     }
 
@@ -299,11 +351,13 @@
     }
 
     .playback-controls {
+        width: 50%;
         max-width: 400px;
+        margin: 0 auto;
     }
 
     .volume-controls {
-        width: 20%;
+        width: 25%;
     }
 
     .volume-slider {
@@ -311,10 +365,28 @@
     }
 }
 
+@media (max-width: 900px) {
+
+    /* Tablets medianas */
+    .player-controls {
+        padding: 0.8rem 1rem;
+    }
+
+    .playback-controls {
+        width: 55%;
+    }
+
+    .song-info,
+    .volume-controls {
+        width: 22.5%;
+    }
+}
+
 @media (max-width: 768px) {
+
+    /* Tablets pequeñas */
     .player-controls {
         flex-wrap: nowrap;
-        height: auto;
         padding: 0.8rem;
         gap: 0.8rem;
         justify-content: space-between;
@@ -322,7 +394,6 @@
 
     .song-info {
         width: 25%;
-        /* Reducido para balancear espacio */
         order: 1;
         min-width: 0;
         flex-shrink: 1;
@@ -330,25 +401,19 @@
 
     .playback-controls {
         width: 50%;
-        /* Ancho aumentado */
         order: 2;
-        min-width: auto;
         padding: 0;
         margin: 0 auto;
-        /* Centrado horizontal */
         display: flex;
         flex-direction: column;
         align-items: center;
-        /* Centrado interno */
     }
 
     .volume-controls {
         width: 25%;
-        /* Reducido para balancear */
         order: 3;
         justify-content: flex-end;
         padding-top: 0;
-        min-width: auto;
     }
 
     .transport-controls {
@@ -360,26 +425,44 @@
     }
 }
 
+@media (max-width: 600px) {
+
+    /* Phones grandes */
+    .player-controls {
+        padding: 0.7rem 0.8rem;
+    }
+
+    .song-info {
+        width: 30%;
+    }
+
+    .playback-controls {
+        width: 40%;
+    }
+
+    .volume-controls {
+        width: 30%;
+    }
+}
+
 @media (max-width: 480px) {
+
+    /* Phones medianos */
     .player-controls {
         padding: 0.6rem 0.8rem;
     }
 
     .song-info {
-        width: 25%;
-        /* Reducido el ancho */
+        width: 30%;
     }
 
     .playback-controls {
-        width: 60%;
-        /* Más espacio para centrar controles */
+        width: 40%;
         justify-content: center;
-        /* Centrado adicional */
     }
 
     .volume-controls {
-        width: 20%;
-        /* Reducido el ancho */
+        width: 30%;
         justify-content: flex-end;
     }
 
@@ -420,16 +503,34 @@
         font-size: 0.6rem;
     }
 
-    .volume-controls {
-        gap: 0.4rem;
-    }
-
     .volume-slider {
         width: 60px;
     }
 }
 
+@media (max-width: 400px) {
+
+    /* Phones pequeños */
+    .song-info {
+        width: 35%;
+    }
+
+    .playback-controls {
+        width: 30%;
+    }
+
+    .volume-controls {
+        width: 35%;
+    }
+
+    .volume-slider {
+        width: 50px;
+    }
+}
+
 @media (max-width: 375px) {
+
+    /* Phones muy pequeños */
     .song-thumbnail {
         width: 40px;
         height: 40px;
@@ -448,6 +549,34 @@
     }
 
     .volume-slider {
-        width: 50px;
+        width: 45px;
+    }
+}
+
+@media (max-width: 320px) {
+
+    /* Phones extra pequeños */
+    .player-controls {
+        padding: 0.5rem 0.6rem;
+    }
+
+    .song-info {
+        width: 40%;
+    }
+
+    .playback-controls {
+        width: 20%;
+    }
+
+    .volume-controls {
+        width: 40%;
+    }
+
+    .transport-controls {
+        gap: 0.4rem;
+    }
+
+    .volume-slider {
+        width: 35px;
     }
 }
