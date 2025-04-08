@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import './AddSong.css';
+
 export default function AddSong({ onSongAdded, onClose }) {
     const [title, setTitle] = useState("");
     const [artist, setArtist] = useState("");
@@ -74,7 +75,7 @@ export default function AddSong({ onSongAdded, onClose }) {
                 {error && (
                     <div className="alert error">
                         <p>{error}</p>
-                        <small>El archivo se subió pero puede tener problemas de reproducción</small>
+                        <small>Por favor, verifica los datos e intenta nuevamente</small>
                     </div>
                 )}
 
@@ -105,19 +106,26 @@ export default function AddSong({ onSongAdded, onClose }) {
 
                     <div className="form-group">
                         <label htmlFor="audio-file">Archivo de audio:</label>
-                        <input
-                            id="audio-file"
-                            type="file"
-                            ref={fileInputRef}
-                            accept="audio/*"
-                            onChange={handleFileChange}
-                            required
-                        />
-                        {file && (
-                            <small>
-                                Archivo seleccionado: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                            </small>
-                        )}
+                        <div className="file-input-container">
+                            <input
+                                id="audio-file"
+                                type="file"
+                                ref={fileInputRef}
+                                accept="audio/*"
+                                onChange={handleFileChange}
+                                className="file-input"
+                                required
+                            />
+                            <label htmlFor="audio-file" className="file-input-label">
+                                Seleccionar archivo
+                                <span>Formatos soportados: MP3, WAV, FLAC, etc.</span>
+                            </label>
+                            {file && (
+                                <div className="file-info">
+                                    {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="form-actions">
@@ -134,7 +142,12 @@ export default function AddSong({ onSongAdded, onClose }) {
                             disabled={uploading || !file}
                             className="submit-button"
                         >
-                            {uploading ? "Subiendo..." : "Subir Canción"}
+                            {uploading ? (
+                                <>
+                                    <span className="spinner" />
+                                    Subiendo...
+                                </>
+                            ) : "Subir Canción"}
                         </button>
                     </div>
                 </form>
