@@ -130,8 +130,8 @@ export default function AddSong({ onSongAdded }) {
                 </div>
 
                 {uploadProgress > 0 && uploadProgress < 100 && (
-                    <div className="progress-container">
-                        <div className="progress-bar" style={{ width: `${uploadProgress}%` }}></div>
+                    <div className="upload-progress-container">
+                        <div className="upload-progress-bar" style={{ width: `${uploadProgress}%` }}></div>
                     </div>
                 )}
 
