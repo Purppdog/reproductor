@@ -5,6 +5,7 @@ import SongList from '../components/SongList';
 import MyMusic from '../components/MyMusic';
 import PlayerControls from '../components/PlayerControls';
 import SearchBar from '../components/SearchBar';
+import AddSong from '../components/AddSong';
 import '../styles/pages/Home.css';
 
 export default function Home() {
@@ -13,6 +14,7 @@ export default function Home() {
     const [youtubeResults, setYoutubeResults] = useState([]);
     const [currentSong, setCurrentSong] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [showAddSong, setShowAddSong] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState('library');
     const [volume, setVolume] = useState(0.7);
@@ -82,6 +84,39 @@ export default function Home() {
         stopProgressTracker();
         setIsPlaying(false);
     }, [stopProgressTracker]);
+
+    const handleSongAdded = (newSong) => {
+        try {
+            if (!newSong?.id) {
+                throw new Error('La canción no se agregó correctamente');
+            }
+
+            const processedSong = {
+                id: newSong.id.toString(),
+                title: newSong.title,
+                artist: newSong.artist,
+                url: newSong.url || generateCloudinaryAudioUrl(newSong.public_id),
+                thumbnail: generateCloudinaryThumbnail(newSong.public_id),
+                duration: Number(newSong.duration) || 0,
+                public_id: newSong.public_id,
+                source: 'cloudinary'
+            };
+
+            setSongs(prev => [...prev, processedSong]);
+            setShowAddSong(false);
+
+            // Opcional: Mostrar feedback positivo
+            setError({ library: null, success: 'Canción agregada exitosamente' });
+            setTimeout(() => setError(prev => ({ ...prev, success: null })), 3000);
+
+        } catch (err) {
+            console.error("Error al agregar canción:", err);
+            setError({
+                library: `Error al agregar canción: ${err.message}`,
+                success: null
+            });
+        }
+    };
 
     // Control de audio
     const playAudio = useCallback((song) => {
@@ -352,27 +387,43 @@ export default function Home() {
                     placeholder={`Buscar en ${activeTab === 'library' ? 'mi biblioteca' : 'YouTube'}`}
                 />
 
-                <div className="tabs">
-                    <button
-                        className={activeTab === 'library' ? 'active' : ''}
-                        onClick={() => setActiveTab('library')}
-                    >
-                        Mi Biblioteca
-                    </button>
-                    <button
-                        className={activeTab === 'youtube' ? 'active' : ''}
-                        onClick={() => setActiveTab('youtube')}
-                    >
-                        YouTube
-                    </button>
+                <div className="header-actions">
+                    <div className="tabs">
+                        <button className={activeTab === 'library' ? 'active' : ''} onClick={() => setActiveTab('library')}>
+                            Mi Biblioteca
+                        </button>
+                        <button className={activeTab === 'youtube' ? 'active' : ''} onClick={() => setActiveTab('youtube')}>
+                            YouTube
+                        </button>
+                    </div>
+                    {activeTab === 'library' && (
+                        <button className="add-song-button" onClick={() => setShowAddSong(true)}>
+                            Agregar Canción
+                        </button>
+                    )}
                 </div>
             </div>
 
             {error?.library && (
                 <div className="error-message">
-                    Error al cargar biblioteca: {error.library}
+                    {error.library}
                 </div>
             )}
+
+            {error?.success && (
+                <div className="success-message">
+                    {error.success}
+                </div>
+            )}
+
+            {showAddSong && (
+                <AddSong
+                    onSongAdded={handleSongAdded}
+                    onClose={() => setShowAddSong(false)}
+                />
+            )}
+
+
 
             {activeTab === 'library' ? (
                 <MyMusic
