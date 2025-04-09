@@ -1,0 +1,76 @@
+/* src/styles/components/ConfirmationModal.css */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-container {
+    background-color: #282828;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content p {
+    color: #fff;
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.modal-actions button {
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.confirm-btn {
+    background-color: #1db954;
+    color: white;
+}
+
+.confirm-btn:hover {
+    background-color: #1ed760;
+    transform: scale(1.05);
+}
+
+.cancel-btn {
+    background-color: #535353;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #6a6a6a;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
