@@ -20,13 +20,14 @@
     background: var(--player-bg);
     backdrop-filter: blur(15px);
     border-top: 1px solid var(--player-border);
-    padding: clamp(0.6rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem);
+    padding: 0.5rem 1rem;
     display: grid;
-    grid-template-columns: 1fr minmax(auto, 600px) 1fr;
+    grid-template-columns: 1fr minmax(auto, 500px) 1fr;
+    /* Reducido de 600px a 500px */
     align-items: center;
     gap: 1rem;
     z-index: 1000;
-    min-height: 80px;
+    min-height: 70px;
     box-sizing: border-box;
 }
 
@@ -47,10 +48,11 @@
 .player-track-info {
     display: flex;
     align-items: center;
-    gap: clamp(0.6rem, 2vw, 0.8rem);
+    gap: 0.5rem;
     min-width: 0;
     justify-self: start;
 }
+
 
 .player-thumbnail {
     width: clamp(40px, 10vw, 48px);
@@ -76,18 +78,24 @@
 .player-track-text {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     min-width: 0;
     overflow: hidden;
+    padding: 0.1rem 0;
+    /* Más compacto que 0.2rem */
 }
 
 .player-track-title {
-    font-size: clamp(0.85rem, 2vw, 0.9rem);
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-right: auto;
+    margin: 0 0 0.05rem 0;
+    /* Más compacto */
+    line-height: 1.2;
+    /* Mejor ajuste de línea */
 }
 
 .player-track-meta {
@@ -98,11 +106,13 @@
 }
 
 .player-track-artist {
-    font-size: clamp(0.7rem, 1.8vw, 0.75rem);
+    font-size: 0.7rem;
     color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin: 0;
+    line-height: 1.2;
 }
 
 .player-track-duration {
@@ -118,8 +128,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(0.3rem, 1vw, 0.5rem);
+    gap: 0.3rem;
+    /* Más compacto */
     width: 100%;
+    max-width: 450px;
+    /* Reducido de 500px */
+    margin: 0 auto;
     justify-self: center;
 }
 
@@ -127,6 +141,7 @@
     display: flex;
     align-items: center;
     gap: clamp(0.5rem, 1.5vw, 0.8rem);
+    gap: 0.6rem;
 }
 
 .player-control-btn {
@@ -162,15 +177,16 @@
 
 .player-play-pause-btn {
     background: var(--text-primary);
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    width: clamp(36px, 10vw, 42px);
-    height: clamp(36px, 10vw, 42px);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    /* Sombra más sutil */
     color: black;
 }
 
@@ -188,7 +204,8 @@
     display: flex;
     align-items: center;
     gap: clamp(0.3rem, 1vw, 0.5rem);
-    width: 100%;
+    width: 90%;
+    margin: 0 auto;
 }
 
 .player-time {
@@ -302,19 +319,23 @@
     animation: rotateVinyl 5s linear infinite;
 }
 
-/* Media Queries mínimas esenciales */
+/* Media Queries corregidas */
 @media (max-width: 768px) {
     .player-controls {
         grid-template-columns: auto 1fr auto;
-        gap: 0.8rem;
+        gap: 0.6rem;
+        /* Más compacto */
+        padding: 0.5rem;
     }
 
     .player-track-info {
-        max-width: 180px;
+        max-width: 140px;
+        /* Más compacto */
     }
 
-    .player-volume-controls {
-        min-width: auto;
+    .player-progress-container {
+        width: 80%;
+        /* Más estrecho */
     }
 }
 
@@ -324,29 +345,26 @@
         grid-template-areas:
             "track-info volume"
             "playback playback";
+        gap: 0.5rem;
     }
 
     .player-track-info {
-        grid-area: track-info;
-        max-width: 100%;
+        max-width: 120px;
     }
 
-    .player-playback-controls {
-        grid-area: playback;
-        width: 100%;
+    .player-track-title {
+        font-size: 0.78rem;
+        /* Más ajustado */
     }
 
-    .player-volume-controls {
-        grid-area: volume;
+    .player-track-artist {
+        font-size: 0.62rem;
+        /* Más ajustado */
     }
 
-    .player-track-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.2rem;
-    }
-
-    .player-track-duration {
-        margin-left: 0;
+    .player-play-pause-btn {
+        width: 30px;
+        /* Más pequeño */
+        height: 30px;
     }
 }
