@@ -154,6 +154,7 @@ export default function Home() {
 
     // Manejo de reproducción
     const handlePlaySong = useCallback((song) => {
+        // Si no hay canción, detener todo
         if (!song) {
             stopCurrentPlayback();
             setCurrentSong(null);
@@ -161,21 +162,29 @@ export default function Home() {
             return;
         }
 
+        // Si intentamos reproducir un video de YouTube fuera de su pestaña, ignorar
+        if (song.source === 'youtube' && activeTab !== 'youtube') {
+            return;
+        }
+
+        // Si es la misma canción, pausar/reanudar
         if (currentSong?.id === song.id) {
             handlePlayPause();
             return;
         }
 
+        // Configurar nueva canción
         setCurrentSong(song);
         setProgress(0);
 
+        // Manejar reproducción según el tipo
         if (song.source === 'youtube') {
-            stopCurrentPlayback();
-            setIsPlaying(true);
+            stopCurrentPlayback(); // Asegurarse de detener audio local
+            setIsPlaying(true); // Iniciar reproducción de YouTube
         } else {
-            playAudio(song);
+            playAudio(song); // Reproducir audio local
         }
-    }, [currentSong, stopCurrentPlayback, handlePlayPause]);
+    }, [currentSong, activeTab, stopCurrentPlayback, handlePlayPause, playAudio]);
 
     useEffect(() => {
         handlePlaySongRef.current = handlePlaySong;
@@ -333,19 +342,14 @@ export default function Home() {
 
     // Función para cambiar de pestaña
     const handleTabChange = (tab) => {
-        if (tab === 'youtube') {
-            // Al ir a YouTube, limpia la canción actual si es de YouTube
-            if (currentSong?.source === 'youtube') {
-                setCurrentSong(null);
-            }
-            setIsPlaying(false); // Detiene la reproducción
-        } else {
-            // Al ir a la biblioteca, limpia la canción actual si es de YouTube
-            if (currentSong?.source === 'youtube') {
-                setCurrentSong(null);
-                setIsPlaying(false);
-            }
+        stopCurrentPlayback();
+
+        if (activeTab !== tab) {
+            setCurrentSong(null);
+            setIsPlaying(false);
         }
+
+        // Cambiar la pestaña activa
         setActiveTab(tab);
     };
 
