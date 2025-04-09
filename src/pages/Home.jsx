@@ -85,8 +85,6 @@ export default function Home() {
         setIsPlaying(false);
     }, [stopProgressTracker]);
 
-
-
     // Control de audio
     const playAudio = useCallback((song) => {
         if (!song?.url) {
@@ -326,12 +324,6 @@ export default function Home() {
 
     // Efectos secundarios
     useEffect(() => {
-        if (activeTab === 'youtube' && currentSong?.source !== 'youtube') {
-            stopCurrentPlayback();
-        }
-    }, [activeTab, currentSong?.source, stopCurrentPlayback]);
-
-    useEffect(() => {
         const timer = setTimeout(() => {
             if (activeTab === 'youtube') searchYouTube(searchQuery);
         }, 500);
@@ -339,7 +331,24 @@ export default function Home() {
         return () => clearTimeout(timer);
     }, [searchQuery, activeTab, searchYouTube]);
 
-    // Render
+    // Función para cambiar de pestaña
+    const handleTabChange = (tab) => {
+        if (tab === 'youtube') {
+            // Al ir a YouTube, limpia la canción actual si es de YouTube
+            if (currentSong?.source === 'youtube') {
+                setCurrentSong(null);
+            }
+            setIsPlaying(false); // Detiene la reproducción
+        } else {
+            // Al ir a la biblioteca, limpia la canción actual si es de YouTube
+            if (currentSong?.source === 'youtube') {
+                setCurrentSong(null);
+                setIsPlaying(false);
+            }
+        }
+        setActiveTab(tab);
+    };
+
     // Render
     return (
         <div className="home-container">
@@ -354,25 +363,13 @@ export default function Home() {
                     <div className="tabs">
                         <button
                             className={activeTab === 'library' ? 'active' : ''}
-                            onClick={() => {
-                                setActiveTab('library');
-                                // Opcional: Detener la reproducción al cambiar de pestaña
-                                if (isPlaying && currentSong?.source === 'youtube') {
-                                    setIsPlaying(false);
-                                }
-                            }}
+                            onClick={() => handleTabChange('library')}
                         >
                             Mi Biblioteca
                         </button>
                         <button
                             className={activeTab === 'youtube' ? 'active' : ''}
-                            onClick={() => {
-                                setActiveTab('youtube');
-                                // Opcional: Limpiar la canción actual al cambiar a YouTube
-                                if (currentSong?.source !== 'youtube') {
-                                    setCurrentSong(null);
-                                }
-                            }}
+                            onClick={() => handleTabChange('youtube')}
                         >
                             YouTube
                         </button>
@@ -380,7 +377,6 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* Mensajes de error/success */}
             {error?.library && (
                 <div className="error-message">
                     {error.library}
@@ -393,7 +389,6 @@ export default function Home() {
                 </div>
             )}
 
-            {/* Contenido según pestaña activa */}
             {activeTab === 'library' ? (
                 <MyMusic
                     songs={songs.filter(song =>
@@ -450,15 +445,20 @@ export default function Home() {
                     <SongList
                         songs={youtubeResults}
                         currentSong={currentSong}
-                        onPlay={handlePlaySong}
+                        onPlay={(song) => {
+                            // Solo permite reproducir si estamos en YouTube
+                            if (activeTab === 'youtube') {
+                                handlePlaySong(song);
+                            }
+                        }}
                         isLoading={loading.youtube}
                         error={error?.youtube}
                     />
                 </div>
             )}
 
-            {/* Reproductor solo visible en la pestaña de biblioteca */}
-            {currentSong && activeTab === 'library' && (
+            {/* Reproductor solo visible para canciones locales en la biblioteca */}
+            {currentSong && activeTab === 'library' && currentSong?.source !== 'youtube' && (
                 <PlayerControls
                     currentSong={currentSong}
                     onNext={handleNext}
