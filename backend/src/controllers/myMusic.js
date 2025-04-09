@@ -107,28 +107,43 @@ export const deleteSavedSong = async (req, res) => {
         const { id } = req.params;
         console.log(`Eliminando canción con ID: ${id}`);
 
-        const [result] = await pool.query(
-            "DELETE FROM songs WHERE id = ?",
+        const [song] = await pool.query(
+            "SELECT cloudinary_public_id FROM songs WHERE id = ?",
             [id]
         );
 
-        if (result.affectedRows === 0) {
+        if (song.length === 0) {
             return res.status(404).json({
                 success: false,
                 error: "Canción no encontrada"
             });
         }
 
+        const public_id = song[0].cloudinary_public_id;
+
+        await cloudinary.uploader.destroy(public_id, {
+            resource_type: 'auto' //
+        });
+
+        const [result] = await pool.query(
+            "DELETE FROM songs WHERE id = ?",
+            [id]
+        );
+
         res.json({
             success: true,
-            message: "Canción eliminada correctamente"
+            message: "Canción eliminada correctamente de la base de datos y Cloudinary"
         });
     } catch (error) {
-        console.error("Error en deleteSavedSong:", error);
+        console.error("Error en deleteSavedSong:", {
+            message: error.message,
+            stack: error.stack
+        });
+
         res.status(500).json({
             success: false,
             error: "Error al eliminar canción",
-            details: error.sqlMessage
+            details: error.message
         });
     }
 };

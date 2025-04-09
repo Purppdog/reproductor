@@ -118,14 +118,80 @@
     box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.2);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .song-info {
-        padding: 0.75rem;
+.delete-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ff4d4d;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 2;
+    font-size: 0.9rem;
+}
+
+.song-card:hover .delete-button {
+    opacity: 1;
+}
+
+.delete-button:hover {
+    background: rgba(255, 77, 77, 0.2);
+    color: #ff1a1a;
+    transform: scale(1.1);
+}
+
+.delete-button:active {
+    transform: scale(0.95);
+}
+
+/* Efecto al eliminar */
+.song-card.deleting {
+    opacity: 0.5;
+    transform: scale(0.98);
+    pointer-events: none;
+    background: rgba(255, 77, 77, 0.05);
+}
+
+/* Animación de carga para eliminación */
+@keyframes deletingPulse {
+    0% {
+        opacity: 0.5;
     }
 
-    .play-icon {
-        width: 36px;
-        height: 36px;
+    50% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
+}
+
+.song-card.deleting {
+    animation: deletingPulse 1.5s infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .delete-button {
+        top: 8px;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+        opacity: 0.8;
+        /* Más visible en móviles */
+    }
+
+    .song-card:hover .delete-button {
+        opacity: 0.8;
     }
 }

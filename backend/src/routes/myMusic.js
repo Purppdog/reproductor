@@ -30,7 +30,7 @@ const upload = multer({
     }
 });
 
-// Ruta POST modificada para subida directa a Cloudinary
+// Ruta POST para subida de archivos
 router.post("/", upload.single('audio'), async (req, res) => {
     try {
         if (!req.file) {
@@ -45,9 +45,11 @@ router.post("/", upload.single('audio'), async (req, res) => {
 
         // Subir a Cloudinary
         const cloudinaryResult = await cloudinary.uploader.upload(fileStr, {
-            resource_type: "video", // Cloudinary trata audio como video
+            resource_type: "video",
             folder: "audio",
-            allowed_formats: ["mp3", "wav", "ogg", "m4a", "aac"]
+            allowed_formats: ["mp3", "wav", "ogg", "m4a", "aac"],
+            use_filename: true,
+            unique_filename: false
         });
 
         // Datos para guardar en DB
@@ -71,8 +73,10 @@ router.post("/", upload.single('audio'), async (req, res) => {
     }
 });
 
-// Otras rutas sin cambios
+// Ruta GET para obtener todas las canciones
 router.get("/", getSavedSongs);
+
+// Ruta DELETE para eliminar una canción
 router.delete("/:id", deleteSavedSong);
 
 export default router;

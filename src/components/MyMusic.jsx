@@ -8,15 +8,14 @@ export default function MyMusic({
     onPlaySong,
     currentPlayingSong,
     isGlobalPlaying,
-    showAddSong,        // Recibido como prop
-    setShowAddSong      // Recibido como prop
+    showAddSong,
+    setShowAddSong
 }) {
     const [songs, setSongs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastUpdated, setLastUpdated] = useState(Date.now());
 
-    // Función para generar URLs de Cloudinary (memoizada)
     const generateCloudinaryUrl = useCallback((publicId, resourceType = 'video') => {
         if (!publicId) return null;
         const baseUrl = `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}`;
@@ -25,15 +24,12 @@ export default function MyMusic({
             : `${baseUrl}/image/upload/w_300,h_300,c_fill/${publicId}.jpg`;
     }, []);
 
-    // Función para cargar canciones (memoizada)
     const fetchSongs = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
-
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic?t=${lastUpdated}`);
             if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-
             const data = await response.json();
 
             const normalizedSongs = data.map(song => {
@@ -67,12 +63,10 @@ export default function MyMusic({
         }
     }, [generateCloudinaryUrl, lastUpdated]);
 
-    // Efecto para cargar canciones
     useEffect(() => {
         fetchSongs();
     }, [fetchSongs]);
 
-    // Manejar nueva canción agregada
     const handleSongAdded = useCallback((newSong) => {
         setSongs(prev => [{
             ...newSong,
@@ -80,10 +74,31 @@ export default function MyMusic({
             source: 'cloudinary'
         }, ...prev]);
         setShowAddSong(false);
-        setLastUpdated(Date.now()); // Forzar recarga
+        setLastUpdated(Date.now());
     }, [setShowAddSong]);
 
-    // Estado de carga
+    const handleDeleteSong = useCallback(async (songId) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic/${songId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Error al eliminar canción');
+
+            // Actualizar estado local
+            setSongs(prev => prev.filter(song => song.id !== songId));
+            setLastUpdated(Date.now());
+
+            return true;
+        } catch (error) {
+            console.error("Error al eliminar canción:", error);
+            throw error;
+        }
+    }, []);
+
     if (loading) return (
         <div className="loading">
             <div className="spinner"></div>
@@ -91,7 +106,6 @@ export default function MyMusic({
         </div>
     );
 
-    // Estado de error
     if (error) return (
         <div className="error">
             <p>{error}</p>
@@ -129,6 +143,8 @@ export default function MyMusic({
                             song={song}
                             isPlaying={currentPlayingSong?.id === song.id && isGlobalPlaying}
                             onPlay={() => onPlaySong(song)}
+                            onPause={onPlaySong}
+                            onDelete={handleDeleteSong}
                         />
                     ))
                 ) : (

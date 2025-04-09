@@ -1,14 +1,31 @@
-import { FaPlay, FaPause } from 'react-icons/fa';
+import { FaPlay, FaPause, FaTrash } from 'react-icons/fa';
 import ViniloDefault from '../assets/images/VINILO.jpeg';
 import "../styles/components/SongCard.css";
 
-export default function SongCard({ song, isPlaying, onPlay, onPause }) {
+export default function SongCard({
+    song,
+    isPlaying,
+    onPlay,
+    onPause,
+    onDelete
+}) {
     const getThumbnail = () => {
-        // Intenta usar la miniatura de Cloudinary si existe
         if (song.public_id) {
             return `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_300,h_300,c_fill/${song.public_id}.jpg`;
         }
-        return ViniloDefault; // Fallback a imagen local
+        return ViniloDefault;
+    };
+
+    const handleDelete = async (e) => {
+        e.stopPropagation(); // Evita que se active el play/pause
+        if (window.confirm(`¿Seguro que quieres eliminar "${song.title}"?`)) {
+            try {
+                await onDelete(song.id);
+            } catch (error) {
+                console.error("Error al eliminar canción:", error);
+                alert("No se pudo eliminar la canción");
+            }
+        }
     };
 
     return (
@@ -23,7 +40,7 @@ export default function SongCard({ song, isPlaying, onPlay, onPause }) {
                     src={getThumbnail()}
                     alt={`Portada de ${song.title}`}
                     onError={(e) => {
-                        e.target.src = ViniloDefault; // Doble fallback
+                        e.target.src = ViniloDefault;
                         e.target.classList.add('default-thumb');
                     }}
                 />
@@ -36,6 +53,13 @@ export default function SongCard({ song, isPlaying, onPlay, onPause }) {
                 <p>{song.artist}</p>
                 <span>{formatTime(song.duration)}</span>
             </div>
+            <button
+                className="delete-button"
+                onClick={handleDelete}
+                aria-label="Eliminar canción"
+            >
+                <FaTrash />
+            </button>
         </div>
     );
 }
