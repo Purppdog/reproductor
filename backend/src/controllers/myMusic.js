@@ -1,5 +1,16 @@
 import { pool } from "../models/db.js";
+import { v2 as cloudinary } from 'cloudinary';
+import dotenv from 'dotenv';
 
+// Configurar environment variables
+dotenv.config();
+
+// Configurar Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 export const getSavedSongs = async (req, res) => {
     try {
         console.log("Obteniendo canciones...");
@@ -103,41 +114,78 @@ export const addSavedSong = async (req, res) => {
 };
 
 export const deleteSavedSong = async (req, res) => {
-    try {
-        const { id } = req.params;
-        console.log(`Eliminando canción con ID: ${id}`);
+    const { id } = req.params;
 
-        const [song] = await pool.query(
-            "SELECT cloudinary_public_id FROM songs WHERE id = ?",
+    // Validación básica del ID
+    if (!id || isNaN(id)) {
+        return res.status(400).json({
+            success: false,
+            error: "ID de canción no válido"
+        });
+    }
+
+    const connection = await pool.getConnection();
+
+    try {
+        await connection.beginTransaction();
+
+        // 1. Obtener información de la canción
+        const [song] = await connection.query(
+            `SELECT cloudinary_public_id, user_id FROM songs WHERE id = ?`,
             [id]
         );
 
-        if (song.length === 0) {
+        if (!song.length) {
+            await connection.rollback();
             return res.status(404).json({
                 success: false,
                 error: "Canción no encontrada"
             });
         }
 
-        const public_id = song[0].cloudinary_public_id;
+        const publicId = song[0].cloudinary_public_id;
 
-        await cloudinary.uploader.destroy(public_id, {
-            resource_type: 'video' //
-        });
+        // 2. Eliminar de Cloudinary (solo si tiene public_id)
+        if (publicId) {
+            console.log(`Eliminando de Cloudinary: ${publicId}`);
+            const cloudinaryResult = await cloudinary.uploader.destroy(publicId, {
+                resource_type: "video",
+                invalidate: true
+            });
 
-        const [result] = await pool.query(
-            "DELETE FROM songs WHERE id = ?",
+            if (cloudinaryResult.result !== 'ok') {
+                throw new Error(`Cloudinary respondió: ${cloudinaryResult.result}`);
+            }
+        }
+
+        // 3. Eliminar de la base de datos
+        const [dbResult] = await connection.query(
+            `DELETE FROM songs WHERE id = ?`,
             [id]
         );
 
+        if (dbResult.affectedRows === 0) {
+            await connection.rollback();
+            return res.status(404).json({
+                success: false,
+                error: "No se pudo eliminar la canción"
+            });
+        }
+
+        await connection.commit();
+
         res.json({
             success: true,
-            message: "Canción eliminada correctamente de la base de datos y Cloudinary"
+            message: "Canción eliminada correctamente",
+            cloudinaryResult: publicId ? cloudinaryResult : null
         });
+
     } catch (error) {
+        await connection.rollback();
         console.error("Error en deleteSavedSong:", {
             message: error.message,
-            stack: error.stack
+            stack: error.stack,
+            ...(error.response && { cloudinaryError: error.response.body })
         });
 
         res.status(500).json({
@@ -145,5 +193,7 @@ export const deleteSavedSong = async (req, res) => {
             error: "Error al eliminar canción",
             details: error.message
         });
+    } finally {
+        connection.release();
     }
 };
