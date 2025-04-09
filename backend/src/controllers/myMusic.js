@@ -116,7 +116,6 @@ export const addSavedSong = async (req, res) => {
 export const deleteSavedSong = async (req, res) => {
     const { id } = req.params;
 
-    // Validación básica del ID
     if (!id || isNaN(id)) {
         return res.status(400).json({
             success: false,
@@ -129,9 +128,9 @@ export const deleteSavedSong = async (req, res) => {
     try {
         await connection.beginTransaction();
 
-        // 1. Obtener información de la canción
+        // 1. Obtener información de la canción (sin user_id)
         const [song] = await connection.query(
-            `SELECT cloudinary_public_id, user_id FROM songs WHERE id = ?`,
+            `SELECT cloudinary_public_id FROM songs WHERE id = ?`,
             [id]
         );
 
