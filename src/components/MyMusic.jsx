@@ -94,16 +94,19 @@ export default function MyMusic({
                 throw new Error(data.error || 'Error al eliminar canción');
             }
 
-            // Actualizar estado solo si la respuesta fue exitosa
+            if (currentPlayingSong?.id === songId) {
+                onPlaySong(null);
+            }
+
             setSongs(prev => prev.filter(song => song.id !== songId));
             return true;
 
         } catch (error) {
-            console.error("Error al eliminar:", error);
-            alert(error.message);
-            return false;
+            console.error("Error completo al eliminar:", error);
+            alert(`Error al eliminar: ${error.message}`);
+            throw error;
         }
-    }, []);
+    }, [currentPlayingSong, onPlaySong]);
 
     if (loading) return (
         <div className="loading">

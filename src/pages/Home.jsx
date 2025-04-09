@@ -152,6 +152,39 @@ export default function Home() {
         }
     }, [currentSong, isPlaying, playAudio, startProgressTracker, stopProgressTracker]);
 
+    const handleDeleteSong = useCallback(async (songId) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic/${songId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al eliminar canción');
+            }
+
+            // Verificar si la canción eliminada es la que se está reproduciendo
+            if (currentSong?.id === songId.toString()) {
+                stopCurrentPlayback();
+                setCurrentSong(null);
+                setIsPlaying(false);
+            }
+
+            // Actualizar la lista de canciones
+            setSongs(prev => prev.filter(song => song.id !== songId.toString()));
+
+            return true;
+        } catch (error) {
+            console.error("Error al eliminar canción:", error);
+            setError({ library: error.message });
+            return false;
+        }
+    }, [currentSong, stopCurrentPlayback]);
+
     // Manejo de reproducción
     const handlePlaySong = useCallback((song) => {
         // Si no hay canción, detener todo
@@ -406,6 +439,7 @@ export default function Home() {
                     isGlobalPlaying={isPlaying}
                     showAddSong={showAddSong}
                     setShowAddSong={setShowAddSong}
+                    onDeleteSong={handleDeleteSong}
                 />
             ) : (
                 <div className="youtube-content">
