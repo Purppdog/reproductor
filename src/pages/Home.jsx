@@ -340,6 +340,7 @@ export default function Home() {
     }, [searchQuery, activeTab, searchYouTube]);
 
     // Render
+    // Render
     return (
         <div className="home-container">
             <div className="search-container">
@@ -353,13 +354,25 @@ export default function Home() {
                     <div className="tabs">
                         <button
                             className={activeTab === 'library' ? 'active' : ''}
-                            onClick={() => setActiveTab('library')}
+                            onClick={() => {
+                                setActiveTab('library');
+                                // Opcional: Detener la reproducción al cambiar de pestaña
+                                if (isPlaying && currentSong?.source === 'youtube') {
+                                    setIsPlaying(false);
+                                }
+                            }}
                         >
                             Mi Biblioteca
                         </button>
                         <button
                             className={activeTab === 'youtube' ? 'active' : ''}
-                            onClick={() => setActiveTab('youtube')}
+                            onClick={() => {
+                                setActiveTab('youtube');
+                                // Opcional: Limpiar la canción actual al cambiar a YouTube
+                                if (currentSong?.source !== 'youtube') {
+                                    setCurrentSong(null);
+                                }
+                            }}
                         >
                             YouTube
                         </button>
@@ -367,6 +380,7 @@ export default function Home() {
                 </div>
             </div>
 
+            {/* Mensajes de error/success */}
             {error?.library && (
                 <div className="error-message">
                     {error.library}
@@ -379,7 +393,7 @@ export default function Home() {
                 </div>
             )}
 
-
+            {/* Contenido según pestaña activa */}
             {activeTab === 'library' ? (
                 <MyMusic
                     songs={songs.filter(song =>
@@ -443,7 +457,8 @@ export default function Home() {
                 </div>
             )}
 
-            {currentSong && (
+            {/* Reproductor solo visible en la pestaña de biblioteca */}
+            {currentSong && activeTab === 'library' && (
                 <PlayerControls
                     currentSong={currentSong}
                     onNext={handleNext}
