@@ -122,7 +122,7 @@ export const deleteSavedSong = async (req, res) => {
         const public_id = song[0].cloudinary_public_id;
 
         await cloudinary.uploader.destroy(public_id, {
-            resource_type: 'auto' //
+            resource_type: 'video' //
         });
 
         const [result] = await pool.query(

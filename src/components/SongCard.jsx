@@ -17,14 +17,32 @@ export default function SongCard({
     };
 
     const handleDelete = async (e) => {
-        e.stopPropagation(); // Evita que se active el play/pause
-        if (window.confirm(`¿Seguro que quieres eliminar "${song.title}"?`)) {
-            try {
-                await onDelete(song.id);
-            } catch (error) {
-                console.error("Error al eliminar canción:", error);
-                alert("No se pudo eliminar la canción");
+        e.stopPropagation();
+
+        try {
+            if (window.confirm(`¿Seguro que quieres eliminar "${song.title}"?`)) {
+                const success = await onDelete(song.id);
+
+                if (success) {
+                    // Opcional: Mostrar notificación de éxito
+                    console.log("Canción eliminada correctamente");
+                }
             }
+        } catch (error) {
+            console.error("Error en la eliminación:", error);
+
+            // Mostrar mensaje más descriptivo
+            let errorMessage = "No se pudo eliminar la canción. ";
+
+            if (error.message.includes("500")) {
+                errorMessage += "Error interno del servidor.";
+            } else if (error.message.includes("401")) {
+                errorMessage += "No autorizado. Por favor inicia sesión nuevamente.";
+            } else {
+                errorMessage += error.message;
+            }
+
+            alert(errorMessage);
         }
     };
 

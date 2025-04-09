@@ -79,22 +79,32 @@ export default function MyMusic({
 
     const handleDeleteSong = useCallback(async (songId) => {
         try {
+            const token = localStorage.getItem('token'); // Asegúrate de tener el token
+
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic/${songId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
             });
 
-            if (!response.ok) throw new Error('Error al eliminar canción');
+            const data = await response.json(); // Añade esta línea para obtener detalles del error
 
-            // Actualizar estado local
+            if (!response.ok) {
+                throw new Error(data.error || 'Error al eliminar canción');
+            }
+
             setSongs(prev => prev.filter(song => song.id !== songId));
-            setLastUpdated(Date.now());
-
             return true;
+
         } catch (error) {
-            console.error("Error al eliminar canción:", error);
+            console.error("Error completo al eliminar:", {
+                message: error.message,
+                ...(error.response && { response: error.response })
+            });
+
+            alert(`Error al eliminar: ${error.message}`);
             throw error;
         }
     }, []);
