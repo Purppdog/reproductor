@@ -115,20 +115,13 @@ export const addSavedSong = async (req, res) => {
 
 export const deleteSavedSong = async (req, res) => {
     const { id } = req.params;
-
-    if (!id || isNaN(id)) {
-        return res.status(400).json({
-            success: false,
-            error: "ID de canción no válido"
-        });
-    }
-
     const connection = await pool.getConnection();
+    let cloudinaryResponse = null; // Definimos la variable aquí con un nombre más claro
 
     try {
         await connection.beginTransaction();
 
-        // 1. Obtener información de la canción (sin user_id)
+        // 1. Obtener información de la canción
         const [song] = await connection.query(
             `SELECT cloudinary_public_id FROM songs WHERE id = ?`,
             [id]
@@ -147,13 +140,13 @@ export const deleteSavedSong = async (req, res) => {
         // 2. Eliminar de Cloudinary (solo si tiene public_id)
         if (publicId) {
             console.log(`Eliminando de Cloudinary: ${publicId}`);
-            const cloudinaryResult = await cloudinary.uploader.destroy(publicId, {
+            cloudinaryResponse = await cloudinary.uploader.destroy(publicId, {
                 resource_type: "video",
                 invalidate: true
             });
 
-            if (cloudinaryResult.result !== 'ok') {
-                throw new Error(`Cloudinary respondió: ${cloudinaryResult.result}`);
+            if (cloudinaryResponse.result !== 'ok') {
+                throw new Error(`Cloudinary respondió: ${cloudinaryResponse.result}`);
             }
         }
 
@@ -176,7 +169,7 @@ export const deleteSavedSong = async (req, res) => {
         res.json({
             success: true,
             message: "Canción eliminada correctamente",
-            cloudinaryResult: publicId ? cloudinaryResult : null
+            cloudinaryResponse // Usamos la variable correctamente definida
         });
 
     } catch (error) {
