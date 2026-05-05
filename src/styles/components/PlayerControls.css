@@ -1,0 +1,370 @@
+/* PlayerControls.css - Versión Actualizada con Prefijos */
+
+/* Variables CSS para consistencia */
+:root {
+    --player-bg: rgba(26, 26, 46, 0.98);
+    --player-border: rgba(255, 255, 255, 0.15);
+    --text-primary: white;
+    --text-secondary: #e0e0e0;
+    --progress-bg: rgba(83, 83, 83, 0.5);
+    --progress-active: #4cc9f0;
+    --control-hover: rgba(255, 255, 255, 0.15);
+}
+
+/* Contenedor principal - Usando CSS Grid */
+.player-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--player-bg);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid var(--player-border);
+    padding: 0.5rem 1rem;
+    display: grid;
+    grid-template-columns: 1fr minmax(auto, 500px) 1fr;
+    /* Reducido de 600px a 500px */
+    align-items: center;
+    gap: 1rem;
+    z-index: 1000;
+    min-height: 70px;
+    box-sizing: border-box;
+}
+
+.player-controls.inactive {
+    justify-content: center;
+    background: rgba(26, 26, 46, 0.8);
+}
+
+.player-inactive-message {
+    color: var(--text-secondary);
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    font-weight: 500;
+    grid-column: 1 / -1;
+    text-align: center;
+}
+
+/* Sección de información de la pista */
+.player-track-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    justify-self: start;
+}
+
+
+.player-thumbnail {
+    width: clamp(40px, 10vw, 48px);
+    height: clamp(40px, 10vw, 48px);
+    border-radius: 6px;
+    object-fit: cover;
+    background: #333;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.player-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+.player-default-thumbnail {
+    background-image: url('../assets/images/VINILO.jpeg');
+    background-size: cover;
+    background-position: center;
+}
+
+.player-track-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    overflow: hidden;
+    padding: 0.1rem 0;
+    /* Más compacto que 0.2rem */
+}
+
+.player-track-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 0 0.05rem 0;
+    /* Más compacto */
+    line-height: 1.2;
+    /* Mejor ajuste de línea */
+}
+
+.player-track-meta {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.player-track-artist {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.player-track-duration {
+    font-size: clamp(0.7rem, 1.8vw, 0.75rem);
+    color: var(--text-secondary);
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+    margin-left: 0.5rem;
+}
+
+/* Controles de reproducción centrales */
+.player-playback-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    /* Más compacto */
+    width: 100%;
+    max-width: 450px;
+    /* Reducido de 500px */
+    margin: 0 auto;
+    justify-self: center;
+}
+
+.player-transport-controls {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.5rem, 1.5vw, 0.8rem);
+    gap: 0.6rem;
+}
+
+.player-control-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    cursor: pointer;
+    width: clamp(28px, 8vw, 32px);
+    height: clamp(28px, 8vw, 32px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    opacity: 0.9;
+    transition: all 0.2s ease;
+}
+
+.player-control-btn:hover {
+    background: var(--control-hover);
+    transform: scale(1.1);
+}
+
+.player-control-btn:active {
+    transform: scale(0.95);
+}
+
+.player-control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.player-play-pause-btn {
+    background: var(--text-primary);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    /* Sombra más sutil */
+    color: black;
+}
+
+.player-play-pause-btn:hover {
+    transform: scale(1.1);
+    background: #f2f2f2;
+}
+
+.player-play-pause-btn:active {
+    transform: scale(0.95);
+}
+
+/* Barra de progreso */
+.player-progress-container {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.3rem, 1vw, 0.5rem);
+    width: 90%;
+    margin: 0 auto;
+}
+
+.player-time {
+    font-size: clamp(0.65rem, 1.8vw, 0.7rem);
+    color: var(--text-secondary);
+    min-width: 36px;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+}
+
+.player-progress-bar {
+    flex-grow: 1;
+    height: 4px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--progress-bg);
+    border-radius: 3px;
+    overflow: hidden;
+    transition: height 0.2s ease;
+}
+
+.player-progress-bar:hover {
+    height: 6px;
+}
+
+.player-progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 10px;
+    height: 10px;
+    background: var(--text-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.player-progress-bar {
+    background: linear-gradient(to right,
+            var(--progress-active) 0%,
+            var(--progress-active) var(--progress, 0%),
+            var(--progress-bg) var(--progress, 0%),
+            var(--progress-bg) 100%);
+}
+
+/* Controles de volumen */
+.player-volume-controls {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.4rem, 1.5vw, 0.6rem);
+    justify-self: end;
+    min-width: 120px;
+}
+
+.player-volume-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: clamp(1rem, 2.5vw, 1.1rem);
+    transition: all 0.2s ease;
+    width: clamp(26px, 8vw, 30px);
+    height: clamp(26px, 8vw, 30px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.player-volume-btn:hover {
+    color: var(--text-primary);
+    background: var(--control-hover);
+}
+
+.player-volume-slider {
+    width: clamp(60px, 15vw, 80px);
+    height: 4px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--progress-bg);
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.player-volume-slider:hover {
+    height: 6px;
+}
+
+.player-volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 10px;
+    height: 10px;
+    background: var(--text-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Animaciones */
+@keyframes rotateVinyl {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.is-playing .player-thumbnail {
+    animation: rotateVinyl 5s linear infinite;
+}
+
+/* Media Queries corregidas */
+@media (max-width: 768px) {
+    .player-controls {
+        grid-template-columns: auto 1fr auto;
+        gap: 0.6rem;
+        /* Más compacto */
+        padding: 0.5rem;
+    }
+
+    .player-track-info {
+        max-width: 140px;
+        /* Más compacto */
+    }
+
+    .player-progress-container {
+        width: 80%;
+        /* Más estrecho */
+    }
+}
+
+@media (max-width: 480px) {
+    .player-controls {
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "track-info volume"
+            "playback playback";
+        gap: 0.5rem;
+    }
+
+    .player-track-info {
+        max-width: 120px;
+    }
+
+    .player-track-title {
+        font-size: 0.78rem;
+        /* Más ajustado */
+    }
+
+    .player-track-artist {
+        font-size: 0.62rem;
+        /* Más ajustado */
+    }
+
+    .player-play-pause-btn {
+        width: 30px;
+        /* Más pequeño */
+        height: 30px;
+    }
+}

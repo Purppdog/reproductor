@@ -1,0 +1,341 @@
+/* Contenedor principal del modal */
+.add-song-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+/* Contenido del formulario */
+.add-song-content {
+    width: 52%;
+    max-width: 500px;
+    background: rgba(30, 30, 46, 0.95);
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1rem;
+    box-sizing: border-box;
+}
+
+/* Botón de cerrar */
+.close-button {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
+    padding: 0 0.5rem;
+}
+
+.close-button:hover {
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Título del formulario */
+.add-song-content h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0 0 2rem 0;
+    color: #ffffff;
+    text-align: center;
+    width: 100%;
+}
+
+/* Formulario */
+.add-song-content form {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Grupos de formulario */
+.form-group {
+    margin-bottom: 1.8rem;
+    width: 100%;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 0.8rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Inputs de texto */
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    background: rgba(10, 10, 20, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group input[type="text"]:focus {
+    outline: none;
+    border-color: #4a80f0;
+    box-shadow: 0 0 0 3px rgba(74, 128, 240, 0.2);
+}
+
+/* Área de subida de archivos */
+.file-input-container {
+    position: relative;
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+.file-input-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 1.5rem;
+    background: rgba(10, 10, 20, 0.3);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.file-input-label:hover {
+    border-color: #4a80f0;
+    background: rgba(74, 128, 240, 0.1);
+    color: white;
+}
+
+.file-input-label span {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.file-input {
+    position: absolute;
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.file-info {
+    margin-top: 0.8rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.5rem;
+    background: rgba(10, 10, 20, 0.3);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    word-break: break-word;
+}
+
+.file-info::before {
+    content: "✓";
+    color: #4a80f0;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+/* Botones */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.cancel-button,
+.submit-button {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    box-sizing: border-box;
+}
+
+.cancel-button {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.cancel-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.submit-button {
+    background: linear-gradient(90deg, #4a80f0, #6a9ff0);
+    color: white;
+    box-shadow: 0 4px 15px rgba(74, 128, 240, 0.2);
+}
+
+.submit-button:hover:not(:disabled) {
+    background: linear-gradient(90deg, #3a70e0, #5a8fe0);
+    box-shadow: 0 5px 20px rgba(74, 128, 240, 0.3);
+}
+
+.submit-button:disabled {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Alertas */
+.alert {
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.alert.error {
+    background: rgba(231, 76, 60, 0.15);
+    border-left: 4px solid #e74c3c;
+    color: #ff6b6b;
+}
+
+.alert.success {
+    background: rgba(46, 204, 113, 0.15);
+    border-left: 4px solid #2ecc71;
+    color: #6bff6b;
+}
+
+.alert p {
+    margin: 0;
+}
+
+.alert small {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+/* Spinner */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Media Queries para responsive */
+@media (max-width: 768px) {
+    .add-song-content {
+        padding: 2rem;
+        width: 85%;
+    }
+}
+
+@media (max-width: 600px) {
+    .add-song-content {
+        padding: 1.5rem;
+        width: 90%;
+    }
+
+    .add-song-content h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group input[type="text"] {
+        padding: 0.8rem 1rem;
+    }
+
+    .file-input-label {
+        padding: 1.2rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .cancel-button,
+    .submit-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 375px) {
+    .add-song-content {
+        padding: 1.2rem;
+        width: 95%;
+    }
+
+    .add-song-content h2 {
+        font-size: 1.3rem;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-group input[type="text"] {
+        padding: 0.7rem 0.9rem;
+        font-size: 0.95rem;
+    }
+
+    .file-input-label {
+        padding: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .file-input-label span {
+        font-size: 0.8rem;
+    }
+}
