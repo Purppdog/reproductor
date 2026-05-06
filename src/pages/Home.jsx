@@ -19,7 +19,7 @@ export default function Home() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [showAddSong, setShowAddSong] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeTab, setActiveTab] = useState('youtube'); // ⬅️ youtube por defecto si no hay sesión
+    const [activeTab, setActiveTab] = useState('youtube');
     const [volume, setVolume] = useState(0.7);
     const [isMuted, setIsMuted] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -181,6 +181,14 @@ export default function Home() {
             playAudio(song);
         }
     }, [currentSong, activeTab, stopCurrentPlayback, handlePlayPause, playAudio]);
+
+    useEffect(() => {
+    if (isAuthenticated) {
+        setActiveTab('library');
+    } else {
+        setActiveTab('youtube');
+    }
+}, [isAuthenticated]);
 
     useEffect(() => { handlePlaySongRef.current = handlePlaySong; }, [handlePlaySong]);
 

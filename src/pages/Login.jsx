@@ -59,7 +59,7 @@ export default function Login() {
         <div className="auth-container">
             <div className="auth-card">
                 <div className="auth-logo">
-                    <h1>🎵 REPRODUCTOR</h1>
+                    <h1>REPRODUCTOR</h1>
                     <p>Inicia sesión para acceder a tu biblioteca</p>
                 </div>
 
@@ -72,7 +72,7 @@ export default function Login() {
                         <input
                             type="email"
                             name="email"
-                            placeholder="tu@email.com"
+                            placeholder="Correo electrónico"
                             value={formData.email}
                             onChange={handleChange}
                             required
@@ -84,7 +84,7 @@ export default function Login() {
                         <input
                             type="password"
                             name="password"
-                            placeholder="Tu contraseña"
+                            placeholder="Contraseña"
                             value={formData.password}
                             onChange={handleChange}
                             required
