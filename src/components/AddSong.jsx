@@ -39,10 +39,14 @@ export default function AddSong({ onSongAdded, onClose }) {
             formData.append('title', title.trim() || "Sin título");
             formData.append('artist', artist.trim() || "Artista desconocido");
 
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`, {
-                method: 'POST',
-                body: formData
-            });
+            const token = localStorage.getItem('token');
+const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`, {
+    method: 'POST',
+    headers: {
+        'Authorization': `Bearer ${token}`
+    },
+    body: formData
+});
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
