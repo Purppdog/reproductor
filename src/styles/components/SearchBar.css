@@ -9,9 +9,6 @@
     width: 100%;
 }
 
-.search-bar-container.focused {
-    box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.3);
-}
 .search-input:focus,
 .search-input:focus-visible {
     outline: none;
