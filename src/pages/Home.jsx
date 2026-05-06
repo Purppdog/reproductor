@@ -380,14 +380,6 @@ export default function Home() {
                         <span className="auth-required-icon">🎵</span>
                         <h2>Tu biblioteca personal</h2>
                         <p>Inicia sesión para acceder a tu música, subir canciones y crear tu biblioteca personal.</p>
-                        <div className="auth-required-buttons">
-                            <Link to="/login" className="auth-required-btn primary">
-                                Iniciar sesión
-                            </Link>
-                            <Link to="/register" className="auth-required-btn secondary">
-                                Crear cuenta gratis
-                            </Link>
-                        </div>
                     </div>
                 </div>
             ) : activeTab === 'library' ? (

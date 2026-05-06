@@ -56,7 +56,7 @@ app.get("/api/youtube-search", async (req, res) => {
                 q,
                 key: process.env.YT_API_KEY,
                 type: "video",
-                maxResults: 6
+                maxResults: 10
             }
         });
 
@@ -78,7 +78,7 @@ app.get("/api/youtube-search", async (req, res) => {
             };
         });
 
-        res.json({ items: combinedResults.slice(0, 6) });
+        res.json({ items: combinedResults.slice(0, 10) });
     } catch (error) {
         console.error("Error en YouTube API:", error.message);
         res.status(500).json({ error: "Error al buscar en YouTube" });

@@ -50,8 +50,9 @@ export default function Register() {
                 return;
             }
 
-            setSuccess('🎉 Cuenta creada. Revisa tu email para verificarla antes de iniciar sesión.');
+            setSuccess('Cuenta creada. Revisa tu email para verificarla antes de iniciar sesión.');
             setFormData({ username: '', email: '', password: '', confirmPassword: '' });
+            setTimeout(() => navigate('/login'), 3000);
 
         } catch {
             setError('Error de conexión. Intenta nuevamente.');
@@ -64,7 +65,6 @@ export default function Register() {
         <div className="auth-container">
             <div className="auth-card">
                 <div className="auth-logo">
-                    <h1>🎵 REPRODUCTOR</h1>
                     <p>Crea tu cuenta y sube tu música</p>
                 </div>
 
