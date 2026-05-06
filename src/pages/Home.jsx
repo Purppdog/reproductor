@@ -19,7 +19,6 @@ export default function Home() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [showAddSong, setShowAddSong] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const { isAuthenticated, token, loading: authLoading } = useAuth();
     const [activeTab, setActiveTab] = useState('youtube');
     const [volume, setVolume] = useState(0.7);
     const [isMuted, setIsMuted] = useState(false);
