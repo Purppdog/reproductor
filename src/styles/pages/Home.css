@@ -232,7 +232,73 @@
     padding: 0 1rem;
     z-index: 100;
 }
+.auth-required {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 60px 20px;
+}
 
+.auth-required-content {
+    text-align: center;
+    max-width: 400px;
+}
+
+.auth-required-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 16px;
+}
+
+.auth-required-content h2 {
+    color: #fff;
+    font-size: 1.5rem;
+    margin: 0 0 12px 0;
+}
+
+.auth-required-content p {
+    color: #aaa;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0 0 28px 0;
+}
+
+.auth-required-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.auth-required-btn {
+    padding: 12px 28px;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.auth-required-btn.primary {
+    background: #1db954;
+    color: #000;
+}
+
+.auth-required-btn.primary:hover {
+    background: #1ed760;
+    transform: scale(1.02);
+}
+
+.auth-required-btn.secondary {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #555;
+}
+
+.auth-required-btn.secondary:hover {
+    border-color: #fff;
+}
 /* ============ MEDIA QUERIES OPTIMIZADOS ============ */
 /* Pantallas extra grandes (1920px+) */
 @media (max-width: 1920px) {

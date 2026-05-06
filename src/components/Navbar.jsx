@@ -1,10 +1,19 @@
-import { NavLink } from 'react-router-dom';
-import { FiHome } from 'react-icons/fi';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { FiHome, FiLogIn, FiLogOut, FiUser } from 'react-icons/fi';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import "../styles/components/Navbar.css";
 
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { user, logout, isAuthenticated } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+        setMobileMenuOpen(false);
+    };
 
     return (
         <header className="navbar-container">
@@ -23,6 +32,29 @@ export default function Navbar() {
                         <FiHome className="navbar-icon" />
                         <span>Inicio</span>
                     </NavLink>
+
+                    {isAuthenticated ? (
+                        <div className="navbar-user">
+                            <span className="navbar-username">
+                                <FiUser className="navbar-icon" />
+                                {user?.username}
+                            </span>
+                            <button className="navbar-logout-btn" onClick={handleLogout}>
+                                <FiLogOut className="navbar-icon" />
+                                <span>Salir</span>
+                            </button>
+                        </div>
+                    ) : (
+                        <NavLink
+                            to="/login"
+                            className={({ isActive }) =>
+                                `navbar-link ${isActive ? 'navbar-link-active' : ''}`
+                            }
+                        >
+                            <FiLogIn className="navbar-icon" />
+                            <span>Iniciar sesión</span>
+                        </NavLink>
+                    )}
                 </div>
 
                 <button
@@ -48,6 +80,24 @@ export default function Navbar() {
                         <FiHome className="navbar-icon" />
                         <span>Inicio</span>
                     </NavLink>
+
+                    {isAuthenticated ? (
+                        <button className="navbar-mobile-link" onClick={handleLogout}>
+                            <FiLogOut className="navbar-icon" />
+                            <span>Cerrar sesión</span>
+                        </button>
+                    ) : (
+                        <NavLink
+                            to="/login"
+                            className={({ isActive }) =>
+                                `navbar-mobile-link ${isActive ? 'navbar-link-active' : ''}`
+                            }
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            <FiLogIn className="navbar-icon" />
+                            <span>Iniciar sesión</span>
+                        </NavLink>
+                    )}
                 </div>
             </nav>
         </header>

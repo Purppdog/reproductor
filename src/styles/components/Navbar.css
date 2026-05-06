@@ -163,6 +163,40 @@
     /* Cambiado de rgba(76, 201, 240, 0.1) */
 }
 
+.navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.navbar-username {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1db954;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.navbar-logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid #333;
+    color: #aaa;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.navbar-logout-btn:hover {
+    border-color: #ff3b3b;
+    color: #ff3b3b;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .navbar {

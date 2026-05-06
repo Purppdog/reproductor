@@ -1,14 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { Howl } from 'howler';
 import YouTubePlayer from '../components/YouTubePlayer';
 import SongList from '../components/SongList';
 import MyMusic from '../components/MyMusic';
 import PlayerControls from '../components/PlayerControls';
 import SearchBar from '../components/SearchBar';
-import AddSong from '../components/AddSong';
+import { useAuth } from '../context/AuthContext';
 import '../styles/pages/Home.css';
 
 export default function Home() {
+    const { isAuthenticated, token } = useAuth();
+
     // Estados
     const [songs, setSongs] = useState([]);
     const [youtubeResults, setYoutubeResults] = useState([]);
@@ -16,14 +19,11 @@ export default function Home() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [showAddSong, setShowAddSong] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeTab, setActiveTab] = useState('library');
+    const [activeTab, setActiveTab] = useState('youtube'); // ⬅️ youtube por defecto si no hay sesión
     const [volume, setVolume] = useState(0.7);
     const [isMuted, setIsMuted] = useState(false);
     const [progress, setProgress] = useState(0);
-    const [loading, setLoading] = useState({
-        youtube: false,
-        library: true
-    });
+    const [loading, setLoading] = useState({ youtube: false, library: true });
     const [error, setError] = useState(null);
     const [isShuffled, setIsShuffled] = useState(false);
     const [repeatMode, setRepeatMode] = useState('none');
@@ -70,9 +70,7 @@ export default function Home() {
             if (soundRef.current?.playing()) {
                 const seek = soundRef.current.seek();
                 const duration = soundRef.current.duration();
-                if (duration > 0) {
-                    setProgress((seek / duration) * 100);
-                }
+                if (duration > 0) setProgress((seek / duration) * 100);
             }
         }, 200);
     }, [stopProgressTracker]);
@@ -87,16 +85,12 @@ export default function Home() {
         setIsPlaying(false);
     }, [stopProgressTracker]);
 
-    // Control de audio
     const playAudio = useCallback((song) => {
         if (!song?.url) {
-            console.error('Intento de reproducir canción sin URL:', song);
             setError({ playback: 'La canción no tiene URL válida' });
             return;
         }
-
         stopCurrentPlayback();
-
         soundRef.current = new Howl({
             src: [song.url],
             html5: true,
@@ -104,7 +98,6 @@ export default function Home() {
             onplay: () => {
                 setIsPlaying(true);
                 startProgressTracker();
-
                 if (!song.duration && soundRef.current) {
                     const duration = soundRef.current.duration();
                     setCurrentSong(prev => ({
@@ -116,29 +109,19 @@ export default function Home() {
             onpause: () => setIsPlaying(false),
             onend: () => handleNextRef.current?.(),
             onloaderror: (_, err) => {
-                console.error('Error al cargar audio:', err);
-                setError({ playback: `Error al cargar: ${err.message || 'Verifica la URL'}` });
+                setError({ playback: `Error al cargar audio` });
                 setIsPlaying(false);
             },
             onplayerror: (_, err) => {
-                console.error('Error al reproducir:', err);
-                setError({ playback: `Error al reproducir: ${err.message || 'Formato no soportado'}` });
+                setError({ playback: `Error al reproducir` });
                 setIsPlaying(false);
             }
         });
-
-        try {
-            soundRef.current.play();
-        } catch (err) {
-            console.error('Error al iniciar reproducción:', err);
-            setError({ playback: 'Error al iniciar reproducción' });
-        }
+        soundRef.current.play();
     }, [volume, isMuted, stopCurrentPlayback, startProgressTracker]);
 
-    // Control de play/pause
     const handlePlayPause = useCallback(() => {
         if (!currentSong) return;
-
         if (currentSong.source === 'youtube') {
             setIsPlaying(!isPlaying);
         } else {
@@ -155,106 +138,73 @@ export default function Home() {
     }, [currentSong, isPlaying, playAudio, startProgressTracker, stopProgressTracker]);
 
     const handleDeleteSong = useCallback(async (songId) => {
-    try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic/${songId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic/${songId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // ⬅️ ahora sí tenemos token real
+                }
+            });
+            if (!response.ok) throw new Error('Error al eliminar canción');
+            if (currentSong?.id === songId.toString()) {
+                stopCurrentPlayback();
+                setCurrentSong(null);
+                setIsPlaying(false);
             }
-        });
-
-        if (!response.ok) {
-            throw new Error('Error al eliminar canción');
+            setSongs(prev => prev.filter(song => song.id !== songId.toString()));
+            return true;
+        } catch (error) {
+            setError({ library: error.message });
+            return false;
         }
+    }, [currentSong, stopCurrentPlayback, token]);
 
-        if (currentSong?.id === songId.toString()) {
-            stopCurrentPlayback();
-            setCurrentSong(null);
-            setIsPlaying(false);
-        }
-
-        setSongs(prev => prev.filter(song => song.id !== songId.toString()));
-        return true;
-
-    } catch (error) {
-        console.error("Error al eliminar canción:", error);
-        setError({ library: error.message });
-        return false;
-    }
-}, [currentSong, stopCurrentPlayback]);
-
-    // Manejo de reproducción
     const handlePlaySong = useCallback((song) => {
-        // Si no hay canción, detener todo
         if (!song) {
             stopCurrentPlayback();
             setCurrentSong(null);
             setIsPlaying(false);
             return;
         }
-
-        // Si intentamos reproducir un video de YouTube fuera de su pestaña, ignorar
-        if (song.source === 'youtube' && activeTab !== 'youtube') {
-            return;
-        }
-
-        // Si es la misma canción, pausar/reanudar
+        if (song.source === 'youtube' && activeTab !== 'youtube') return;
         if (currentSong?.id === song.id) {
             handlePlayPause();
             return;
         }
-
-        // Configurar nueva canción
         setCurrentSong(song);
         setProgress(0);
-
-        // Manejar reproducción según el tipo
         if (song.source === 'youtube') {
-            stopCurrentPlayback(); // Asegurarse de detener audio local
-            setIsPlaying(true); // Iniciar reproducción de YouTube
+            stopCurrentPlayback();
+            setIsPlaying(true);
         } else {
-            playAudio(song); // Reproducir audio local
+            playAudio(song);
         }
     }, [currentSong, activeTab, stopCurrentPlayback, handlePlayPause, playAudio]);
 
-    useEffect(() => {
-        handlePlaySongRef.current = handlePlaySong;
-    }, [handlePlaySong]);
+    useEffect(() => { handlePlaySongRef.current = handlePlaySong; }, [handlePlaySong]);
 
-    // Navegación entre canciones
     const getNextSong = useCallback(() => {
-    const list = activeTab === 'library' ? songs : youtubeResults;
-    if (!list.length) return null;
-
-    // Repetir canción actual
-    if (repeatMode === 'one') return currentSong;
-
-    // Modo aleatorio
-    if (isShuffled) {
-        const otherSongs = list.filter(s => s.id !== currentSong?.id);
-        if (!otherSongs.length) return currentSong;
-        return otherSongs[Math.floor(Math.random() * otherSongs.length)];
-    }
-
-    const currentIndex = list.findIndex(s => s.id === currentSong?.id);
-    const nextIndex = currentIndex + 1;
-
-    // Repetir lista completa
-    if (nextIndex >= list.length) {
-        return repeatMode === 'all' ? list[0] : null;
-    }
-
-    return list[nextIndex];
-}, [currentSong, activeTab, songs, youtubeResults, isShuffled, repeatMode]);
+        const list = activeTab === 'library' ? songs : youtubeResults;
+        if (!list.length) return null;
+        if (repeatMode === 'one') return currentSong;
+        if (isShuffled) {
+            const otherSongs = list.filter(s => s.id !== currentSong?.id);
+            if (!otherSongs.length) return currentSong;
+            return otherSongs[Math.floor(Math.random() * otherSongs.length)];
+        }
+        const currentIndex = list.findIndex(s => s.id === currentSong?.id);
+        const nextIndex = currentIndex + 1;
+        if (nextIndex >= list.length) return repeatMode === 'all' ? list[0] : null;
+        return list[nextIndex];
+    }, [currentSong, activeTab, songs, youtubeResults, isShuffled, repeatMode]);
 
     const handleNext = useCallback(() => {
         const nextSong = getNextSong();
         if (nextSong) handlePlaySongRef.current(nextSong);
     }, [getNextSong]);
 
-    useEffect(() => {
-        handleNextRef.current = handleNext;
-    }, [handleNext]);
+    useEffect(() => { handleNextRef.current = handleNext; }, [handleNext]);
 
     const handlePrevious = useCallback(() => {
         const list = activeTab === 'library' ? songs : youtubeResults;
@@ -264,62 +214,48 @@ export default function Home() {
         handlePlaySongRef.current(list[prevIndex]);
     }, [currentSong, activeTab, songs, youtubeResults]);
 
-    // Control de volumen
     const handleVolumeChange = useCallback((newVolume) => {
-    const vol = Math.max(0, Math.min(newVolume, 1));
-    setVolume(vol);
-    setIsMuted(false); 
-    if (soundRef.current) soundRef.current.volume(vol);
-}, []);
+        const vol = Math.max(0, Math.min(newVolume, 1));
+        setVolume(vol);
+        setIsMuted(false);
+        if (soundRef.current) soundRef.current.volume(vol);
+    }, []);
 
     const toggleMute = useCallback(() => {
-    if (isMuted) {
-        const restoredVol = volumeBeforeMute.current || 0.7;
-        setIsMuted(false);
-        setVolume(restoredVol);
-        if (soundRef.current) soundRef.current.volume(restoredVol);
-    } else {
-        volumeBeforeMute.current = volume;
-        setIsMuted(true);
-        if (soundRef.current) soundRef.current.volume(0);
-    }
-}, [isMuted, volume]);
+        if (isMuted) {
+            const restoredVol = volumeBeforeMute.current || 0.7;
+            setIsMuted(false);
+            setVolume(restoredVol);
+            if (soundRef.current) soundRef.current.volume(restoredVol);
+        } else {
+            volumeBeforeMute.current = volume;
+            setIsMuted(true);
+            if (soundRef.current) soundRef.current.volume(0);
+        }
+    }, [isMuted, volume]);
 
-const handleToggleShuffle = useCallback(() => {
-    setIsShuffled(prev => !prev);
-}, []);
+    const handleToggleShuffle = useCallback(() => setIsShuffled(prev => !prev), []);
 
-const handleToggleRepeat = useCallback(() => {
-    setRepeatMode(prev => {
-        if (prev === 'none') return 'all';
-        if (prev === 'all') return 'one';
-        return 'none';
-    });
-}, []);
+    const handleToggleRepeat = useCallback(() => {
+        setRepeatMode(prev => {
+            if (prev === 'none') return 'all';
+            if (prev === 'all') return 'one';
+            return 'none';
+        });
+    }, []);
 
-    // Búsqueda en YouTube
     const searchYouTube = useCallback(async (query) => {
-        if (!query.trim()) {
-            setYoutubeResults([]);
-            return;
-        }
-
-        if (searchController.current) {
-            searchController.current.abort();
-        }
+        if (!query.trim()) { setYoutubeResults([]); return; }
+        if (searchController.current) searchController.current.abort();
         searchController.current = new AbortController();
-
         setLoading(prev => ({ ...prev, youtube: true }));
         setError(null);
-
         try {
             const response = await fetch(
                 `${import.meta.env.VITE_API_URL}/api/youtube-search?q=${encodeURIComponent(query)}`,
                 { signal: searchController.current.signal }
             );
-
             if (!response.ok) throw new Error('Error en búsqueda');
-
             const data = await response.json();
             setYoutubeResults(data.items.map(video => ({
                 id: video.id.videoId,
@@ -332,31 +268,29 @@ const handleToggleRepeat = useCallback(() => {
                 source: 'youtube'
             })));
         } catch (err) {
-            if (err.name !== 'AbortError') {
-                setError({ youtube: err.message });
-            }
+            if (err.name !== 'AbortError') setError({ youtube: err.message });
         } finally {
             setLoading(prev => ({ ...prev, youtube: false }));
         }
     }, []);
 
-    // Carga inicial de canciones
+    // ✅ Carga canciones solo si está autenticado
     useEffect(() => {
+        if (!isAuthenticated) {
+            setLoading(prev => ({ ...prev, library: false }));
+            return;
+        }
         const fetchLibrary = async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`);
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-
                 const data = await response.json();
                 const processedSongs = data.map(song => {
                     const publicId = song.cloudinary_public_id;
                     const audioUrl = song.cloudinary_url || generateCloudinaryAudioUrl(publicId);
-
-                    if (!audioUrl) {
-                        console.warn('Canción sin URL válida:', song);
-                        return null;
-                    }
-
+                    if (!audioUrl) return null;
                     return {
                         id: song.id.toString(),
                         title: song.title || "Sin título",
@@ -368,57 +302,43 @@ const handleToggleRepeat = useCallback(() => {
                         source: song.source_type || 'cloudinary'
                     };
                 }).filter(Boolean);
-
                 setSongs(processedSongs);
             } catch (err) {
-                console.error("Error al cargar biblioteca:", err);
                 setError({ library: err.message });
             } finally {
                 setLoading(prev => ({ ...prev, library: false }));
             }
         };
-
         fetchLibrary();
-    }, []);
+    }, [isAuthenticated, token]);
 
-    // Limpieza al desmontar
     useEffect(() => {
         return () => {
-            if (soundRef.current) {
-                soundRef.current.unload();
-                soundRef.current = null;
-            }
+            if (soundRef.current) { soundRef.current.unload(); soundRef.current = null; }
             stopProgressTracker();
-            if (searchController.current) {
-                searchController.current.abort();
-            }
+            if (searchController.current) searchController.current.abort();
         };
     }, [stopProgressTracker]);
 
-    // Efectos secundarios
     useEffect(() => {
         const timer = setTimeout(() => {
             if (activeTab === 'youtube') searchYouTube(searchQuery);
         }, 500);
-
         return () => clearTimeout(timer);
     }, [searchQuery, activeTab, searchYouTube]);
 
-    // Función para cambiar de pestaña
     const handleTabChange = (tab) => {
+        // ✅ Si no está autenticado y quiere ir a biblioteca, no hacer nada
+        if (tab === 'library' && !isAuthenticated) return;
         stopCurrentPlayback();
-
         if (activeTab !== tab) {
             setCurrentSong(null);
             setIsPlaying(false);
             setSearchQuery('');
         }
-
-        // Cambiar la pestaña activa
         setActiveTab(tab);
     };
 
-    // Render
     return (
         <div className="home-container">
             <div className="search-container">
@@ -427,7 +347,6 @@ const handleToggleRepeat = useCallback(() => {
                     onChange={setSearchQuery}
                     placeholder={`Buscar en ${activeTab === 'library' ? 'mi biblioteca' : 'YouTube'}`}
                 />
-
                 <div className="header-actions">
                     <div className="tabs">
                         <button
@@ -446,19 +365,26 @@ const handleToggleRepeat = useCallback(() => {
                 </div>
             </div>
 
-            {error?.library && (
-                <div className="error-message">
-                    {error.library}
-                </div>
-            )}
+            {error?.library && <div className="error-message">{error.library}</div>}
 
-            {error?.success && (
-                <div className="success-message">
-                    {error.success}
+            {/* ✅ Mensaje si no está autenticado y quiere ver biblioteca */}
+            {activeTab === 'library' && !isAuthenticated ? (
+                <div className="auth-required">
+                    <div className="auth-required-content">
+                        <span className="auth-required-icon">🎵</span>
+                        <h2>Tu biblioteca personal</h2>
+                        <p>Inicia sesión para acceder a tu música, subir canciones y crear tu biblioteca personal.</p>
+                        <div className="auth-required-buttons">
+                            <Link to="/login" className="auth-required-btn primary">
+                                Iniciar sesión
+                            </Link>
+                            <Link to="/register" className="auth-required-btn secondary">
+                                Crear cuenta gratis
+                            </Link>
+                        </div>
+                    </div>
                 </div>
-            )}
-
-            {activeTab === 'library' ? (
+            ) : activeTab === 'library' ? (
                 <MyMusic
                     songs={songs.filter(song =>
                         searchQuery.trim()
@@ -475,12 +401,7 @@ const handleToggleRepeat = useCallback(() => {
                 />
             ) : (
                 <div className="youtube-content">
-                    {error?.youtube && (
-                        <div className="error-message">
-                            Error en YouTube: {error.youtube}
-                        </div>
-                    )}
-
+                    {error?.youtube && <div className="error-message">Error en YouTube: {error.youtube}</div>}
                     {currentSong?.source === 'youtube' && (
                         <div className="youtube-player-container">
                             <div className="youtube-player-wrapper">
@@ -516,10 +437,7 @@ const handleToggleRepeat = useCallback(() => {
                         songs={youtubeResults}
                         currentSong={currentSong}
                         onPlay={(song) => {
-                            // Solo permite reproducir si estamos en YouTube
-                            if (activeTab === 'youtube') {
-                                handlePlaySong(song);
-                            }
+                            if (activeTab === 'youtube') handlePlaySong(song);
                         }}
                         isLoading={loading.youtube}
                         error={error?.youtube}
@@ -527,32 +445,31 @@ const handleToggleRepeat = useCallback(() => {
                 </div>
             )}
 
-            {/* Reproductor solo visible para canciones locales en la biblioteca */}
             {currentSong && activeTab === 'library' && currentSong?.source !== 'youtube' && (
                 <PlayerControls
-    currentSong={currentSong}
-    onNext={handleNext}
-    onPrevious={handlePrevious}
-    onPlayPause={handlePlayPause}
-    isPlaying={isPlaying}
-    progress={progress}
-    onSeek={(newProgress) => {
-        if (soundRef.current) {
-            const newTime = (newProgress / 100) * soundRef.current.duration();
-            soundRef.current.seek(newTime);
-        }
-        setProgress(newProgress);
-    }}
-    volume={volume}
-    onVolumeChange={handleVolumeChange}
-    isMuted={isMuted}
-    onToggleMute={toggleMute}
-    duration={currentSong?.duration || 0}
-    isShuffled={isShuffled}
-    onToggleShuffle={handleToggleShuffle}
-    repeatMode={repeatMode}
-    onToggleRepeat={handleToggleRepeat}
-/>
+                    currentSong={currentSong}
+                    onNext={handleNext}
+                    onPrevious={handlePrevious}
+                    onPlayPause={handlePlayPause}
+                    isPlaying={isPlaying}
+                    progress={progress}
+                    onSeek={(newProgress) => {
+                        if (soundRef.current) {
+                            const newTime = (newProgress / 100) * soundRef.current.duration();
+                            soundRef.current.seek(newTime);
+                        }
+                        setProgress(newProgress);
+                    }}
+                    volume={volume}
+                    onVolumeChange={handleVolumeChange}
+                    isMuted={isMuted}
+                    onToggleMute={toggleMute}
+                    duration={currentSong?.duration || 0}
+                    isShuffled={isShuffled}
+                    onToggleShuffle={handleToggleShuffle}
+                    repeatMode={repeatMode}
+                    onToggleRepeat={handleToggleRepeat}
+                />
             )}
         </div>
     );

@@ -1,0 +1,141 @@
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    padding: 20px;
+}
+
+.auth-card {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.auth-logo {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.auth-logo h1 {
+    color: #1db954;
+    font-size: 1.8rem;
+    margin: 0 0 8px 0;
+    letter-spacing: 2px;
+}
+
+.auth-logo p {
+    color: #aaa;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.auth-alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.auth-alert.success {
+    background: rgba(29, 185, 84, 0.15);
+    border: 1px solid #1db954;
+    color: #1db954;
+}
+
+.auth-alert.error {
+    background: rgba(255, 59, 59, 0.15);
+    border: 1px solid #ff3b3b;
+    color: #ff3b3b;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.auth-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.auth-field label {
+    color: #ccc;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.auth-field input {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #fff;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.auth-field input:focus {
+    border-color: #1db954;
+}
+
+.auth-field input::placeholder {
+    color: #555;
+}
+
+.auth-btn {
+    background: #1db954;
+    color: #000;
+    border: none;
+    border-radius: 25px;
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.5px;
+}
+
+.auth-btn:hover:not(:disabled) {
+    background: #1ed760;
+    transform: scale(1.02);
+}
+
+.auth-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.auth-footer p {
+    color: #aaa;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.auth-footer a {
+    color: #1db954;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
