@@ -1,7 +1,8 @@
 import {
     FaPlay, FaPause,
     FaVolumeUp, FaVolumeMute,
-    FaStepForward, FaStepBackward
+    FaStepForward, FaStepBackward,
+    FaRandom, FaRedo
 } from 'react-icons/fa';
 import ViniloDefault from '../assets/images/VINILO.jpeg';
 import "../styles/components/PlayerControls.css";
@@ -18,7 +19,11 @@ export default function PlayerControls({
     onVolumeChange,
     isMuted,
     onToggleMute,
-    duration
+    duration,
+    isShuffled,
+    onToggleShuffle,
+    repeatMode,
+    onToggleRepeat
 }) {
     const formatTime = (seconds = 0) => {
         if (isNaN(seconds)) return "0:00";
@@ -66,6 +71,16 @@ export default function PlayerControls({
             {/* Controles de reproducción */}
             <div className="player-playback-controls">
                 <div className="player-transport-controls">
+                    {/* Shuffle */}
+                    <button
+                        onClick={onToggleShuffle}
+                        aria-label="Aleatorio"
+                        className={`player-control-btn player-extra-btn ${isShuffled ? 'active' : ''}`}
+                        title="Aleatorio"
+                    >
+                        <FaRandom />
+                    </button>
+
                     <button
                         onClick={onPrevious}
                         aria-label="Anterior"
@@ -89,6 +104,17 @@ export default function PlayerControls({
                         className="player-control-btn"
                     >
                         <FaStepForward />
+                    </button>
+
+                    {/* Repeat */}
+                    <button
+                        onClick={onToggleRepeat}
+                        aria-label="Repetir"
+                        className={`player-control-btn player-extra-btn ${repeatMode !== 'none' ? 'active' : ''}`}
+                        title={repeatMode === 'none' ? 'Sin repetir' : repeatMode === 'all' ? 'Repetir lista' : 'Repetir canción'}
+                    >
+                        <FaRedo />
+                        {repeatMode === 'one' && <span className="repeat-one-badge">1</span>}
                     </button>
                 </div>
 

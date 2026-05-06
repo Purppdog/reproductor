@@ -25,6 +25,8 @@ export default function Home() {
         library: true
     });
     const [error, setError] = useState(null);
+    const [isShuffled, setIsShuffled] = useState(false);
+    const [repeatMode, setRepeatMode] = useState('none');
 
     // Refs
     const soundRef = useRef(null);
@@ -153,37 +155,33 @@ export default function Home() {
     }, [currentSong, isPlaying, playAudio, startProgressTracker, stopProgressTracker]);
 
     const handleDeleteSong = useCallback(async (songId) => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic/${songId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Error al eliminar canción');
+    try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic/${songId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
             }
+        });
 
-            // Verificar si la canción eliminada es la que se está reproduciendo
-            if (currentSong?.id === songId.toString()) {
-                stopCurrentPlayback();
-                setCurrentSong(null);
-                setIsPlaying(false);
-            }
-
-            // Actualizar la lista de canciones
-            setSongs(prev => prev.filter(song => song.id !== songId.toString()));
-
-            return true;
-        } catch (error) {
-            console.error("Error al eliminar canción:", error);
-            setError({ library: error.message });
-            return false;
+        if (!response.ok) {
+            throw new Error('Error al eliminar canción');
         }
-    }, [currentSong, stopCurrentPlayback]);
+
+        if (currentSong?.id === songId.toString()) {
+            stopCurrentPlayback();
+            setCurrentSong(null);
+            setIsPlaying(false);
+        }
+
+        setSongs(prev => prev.filter(song => song.id !== songId.toString()));
+        return true;
+
+    } catch (error) {
+        console.error("Error al eliminar canción:", error);
+        setError({ library: error.message });
+        return false;
+    }
+}, [currentSong, stopCurrentPlayback]);
 
     // Manejo de reproducción
     const handlePlaySong = useCallback((song) => {
@@ -225,11 +223,29 @@ export default function Home() {
 
     // Navegación entre canciones
     const getNextSong = useCallback(() => {
-        const list = activeTab === 'library' ? songs : youtubeResults;
-        if (!list.length) return null;
-        const currentIndex = list.findIndex(s => s.id === currentSong?.id);
-        return list[(currentIndex + 1) % list.length];
-    }, [currentSong, activeTab, songs, youtubeResults]);
+    const list = activeTab === 'library' ? songs : youtubeResults;
+    if (!list.length) return null;
+
+    // Repetir canción actual
+    if (repeatMode === 'one') return currentSong;
+
+    // Modo aleatorio
+    if (isShuffled) {
+        const otherSongs = list.filter(s => s.id !== currentSong?.id);
+        if (!otherSongs.length) return currentSong;
+        return otherSongs[Math.floor(Math.random() * otherSongs.length)];
+    }
+
+    const currentIndex = list.findIndex(s => s.id === currentSong?.id);
+    const nextIndex = currentIndex + 1;
+
+    // Repetir lista completa
+    if (nextIndex >= list.length) {
+        return repeatMode === 'all' ? list[0] : null;
+    }
+
+    return list[nextIndex];
+}, [currentSong, activeTab, songs, youtubeResults, isShuffled, repeatMode]);
 
     const handleNext = useCallback(() => {
         const nextSong = getNextSong();
@@ -250,21 +266,36 @@ export default function Home() {
 
     // Control de volumen
     const handleVolumeChange = useCallback((newVolume) => {
-        const vol = Math.max(0, Math.min(newVolume, 1));
-        setVolume(vol);
-        if (soundRef.current) soundRef.current.volume(isMuted ? 0 : vol);
-        if (isMuted && vol > 0) setIsMuted(false);
-    }, [isMuted]);
+    const vol = Math.max(0, Math.min(newVolume, 1));
+    setVolume(vol);
+    setIsMuted(false); 
+    if (soundRef.current) soundRef.current.volume(vol);
+}, []);
 
     const toggleMute = useCallback(() => {
-        if (isMuted) {
-            handleVolumeChange(volumeBeforeMute.current);
-        } else {
-            volumeBeforeMute.current = volume;
-            handleVolumeChange(0);
-        }
-        setIsMuted(!isMuted);
-    }, [isMuted, volume, handleVolumeChange]);
+    if (isMuted) {
+        const restoredVol = volumeBeforeMute.current || 0.7;
+        setIsMuted(false);
+        setVolume(restoredVol);
+        if (soundRef.current) soundRef.current.volume(restoredVol);
+    } else {
+        volumeBeforeMute.current = volume;
+        setIsMuted(true);
+        if (soundRef.current) soundRef.current.volume(0);
+    }
+}, [isMuted, volume]);
+
+const handleToggleShuffle = useCallback(() => {
+    setIsShuffled(prev => !prev);
+}, []);
+
+const handleToggleRepeat = useCallback(() => {
+    setRepeatMode(prev => {
+        if (prev === 'none') return 'all';
+        if (prev === 'all') return 'one';
+        return 'none';
+    });
+}, []);
 
     // Búsqueda en YouTube
     const searchYouTube = useCallback(async (query) => {
@@ -498,25 +529,29 @@ export default function Home() {
             {/* Reproductor solo visible para canciones locales en la biblioteca */}
             {currentSong && activeTab === 'library' && currentSong?.source !== 'youtube' && (
                 <PlayerControls
-                    currentSong={currentSong}
-                    onNext={handleNext}
-                    onPrevious={handlePrevious}
-                    onPlayPause={handlePlayPause}
-                    isPlaying={isPlaying}
-                    progress={progress}
-                    onSeek={(newProgress) => {
-                        if (soundRef.current) {
-                            const newTime = (newProgress / 100) * soundRef.current.duration();
-                            soundRef.current.seek(newTime);
-                        }
-                        setProgress(newProgress);
-                    }}
-                    volume={volume}
-                    onVolumeChange={handleVolumeChange}
-                    isMuted={isMuted}
-                    onToggleMute={toggleMute}
-                    duration={currentSong?.duration || 0}
-                />
+    currentSong={currentSong}
+    onNext={handleNext}
+    onPrevious={handlePrevious}
+    onPlayPause={handlePlayPause}
+    isPlaying={isPlaying}
+    progress={progress}
+    onSeek={(newProgress) => {
+        if (soundRef.current) {
+            const newTime = (newProgress / 100) * soundRef.current.duration();
+            soundRef.current.seek(newTime);
+        }
+        setProgress(newProgress);
+    }}
+    volume={volume}
+    onVolumeChange={handleVolumeChange}
+    isMuted={isMuted}
+    onToggleMute={toggleMute}
+    duration={currentSong?.duration || 0}
+    isShuffled={isShuffled}
+    onToggleShuffle={handleToggleShuffle}
+    repeatMode={repeatMode}
+    onToggleRepeat={handleToggleRepeat}
+/>
             )}
         </div>
     );

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { FiHome, FiMusic, FiSearch } from 'react-icons/fi';
+import { FiHome } from 'react-icons/fi';
 import { useState } from 'react';
 import "../styles/components/Navbar.css";
 
@@ -23,26 +23,6 @@ export default function Navbar() {
                         <FiHome className="navbar-icon" />
                         <span>Inicio</span>
                     </NavLink>
-
-                    <NavLink
-                        to="/library"
-                        className={({ isActive }) =>
-                            `navbar-link ${isActive ? 'navbar-link-active' : ''}`
-                        }
-                    >
-                        <FiMusic className="navbar-icon" />
-                        <span>Playlist</span>
-                    </NavLink>
-
-                    <NavLink
-                        to="/search"
-                        className={({ isActive }) =>
-                            `navbar-link ${isActive ? 'navbar-link-active' : ''}`
-                        }
-                    >
-                        <FiSearch className="navbar-icon" />
-                        <span>Buscar</span>
-                    </NavLink>
                 </div>
 
                 <button
@@ -57,7 +37,6 @@ export default function Navbar() {
                     </div>
                 </button>
 
-                {/* Menú móvil (contenido) */}
                 <div className={`navbar-mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
                     <NavLink
                         to="/"
@@ -68,28 +47,6 @@ export default function Navbar() {
                     >
                         <FiHome className="navbar-icon" />
                         <span>Inicio</span>
-                    </NavLink>
-
-                    <NavLink
-                        to="/library"
-                        className={({ isActive }) =>
-                            `navbar-mobile-link ${isActive ? 'navbar-link-active' : ''}`
-                        }
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        <FiMusic className="navbar-icon" />
-                        <span>Biblioteca</span>
-                    </NavLink>
-
-                    <NavLink
-                        to="/search"
-                        className={({ isActive }) =>
-                            `navbar-mobile-link ${isActive ? 'navbar-link-active' : ''}`
-                        }
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        <FiSearch className="navbar-icon" />
-                        <span>Buscar</span>
                     </NavLink>
                 </div>
             </nav>

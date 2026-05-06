@@ -78,35 +78,33 @@ export default function MyMusic({
     }, [setShowAddSong]);
 
     const handleDeleteSong = useCallback(async (songId) => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic/${songId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Error al eliminar canción');
+    try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic/${songId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
             }
+        });
 
-            if (currentPlayingSong?.id === songId) {
-                onPlaySong(null);
-            }
+        const data = await response.json();
 
-            setSongs(prev => prev.filter(song => song.id !== songId));
-            return true;
-
-        } catch (error) {
-            console.error("Error completo al eliminar:", error);
-            alert(`Error al eliminar: ${error.message}`);
-            throw error;
+        if (!response.ok) {
+            throw new Error(data.error || 'Error al eliminar canción');
         }
-    }, [currentPlayingSong, onPlaySong]);
+
+        if (currentPlayingSong?.id === songId) {
+            onPlaySong(null);
+        }
+
+        setSongs(prev => prev.filter(song => song.id !== songId));
+        return true;
+
+    } catch (error) {
+        console.error("Error completo al eliminar:", error);
+        alert(`Error al eliminar: ${error.message}`);
+        throw error;
+    }
+}, [currentPlayingSong, onPlaySong]);
 
     if (loading) return (
         <div className="loading">
