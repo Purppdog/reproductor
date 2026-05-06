@@ -336,16 +336,14 @@ export default function Home() {
     }, [searchQuery, activeTab, searchYouTube]);
 
     const handleTabChange = (tab) => {
-        // ✅ Si no está autenticado y quiere ir a biblioteca, no hacer nada
-        if (tab === 'library' && !isAuthenticated) return;
-        stopCurrentPlayback();
-        if (activeTab !== tab) {
-            setCurrentSong(null);
-            setIsPlaying(false);
-            setSearchQuery('');
-        }
-        setActiveTab(tab);
-    };
+    stopCurrentPlayback();
+    if (activeTab !== tab) {
+        setCurrentSong(null);
+        setIsPlaying(false);
+        setSearchQuery('');
+    }
+    setActiveTab(tab); // ⬅️ permite cambiar a library siempre
+};
 
     return (
         <div className="home-container">
