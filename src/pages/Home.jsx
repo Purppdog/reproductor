@@ -411,6 +411,7 @@ const handleToggleRepeat = useCallback(() => {
         if (activeTab !== tab) {
             setCurrentSong(null);
             setIsPlaying(false);
+            setSearchQuery('');
         }
 
         // Cambiar la pestaña activa
