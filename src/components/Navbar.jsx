@@ -3,6 +3,8 @@ import { FiHome, FiLogIn, FiLogOut, FiUser } from 'react-icons/fi';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import "../styles/components/Navbar.css";
+import { Link } from 'react-router-dom';
+
 
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -35,10 +37,10 @@ export default function Navbar() {
 
                     {isAuthenticated ? (
                         <div className="navbar-user">
-                            <span className="navbar-username">
-                                <FiUser className="navbar-icon" />
-                                {user?.username}
-                            </span>
+                            <Link to="/profile" className="navbar-username">
+    <FiUser className="navbar-icon" />
+    {user?.username}
+</Link>
                             <button className="navbar-logout-btn" onClick={handleLogout}>
                                 <FiLogOut className="navbar-icon" />
                                 <span>Salir</span>

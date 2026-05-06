@@ -3,6 +3,14 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { pool } from '../models/db.js';
 import { Resend } from 'resend';
+import { v2 as cloudinary } from 'cloudinary';
+
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -250,5 +258,51 @@ export const getProfile = async (req, res) => {
             success: false,
             error: 'Error al obtener perfil.'
         });
+    }
+};
+
+// ELIMINAR CUENTA
+export const deleteAccount = async (req, res) => {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // 1. Obtener todas las canciones del usuario para eliminarlas de Cloudinary
+        const songsResult = await client.query(
+            'SELECT cloudinary_public_id FROM songs WHERE user_id = $1',
+            [req.user.id]
+        );
+
+        // 2. Eliminar cada canción de Cloudinary
+        for (const song of songsResult.rows) {
+            if (song.cloudinary_public_id) {
+                await cloudinary.uploader.destroy(song.cloudinary_public_id, {
+                    resource_type: 'video'
+                });
+            }
+        }
+
+        // 3. Eliminar canciones de la BD
+        await client.query('DELETE FROM songs WHERE user_id = $1', [req.user.id]);
+
+        // 4. Eliminar usuario
+        await client.query('DELETE FROM users WHERE id = $1', [req.user.id]);
+
+        await client.query('COMMIT');
+
+        res.json({
+            success: true,
+            message: 'Cuenta eliminada correctamente'
+        });
+
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('Error al eliminar cuenta:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'Error al eliminar la cuenta'
+        });
+    } finally {
+        client.release();
     }
 };
