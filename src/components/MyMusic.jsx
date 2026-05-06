@@ -28,7 +28,12 @@ export default function MyMusic({
         try {
             setLoading(true);
             setError(null);
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic?t=${lastUpdated}`);
+            const token = localStorage.getItem('token');
+const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic?t=${lastUpdated}`, {
+    headers: {
+        'Authorization': `Bearer ${token}`
+    }
+});
             if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
             const data = await response.json();
 
