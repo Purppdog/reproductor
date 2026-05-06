@@ -6,6 +6,7 @@ import { router as searchRouter } from "./routes/search.js";
 import myMusicRoutes from "./routes/myMusic.js";
 import axios from "axios";
 import { v2 as cloudinary } from 'cloudinary';
+import authRouter from './routes/auth.js';
 
 dotenv.config();
 
@@ -88,6 +89,8 @@ app.get("/api/youtube-search", async (req, res) => {
 app.use("/api/songs", songsRouter);
 app.use("/api/search", searchRouter);
 app.use("/api/mymusic", myMusicRoutes);
+app.use('/api/auth', authRouter);
+
 
 // Ruta de prueba
 app.get("/", (req, res) => {

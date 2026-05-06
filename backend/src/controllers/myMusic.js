@@ -10,6 +10,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// ✅ Solo devuelve canciones del usuario logueado
 export const getSavedSongs = async (req, res) => {
     try {
         const result = await pool.query(`
@@ -23,8 +24,10 @@ export const getSavedSongs = async (req, res) => {
                 source_type,
                 uploaded_at
             FROM songs
+            WHERE user_id = $1
             ORDER BY uploaded_at DESC
-        `);
+        `, [req.user.id]);
+
         res.json(result.rows);
     } catch (error) {
         console.error("Error en getSavedSongs:", error.message);
@@ -35,9 +38,10 @@ export const getSavedSongs = async (req, res) => {
     }
 };
 
+// ✅ Guarda la canción asociada al usuario logueado
 export const addSavedSong = async (req, res) => {
     try {
-        const { title, artist, cloudinary_public_id, cloudinary_url, duration } = req.body;
+        const { title, artist, cloudinary_public_id, cloudinary_url, duration, user_id } = req.body;
 
         if (!cloudinary_public_id || !cloudinary_url) {
             return res.status(400).json({
@@ -48,15 +52,16 @@ export const addSavedSong = async (req, res) => {
 
         const result = await pool.query(
             `INSERT INTO songs 
-            (title, artist, cloudinary_public_id, cloudinary_url, duration, source_type) 
-            VALUES ($1, $2, $3, $4, $5, 'cloudinary')
+            (title, artist, cloudinary_public_id, cloudinary_url, duration, source_type, user_id) 
+            VALUES ($1, $2, $3, $4, $5, 'cloudinary', $6)
             RETURNING *`,
             [
                 title || 'Sin título',
                 artist || 'Artista desconocido',
                 cloudinary_public_id,
                 cloudinary_url,
-                duration || 0
+                duration || 0,
+                user_id
             ]
         );
 
@@ -73,6 +78,7 @@ export const addSavedSong = async (req, res) => {
     }
 };
 
+// ✅ Solo puede eliminar canciones propias
 export const deleteSavedSong = async (req, res) => {
     const { id } = req.params;
     const client = await pool.connect();
@@ -80,17 +86,17 @@ export const deleteSavedSong = async (req, res) => {
     try {
         await client.query('BEGIN');
 
-        // 1. Obtener la canción
+        // 1. Obtener la canción verificando que pertenece al usuario
         const songResult = await client.query(
-            `SELECT cloudinary_public_id FROM songs WHERE id = $1`,
-            [id]
+            `SELECT cloudinary_public_id FROM songs WHERE id = $1 AND user_id = $2`,
+            [id, req.user.id]
         );
 
         if (songResult.rows.length === 0) {
             await client.query('ROLLBACK');
             return res.status(404).json({
                 success: false,
-                error: "Canción no encontrada"
+                error: "Canción no encontrada o no tienes permiso para eliminarla"
             });
         }
 
@@ -110,8 +116,8 @@ export const deleteSavedSong = async (req, res) => {
 
         // 3. Eliminar de la BD
         const deleteResult = await client.query(
-            `DELETE FROM songs WHERE id = $1`,
-            [id]
+            `DELETE FROM songs WHERE id = $1 AND user_id = $2`,
+            [id, req.user.id]
         );
 
         if (deleteResult.rowCount === 0) {
