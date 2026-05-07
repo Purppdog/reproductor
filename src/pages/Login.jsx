@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 import '../styles/pages/Auth.css';
 
 export default function Login() {
     const [formData, setFormData] = useState({ email: '', password: '' });
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const { login, isAuthenticated } = useAuth();
     const navigate = useNavigate();
@@ -15,22 +14,20 @@ export default function Login() {
     useEffect(() => {
         if (isAuthenticated) navigate('/');
         if (searchParams.get('verified') === 'true') {
-            setSuccess('✅ Email verificado correctamente. Ya puedes iniciar sesión.');
+            toast.success('Email verificado correctamente. Ya puedes iniciar sesión.');
         }
         if (searchParams.get('error') === 'token_invalido') {
-            setError('El link de verificación es inválido o expiró.');
+            toast.error('El link de verificación es inválido o expiró.');
         }
     }, [isAuthenticated, navigate, searchParams]);
 
     const handleChange = (e) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-        setError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
 
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
@@ -42,14 +39,15 @@ export default function Login() {
             const data = await response.json();
 
             if (!response.ok) {
-                setError(data.error || 'Error al iniciar sesión.');
+                toast.error(data.error || 'Error al iniciar sesión.');
                 return;
             }
 
             login(data.user, data.token);
+            toast.success(`¡Bienvenido, ${data.user.username}!`);
             navigate('/');
         } catch {
-            setError('Error de conexión. Intenta nuevamente.');
+            toast.error('Error de conexión. Intenta nuevamente.');
         } finally {
             setLoading(false);
         }
@@ -62,9 +60,6 @@ export default function Login() {
                     <h1>REPRODUCTOR</h1>
                     <p>Inicia sesión para acceder a tu biblioteca</p>
                 </div>
-
-                {success && <div className="auth-alert success">{success}</div>}
-                {error && <div className="auth-alert error">{error}</div>}
 
                 <form onSubmit={handleSubmit} className="auth-form">
                     <div className="auth-field">
@@ -91,11 +86,7 @@ export default function Login() {
                         />
                     </div>
 
-                    <button
-                        type="submit"
-                        className="auth-btn"
-                        disabled={loading}
-                    >
+                    <button type="submit" className="auth-btn" disabled={loading}>
                         {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
                     </button>
                 </form>

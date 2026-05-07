@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import toast from 'react-hot-toast';
 import './AddSong.css';
 
 export default function AddSong({ onSongAdded, onClose }) {
@@ -6,17 +7,12 @@ export default function AddSong({ onSongAdded, onClose }) {
     const [artist, setArtist] = useState("");
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState(false);
-    const [error, setError] = useState(null);
     const fileInputRef = useRef(null);
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (!selectedFile) return;
-
         setFile(selectedFile);
-        setError(null);
-
-        // Autocompletar título si está vacío
         if (!title.trim()) {
             setTitle(selectedFile.name.replace(/\.[^/.]+$/, ""));
         }
@@ -24,10 +20,9 @@ export default function AddSong({ onSongAdded, onClose }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(null);
 
         if (!file) {
-            setError("Debes seleccionar un archivo de audio");
+            toast.error("Debes seleccionar un archivo de audio");
             return;
         }
 
@@ -40,13 +35,11 @@ export default function AddSong({ onSongAdded, onClose }) {
             formData.append('artist', artist.trim() || "Artista desconocido");
 
             const token = localStorage.getItem('token');
-const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`, {
-    method: 'POST',
-    headers: {
-        'Authorization': `Bearer ${token}`
-    },
-    body: formData
-});
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
@@ -55,16 +48,16 @@ const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`, {
 
             const data = await response.json();
             onSongAdded(data.song);
+            toast.success('¡Canción subida correctamente!');
 
-            // Resetear formulario
             setTitle("");
             setArtist("");
             setFile(null);
             fileInputRef.current.value = "";
+            onClose();
 
         } catch (err) {
-            console.error("Error en la subida:", err);
-            setError(err.message || "Error al subir la canción");
+            toast.error(err.message || "Error al subir la canción");
         } finally {
             setUploading(false);
         }
@@ -75,13 +68,6 @@ const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`, {
             <div className="add-song-content">
                 <button className="close-button" onClick={onClose}>×</button>
                 <h2>Agregar Canción</h2>
-
-                {error && (
-                    <div className="alert error">
-                        <p>{error}</p>
-                        <small>Por favor, verifica los datos e intenta nuevamente</small>
-                    </div>
-                )}
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
@@ -133,25 +119,11 @@ const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic`, {
                     </div>
 
                     <div className="form-actions">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            disabled={uploading}
-                            className="cancel-button"
-                        >
+                        <button type="button" onClick={onClose} disabled={uploading} className="cancel-button">
                             Cancelar
                         </button>
-                        <button
-                            type="submit"
-                            disabled={uploading || !file}
-                            className="submit-button"
-                        >
-                            {uploading ? (
-                                <>
-                                    <span className="spinner" />
-                                    Subiendo...
-                                </>
-                            ) : "Subir Canción"}
+                        <button type="submit" disabled={uploading || !file} className="submit-button">
+                            {uploading ? <><span className="spinner" />Subiendo...</> : "Subir Canción"}
                         </button>
                     </div>
                 </form>

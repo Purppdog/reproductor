@@ -1,17 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 import '../styles/pages/Auth.css';
 
 export default function Register() {
     const [formData, setFormData] = useState({
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
+        username: '', email: '', password: '', confirmPassword: ''
     });
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
@@ -22,16 +18,14 @@ export default function Register() {
 
     const handleChange = (e) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-        setError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
 
         if (formData.password !== formData.confirmPassword) {
-            setError('Las contraseñas no coinciden.');
+            toast.error('Las contraseñas no coinciden.');
             setLoading(false);
             return;
         }
@@ -46,16 +40,16 @@ export default function Register() {
             const data = await response.json();
 
             if (!response.ok) {
-                setError(data.error || 'Error al registrarse.');
+                toast.error(data.error || 'Error al registrarse.');
                 return;
             }
 
-            setSuccess('Cuenta creada. Revisa tu email para verificarla antes de iniciar sesión.');
+            toast.success('¡Cuenta creada! Revisa tu email para verificarla.');
             setFormData({ username: '', email: '', password: '', confirmPassword: '' });
-            setTimeout(() => navigate('/login'), 3000);
+            setTimeout(() => navigate('/login'), 2000);
 
         } catch {
-            setError('Error de conexión. Intenta nuevamente.');
+            toast.error('Error de conexión. Intenta nuevamente.');
         } finally {
             setLoading(false);
         }
@@ -65,66 +59,32 @@ export default function Register() {
         <div className="auth-container">
             <div className="auth-card">
                 <div className="auth-logo">
+                    <h1>REPRODUCTOR</h1>
                     <p>Crea tu cuenta y sube tu música</p>
                 </div>
-
-                {success && <div className="auth-alert success">{success}</div>}
-                {error && <div className="auth-alert error">{error}</div>}
 
                 <form onSubmit={handleSubmit} className="auth-form">
                     <div className="auth-field">
                         <label>Nombre de usuario</label>
-                        <input
-                            type="text"
-                            name="username"
-                            placeholder="tunombre"
-                            value={formData.username}
-                            onChange={handleChange}
-                            required
-                        />
+                        <input type="text" name="username" placeholder="tunombre"
+                            value={formData.username} onChange={handleChange} required />
                     </div>
-
                     <div className="auth-field">
                         <label>Email</label>
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="tu@email.com"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
+                        <input type="email" name="email" placeholder="tu@email.com"
+                            value={formData.email} onChange={handleChange} required />
                     </div>
-
                     <div className="auth-field">
                         <label>Contraseña</label>
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="Mínimo 6 caracteres"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                        />
+                        <input type="password" name="password" placeholder="Mínimo 6 caracteres"
+                            value={formData.password} onChange={handleChange} required />
                     </div>
-
                     <div className="auth-field">
                         <label>Confirmar contraseña</label>
-                        <input
-                            type="password"
-                            name="confirmPassword"
-                            placeholder="Repite tu contraseña"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            required
-                        />
+                        <input type="password" name="confirmPassword" placeholder="Repite tu contraseña"
+                            value={formData.confirmPassword} onChange={handleChange} required />
                     </div>
-
-                    <button
-                        type="submit"
-                        className="auth-btn"
-                        disabled={loading}
-                    >
+                    <button type="submit" className="auth-btn" disabled={loading}>
                         {loading ? 'Creando cuenta...' : 'Crear cuenta'}
                     </button>
                 </form>

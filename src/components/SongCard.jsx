@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FaPlay, FaPause, FaTrash } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 import ViniloDefault from '../assets/images/VINILO.jpeg';
 import ConfirmationModal from './ConfirmationModal';
 import "../styles/components/SongCard.css";
@@ -24,26 +25,15 @@ export default function SongCard({ song, isPlaying, onPlay, onPause, onDelete })
         try {
             const success = await onDelete(song.id);
             if (success) {
-                console.log("Canción eliminada correctamente");
+                toast.success('Canción eliminada correctamente');
             }
         } catch (error) {
-            console.error("Error en la eliminación:", error);
-            let errorMessage = "No se pudo eliminar la canción. ";
-
-            if (error.message.includes("500")) {
-                errorMessage += "Error interno del servidor.";
-            } else if (error.message.includes("401")) {
-                errorMessage += "No autorizado. Por favor inicia sesión nuevamente.";
+            if (error.message.includes("401")) {
+                toast.error('No autorizado. Por favor inicia sesión nuevamente.');
             } else {
-                errorMessage += error.message;
+                toast.error('No se pudo eliminar la canción.');
             }
-
-            alert(errorMessage);
         }
-    };
-
-    const handleCancelDelete = () => {
-        setShowDeleteModal(false);
     };
 
     return (
@@ -85,7 +75,7 @@ export default function SongCard({ song, isPlaying, onPlay, onPause, onDelete })
                 <ConfirmationModal
                     message={`¿Seguro que quieres eliminar "${song.title}"?`}
                     onConfirm={handleConfirmDelete}
-                    onCancel={handleCancelDelete}
+                    onCancel={() => setShowDeleteModal(false)}
                 />
             )}
         </>

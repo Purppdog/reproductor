@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 import '../styles/pages/Auth.css';
 
 export default function Profile() {
@@ -8,31 +9,28 @@ export default function Profile() {
     const navigate = useNavigate();
     const [showConfirm, setShowConfirm] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
 
     const handleDeleteAccount = async () => {
         setLoading(true);
-        setError('');
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/account`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                setError(data.error || 'Error al eliminar la cuenta.');
+                toast.error(data.error || 'Error al eliminar la cuenta.');
                 return;
             }
 
+            toast.success('Cuenta eliminada correctamente.');
             logout();
             navigate('/');
 
         } catch {
-            setError('Error de conexión. Intenta nuevamente.');
+            toast.error('Error de conexión. Intenta nuevamente.');
         } finally {
             setLoading(false);
         }
@@ -56,31 +54,18 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {error && <div className="auth-alert error">{error}</div>}
-
                 {!showConfirm ? (
-                    <button
-                        className="delete-account-btn"
-                        onClick={() => setShowConfirm(true)}
-                    >
+                    <button className="delete-account-btn" onClick={() => setShowConfirm(true)}>
                         🗑️ Eliminar mi cuenta
                     </button>
                 ) : (
                     <div className="confirm-delete">
                         <p>⚠️ Esta acción eliminará tu cuenta y <strong>todas tus canciones</strong> permanentemente. ¿Estás seguro?</p>
                         <div className="confirm-buttons">
-                            <button
-                                className="auth-btn"
-                                onClick={() => setShowConfirm(false)}
-                                disabled={loading}
-                            >
+                            <button className="auth-btn" onClick={() => setShowConfirm(false)} disabled={loading}>
                                 Cancelar
                             </button>
-                            <button
-                                className="delete-confirm-btn"
-                                onClick={handleDeleteAccount}
-                                disabled={loading}
-                            >
+                            <button className="delete-confirm-btn" onClick={handleDeleteAccount} disabled={loading}>
                                 {loading ? 'Eliminando...' : 'Sí, eliminar cuenta'}
                             </button>
                         </div>
