@@ -125,9 +125,7 @@ export default function AddSong({ onSongAdded, onClose }) {
                         <button type="submit" disabled={uploading || !file} className="submit-button">
                             {uploading ? <><span className="spinner" />Subiendo...</> : "Subir Canción"}
                         </button>
-                        <div className="copyright-notice">
-                            <p>Al subir este archivo confirmas que eres el propietario o tienes los derechos necesarios para usar este contenido. El uso de material con copyright sin autorización es responsabilidad del usuario.</p>
-                        </div>
+                        <p className="copyright-notice">Al subir este archivo confirmas que eres el propietario o tienes los derechos necesarios para usar este contenido. El uso de material con copyright sin autorización es responsabilidad del usuario.</p>
                     </div>
                 </form>
             </div>
