@@ -56,11 +56,11 @@ export default function Profile() {
 
                 {!showConfirm ? (
                     <button className="delete-account-btn" onClick={() => setShowConfirm(true)}>
-                        🗑️ Eliminar mi cuenta
+                         Eliminar mi cuenta
                     </button>
                 ) : (
                     <div className="confirm-delete">
-                        <p>⚠️ Esta acción eliminará tu cuenta y <strong>todas tus canciones</strong> permanentemente. ¿Estás seguro?</p>
+                        <p> Esta acción eliminará tu cuenta y <strong>todas tus canciones</strong> permanentemente. ¿Estás seguro?</p>
                         <div className="confirm-buttons">
                             <button className="auth-btn" onClick={() => setShowConfirm(false)} disabled={loading}>
                                 Cancelar

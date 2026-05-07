@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 import pg from 'pg';
 import dotenv from 'dotenv';
 dotenv.config();

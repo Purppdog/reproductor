@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { pool } from "../models/db.js";
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
@@ -10,7 +11,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// ✅ Solo devuelve canciones del usuario logueado
+//devuelve canciones del usuario logueado
 export const getSavedSongs = async (req, res) => {
     try {
         const result = await pool.query(`
@@ -38,7 +39,7 @@ export const getSavedSongs = async (req, res) => {
     }
 };
 
-// ✅ Guarda la canción asociada al usuario logueado
+//Guarda la canción asociada al usuario logueado
 export const addSavedSong = async (req, res) => {
     try {
         const { title, artist, cloudinary_public_id, cloudinary_url, duration, user_id } = req.body;
@@ -78,7 +79,7 @@ export const addSavedSong = async (req, res) => {
     }
 };
 
-// ✅ Solo puede eliminar canciones propias
+//Solo puede eliminar canciones propias
 export const deleteSavedSong = async (req, res) => {
     const { id } = req.params;
     const client = await pool.connect();

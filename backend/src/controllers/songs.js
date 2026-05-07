@@ -1,3 +1,4 @@
+
 import { pool } from "../models/db.js";
 
 export const getSongs = async (req, res) => {
@@ -13,7 +14,7 @@ export const getSongs = async (req, res) => {
             FROM songs
         `);
         res.json(result.rows);
-    } catch (error) {
+    } catch {
         res.status(500).json({ error: "Error al obtener canciones" });
     }
 };
@@ -28,7 +29,7 @@ export const addSong = async (req, res) => {
             [title, artist, public_id, url, duration]
         );
         res.status(201).json({ message: "Canción agregada a Cloudinary" });
-    } catch (error) {
+    } catch {
         res.status(500).json({ error: "Error al agregar canción" });
     }
 };

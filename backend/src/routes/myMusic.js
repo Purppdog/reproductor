@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import express from "express";
 import { v2 as cloudinary } from 'cloudinary';
 import multer from "multer";
@@ -29,10 +30,10 @@ const upload = multer({
     }
 });
 
-// ✅ GET — solo usuarios logueados ven sus canciones
+//GET — solo usuarios logueados ven sus canciones
 router.get("/", verifyToken, getSavedSongs);
 
-// ✅ POST — solo usuarios logueados pueden subir
+// POST — solo usuarios logueados pueden subir
 router.post("/", verifyToken, upload.single('audio'), async (req, res) => {
     try {
         if (!req.file) {
@@ -72,7 +73,7 @@ router.post("/", verifyToken, upload.single('audio'), async (req, res) => {
     }
 });
 
-// ✅ DELETE — solo usuarios logueados pueden eliminar
+// DELETE — solo usuarios logueados pueden eliminar
 router.delete("/:id", verifyToken, deleteSavedSong);
 
 export default router;

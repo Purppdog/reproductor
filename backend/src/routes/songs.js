@@ -13,7 +13,7 @@ router.post("/", async (req, res) => {
             return res.status(400).json({ error: "Faltan datos de Cloudinary" });
         }
         await addSong({ title, artist, public_id, url, duration }, res);
-    } catch (error) {
+    } catch {
         res.status(500).json({ error: "Error al procesar la solicitud" });
     }
 });

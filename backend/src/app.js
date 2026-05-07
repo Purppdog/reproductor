@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -10,7 +12,7 @@ import authRouter from './routes/auth.js';
 
 dotenv.config();
 
-// Configuración de Cloudinary
+//Configuración de Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -19,7 +21,7 @@ cloudinary.config({
 
 const app = express();
 
-// 1. Configuración CORS mejorada
+//Configuración CORS mejorada
 const allowedOrigins = [
     'http://localhost:5173',
     'https://reproductor-ivory.vercel.app',
@@ -41,12 +43,12 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 
-// Aumentar límite de payload a 15MB
+//Aumentar límite de payload a 15MB
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
 app.use(cors(corsOptions));
 
-// 4. Búsqueda en YouTube (sin cambios)
+//Búsqueda en YouTube (sin cambios)
 app.get("/api/youtube-search", async (req, res) => {
     const { q } = req.query;
     try {
@@ -85,19 +87,19 @@ app.get("/api/youtube-search", async (req, res) => {
     }
 });
 
-// 5. Rutas adicionales
+//Rutas 
 app.use("/api/songs", songsRouter);
 app.use("/api/search", searchRouter);
 app.use("/api/mymusic", myMusicRoutes);
 app.use('/api/auth', authRouter);
 
 
-// Ruta de prueba
+//Ruta de prueba
 app.get("/", (req, res) => {
     res.send("¡Backend funcionando!");
 });
 
-// Iniciar servidor
+//Iniciar servidor
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Servidor en http://localhost:${PORT}`);

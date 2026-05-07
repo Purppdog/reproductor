@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
@@ -5,15 +7,14 @@ import { pool } from '../models/db.js';
 import { Resend } from 'resend';
 import { v2 as cloudinary } from 'cloudinary';
 
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true
 });
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 // REGISTRO
 export const register = async (req, res) => {
     const { username, email, password, confirmPassword } = req.body;
@@ -100,7 +101,7 @@ export const register = async (req, res) => {
             subject: 'Verifica tu cuenta',
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; background: #111; color: #fff; padding: 30px; border-radius: 10px;">
-                    <h1 style="color: #1db954;">🎵 Reproductor</h1>
+                    <h1 style="color: #1db954;"> Reproductor</h1>
                     <h2>¡Hola ${username}!</h2>
                     <p>Gracias por registrarte. Haz click en el botón para verificar tu cuenta:</p>
                     <a href="${verificationUrl}" 
@@ -253,7 +254,7 @@ export const getProfile = async (req, res) => {
             success: true,
             user: result.rows[0]
         });
-    } catch (error) {
+    } catch {
         res.status(500).json({
             success: false,
             error: 'Error al obtener perfil.'
