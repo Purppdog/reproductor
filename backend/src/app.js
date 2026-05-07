@@ -44,8 +44,8 @@ const corsOptions = {
 };
 
 //Aumentar límite de payload a 15MB
-app.use(express.json({ limit: '15mb' }));
-app.use(express.urlencoded({ limit: '15mb', extended: true }));
+app.use(express.json({ limit: '80mb' }));
+app.use(express.urlencoded({ limit: '80mb', extended: true }));
 app.use(cors(corsOptions));
 
 //Búsqueda en YouTube (sin cambios)

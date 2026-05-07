@@ -19,7 +19,7 @@ cloudinary.config({
 const storage = multer.memoryStorage();
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 15 * 1024 * 1024 },
+    limits: { fileSize: 80 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const validTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/x-m4a', 'audio/aac'];
         if (validTypes.includes(file.mimetype)) {

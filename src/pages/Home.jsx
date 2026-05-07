@@ -143,7 +143,7 @@ export default function Home() {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // ⬅️ ahora sí tenemos token real
+                    'Authorization': `Bearer ${token}` 
                 }
             });
             if (!response.ok) throw new Error('Error al eliminar canción');
@@ -282,7 +282,6 @@ export default function Home() {
         }
     }, []);
 
-    // ✅ Carga canciones solo si está autenticado
     useEffect(() => {
         if (!isAuthenticated) {
             setLoading(prev => ({ ...prev, library: false }));
@@ -373,7 +372,6 @@ export default function Home() {
 
             {error?.library && <div className="error-message">{error.library}</div>}
 
-            {/* ✅ Mensaje si no está autenticado y quiere ver biblioteca */}
             {activeTab === 'library' && !isAuthenticated ? (
                 <div className="auth-required">
                     <div className="auth-required-content">

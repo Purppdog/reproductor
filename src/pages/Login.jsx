@@ -95,6 +95,11 @@ export default function Login() {
                     <p>¿No tienes cuenta? <Link to="/register">Regístrate</Link></p>
                     <p>¿Solo quieres explorar? <Link to="/">Continuar sin cuenta</Link></p>
                 </div>
+                <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                    <Link to="/forgot-password" style={{ color: '#aaa', fontSize: '0.85rem' }}>
+                     ¿Olvidaste tu contraseña?
+                    </Link>
+                </div>
             </div>
         </div>
     );

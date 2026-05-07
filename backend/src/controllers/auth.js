@@ -307,3 +307,139 @@ export const deleteAccount = async (req, res) => {
         client.release();
     }
 };
+
+// OLVIDÉ MI CONTRASEÑA
+export const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({
+            success: false,
+            error: 'El email es obligatorio.'
+        });
+    }
+
+    try {
+        const result = await pool.query(
+            'SELECT id, username FROM users WHERE email = $1 AND verified = TRUE',
+            [email.toLowerCase()]
+        );
+
+        // Siempre responder igual por seguridad (no revelar si el email existe)
+        if (result.rows.length === 0) {
+            return res.json({
+                success: true,
+                message: 'Si ese email existe, recibirás un enlace para restablecer tu contraseña.'
+            });
+        }
+
+        const user = result.rows[0];
+
+        // Generar token de recuperación
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const resetTokenExpires = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hora
+
+        await pool.query(
+            'UPDATE users SET reset_token = $1, reset_token_expires = $2 WHERE id = $3',
+            [resetToken, resetTokenExpires, user.id]
+        );
+
+        // Enviar email
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+        await resend.emails.send({
+            from: 'Reproductor <onboarding@resend.dev>',
+            to: email,
+            subject: 'Restablecer contraseña',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; background: #111; color: #fff; padding: 30px; border-radius: 10px;">
+                    <h1 style="color: #1db954;">🎵 Reproductor</h1>
+                    <h2>¡Hola ${user.username}!</h2>
+                    <p>Recibimos una solicitud para restablecer tu contraseña. Haz click en el botón:</p>
+                    <a href="${resetUrl}" 
+                       style="display: inline-block; background: #1db954; color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: bold; margin: 20px 0;">
+                        Restablecer contraseña
+                    </a>
+                    <p style="color: #aaa; font-size: 12px;">Este link expira en 1 hora.</p>
+                    <p style="color: #aaa; font-size: 12px;">Si no solicitaste esto, ignora este email.</p>
+                </div>
+            `
+        });
+
+        res.json({
+            success: true,
+            message: 'Si ese email existe, recibirás un enlace para restablecer tu contraseña.'
+        });
+
+    } catch (error) {
+        console.error('Error en forgotPassword:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'Error al procesar la solicitud.'
+        });
+    }
+};
+
+// RESTABLECER CONTRASEÑA
+export const resetPassword = async (req, res) => {
+    const { token } = req.params;
+    const { password, confirmPassword } = req.body;
+
+    if (!password || !confirmPassword) {
+        return res.status(400).json({
+            success: false,
+            error: 'Todos los campos son obligatorios.'
+        });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({
+            success: false,
+            error: 'La contraseña debe tener al menos 6 caracteres.'
+        });
+    }
+
+    if (password !== confirmPassword) {
+        return res.status(400).json({
+            success: false,
+            error: 'Las contraseñas no coinciden.'
+        });
+    }
+
+    try {
+        const result = await pool.query(
+            `SELECT id FROM users 
+             WHERE reset_token = $1 
+             AND reset_token_expires > NOW()`,
+            [token]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'El link es inválido o expiró.'
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 12);
+
+        await pool.query(
+            `UPDATE users 
+             SET password = $1, reset_token = NULL, reset_token_expires = NULL 
+             WHERE id = $2`,
+            [hashedPassword, result.rows[0].id]
+        );
+
+        res.json({
+            success: true,
+            message: 'Contraseña restablecida correctamente.'
+        });
+
+    } catch (error) {
+        console.error('Error en resetPassword:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'Error al restablecer la contraseña.'
+        });
+    }
+};
