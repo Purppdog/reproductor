@@ -25,7 +25,9 @@ const app = express();
 const allowedOrigins = [
     'http://localhost:5173',
     'https://reproductor-ivory.vercel.app',
+    'https://reproductor-jgwxjbjlk-purppdoggs-projects.vercel.app',
     'https://reproductornicolas.onrender.com'
+    
 ];
 
 const corsOptions = {
