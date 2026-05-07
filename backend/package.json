@@ -27,5 +27,8 @@
         "react-router-dom": "^7.4.0",
         "react-youtube": "^10.1.0",
         "resend": "^6.12.3"
+    },
+    "devDependencies": {
+        "@flydotio/dockerfile": "^0.7.10"
     }
 }
