@@ -38,9 +38,9 @@ export default function Navbar() {
                     {isAuthenticated ? (
                         <div className="navbar-user">
                             <Link to="/profile" className="navbar-username">
-    <FiUser className="navbar-icon" />
-    {user?.username}
-</Link>
+                            <FiUser className="navbar-icon" />
+                            {user?.username}
+                            </Link>
                             <button className="navbar-logout-btn" onClick={handleLogout}>
                                 <FiLogOut className="navbar-icon" />
                                 <span>Salir</span>
