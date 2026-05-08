@@ -15,10 +15,10 @@
 .home-container {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
     background-color: var(--dark-bg);
     color: var(--text-primary);
     padding-bottom: var(--player-height);
+    min-height: 100vh;
 }
 
 /* ============ BARRA DE BÚSQUEDA ============ */
@@ -49,9 +49,7 @@
     transition: all var(--transition-speed);
 }
 
-.tabs button:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
+.tabs button:hover { background: rgba(255, 255, 255, 0.2); }
 
 .tabs button.active {
     background: var(--primary-color);
@@ -66,6 +64,7 @@
     width: 100%;
     padding: 1rem;
     box-sizing: border-box;
+    padding-bottom: 0;
 }
 
 .youtube-player-container {
@@ -76,93 +75,48 @@
     position: relative;
 }
 
-.youtube-player-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
 .youtube-player-wrapper {
     position: relative;
     width: 100%;
     padding-bottom: 56.25%;
-    /* 16:9 aspect ratio */
     height: 0;
     border-radius: 8px 8px 0 0;
-    /* Solo redondeo arriba */
+    overflow: hidden;
 }
 
-.youtube-player-wrapper>div {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-.youtube-player-wrapper>div,
+.youtube-player-wrapper > div,
 .youtube-player-wrapper iframe {
     position: absolute;
     top: 0;
     left: 0;
-    transform: scale(1.02);
     width: 100%;
     height: 100%;
     border: none;
-}
-
-/* Estados del reproductor */
-.youtube-error {
-    padding: 1rem;
-    background: rgba(255, 50, 50, 0.15);
-    border-radius: var(--border-radius);
-    text-align: center;
-    color: #ff4d4d;
-    margin: 1rem 0;
-}
-
-.youtube-error button {
-    margin-top: 0.75rem;
-    padding: 0.5rem 1.25rem;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.youtube-loading {
-    padding: 2rem;
-    text-align: center;
-    color: var(--text-secondary);
 }
 
 /* ============ INFORMACIÓN DEL VIDEO ============ */
 .video-info {
     width: 100%;
+    max-width: 1000px;
     padding: 1.2rem;
     background: var(--card-bg);
     border-radius: 0 0 8px 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    margin-top: 0;
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
 .video-info h3 {
     font-size: 1.3rem;
-    margin-bottom: 0.5rem;
+    margin: 0 0 0.5rem 0;
     color: var(--text-primary);
     text-align: center;
     line-height: 1.3;
 }
 
-
 .video-info .artist {
     color: var(--text-secondary);
-    margin-bottom: 1rem;
+    margin: 0 0 0.8rem 0;
     font-size: 1rem;
     text-align: center;
 }
@@ -174,38 +128,12 @@
     gap: 1rem;
     color: var(--text-secondary);
     font-size: 0.9rem;
-    margin-bottom: 0;
+    margin: 0;
     flex-wrap: wrap;
     text-align: center;
 }
 
-.video-stats::before {
-    display: none;
-}
-
-.video-actions {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-}
-
-.action-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    border-radius: 20px;
-    padding: 0.5rem 1.2rem;
-    color: var(--text-primary);
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all var(--transition-speed);
-    min-width: 120px;
-    text-align: center;
-}
-
-.action-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.03);
-}
+.video-stats::before { display: none; }
 
 /* ============ COMPONENTES GENERALES ============ */
 .error-message {
@@ -230,11 +158,11 @@
     padding: 0 1rem;
     z-index: 100;
 }
+
 .auth-required {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 1;
     padding: 60px 20px;
 }
 
@@ -294,165 +222,38 @@
     border: 1px solid #555;
 }
 
-.auth-required-btn.secondary:hover {
-    border-color: #fff;
-}
-/* ============ MEDIA QUERIES OPTIMIZADOS ============ */
-/* Pantallas extra grandes (1920px+) */
-@media (max-width: 1920px) {
-    .youtube-player-container {
-        max-width: 1000px;
-    }
+.auth-required-btn.secondary:hover { border-color: #fff; }
 
-    .video-info h3 {
-        font-size: 1.5rem;
-    }
-}
-
-/* Pantallas grandes HD (1440px-1600px) - TU RESOLUCIÓN */
-@media (max-width: 1600px) {
-    .youtube-player-container {
-        max-width: 900px;
-    }
-
-    .video-info h3 {
-        font-size: 1.4rem;
-    }
-
-    .video-info .artist {
-        font-size: 1.1rem;
-    }
-}
-
-/* Pantallas HD estándar (1280px-1440px) */
-@media (max-width: 1440px) {
-    .youtube-player-container {
-        max-width: 850px;
-    }
-
-    .video-info h3 {
-        font-size: 1.3rem;
-    }
-
-    .video-stats {
-        font-size: 0.95rem;
-    }
-}
-
-/* Laptops (1024px-1280px) */
-@media (max-width: 1280px) {
-    .youtube-player-container {
-        width: 95%;
-        max-width: 800px;
-    }
-
-    .video-info h3 {
-        font-size: 1.25rem;
-    }
-}
-
-/* Tablets grandes (900px-1024px) */
-@media (max-width: 1024px) {
-    .youtube-player-container {
-        width: 97%;
-        max-width: 750px;
-    }
-
-    .video-info {
-        padding: 1.1rem;
-    }
-}
-
-/* Tablets (768px-900px) */
-@media (max-width: 900px) {
-    .youtube-player-container {
-        max-width: 700px;
-    }
-
-    .video-info h3 {
-        font-size: 1.2rem;
-    }
-}
-
-/* Tablets pequeñas (600px-768px) */
+/* ============ MEDIA QUERIES ============ */
 @media (max-width: 768px) {
     .youtube-player-container {
         width: 100%;
+        margin: 0;
+    }
+
+    .video-info {
         border-radius: 0;
-        margin: 0.5rem 0;
+        max-width: 100%;
     }
 
-    .video-info h3 {
-        font-size: 1.15rem;
-    }
-
-    .action-btn {
-        min-width: 110px;
+    .youtube-content {
+        padding: 0;
     }
 }
 
-@media (max-width: 420px) {
-    .youtube-player-container {
-        padding-bottom: 60%;
-    }
-
-    .video-info h3 {
-        font-size: 0.95rem;
-    }
-}
-
-
-/* Móviles grandes (480px-600px) */
 @media (max-width: 600px) {
-    .video-info h3 {
-        font-size: 1.1rem;
-    }
-
     .video-stats {
         flex-direction: column;
-        align-items: center;
-    }
-}
-
-/* Móviles medianos (400px-480px) */
-@media (max-width: 480px) {
-    .video-info h3 {
-        font-size: 1.05rem;
+        gap: 0.3rem;
     }
 
-    .action-btn {
-        width: 100%;
-        max-width: 200px;
-    }
-}
-
-/* Móviles pequeños (375px-400px) */
-@media (max-width: 400px) {
-    .video-info {
-        padding: 0.8rem;
-    }
-}
-
-/* Móviles muy pequeños (320px-375px) */
-@media (max-width: 375px) {
-    .video-info h3 {
-        font-size: 1rem;
-    }
-
-    .video-stats {
-        font-size: 0.8rem;
-    }
+    .video-info h3 { font-size: 1rem; }
+    .video-info .artist { font-size: 0.9rem; }
+    .video-stats { font-size: 0.8rem; }
 }
 
 /* ============ ANIMACIONES ============ */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
