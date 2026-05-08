@@ -172,17 +172,17 @@
 .video-stats {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 1rem;
     color: var(--text-secondary);
     font-size: 0.9rem;
     margin-bottom: 1.2rem;
     flex-wrap: wrap;
+    text-align: center;
 }
 
 .video-stats::before {
-    content: "•";
-    margin-right: 0.5rem;
-    color: var(--text-secondary);
+    display: none;
 }
 
 .video-actions {

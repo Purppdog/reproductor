@@ -118,15 +118,18 @@ export default function AddSong({ onSongAdded, onClose }) {
                         </div>
                     </div>
 
-                    <div className="form-actions">
-                        <button type="button" onClick={onClose} disabled={uploading} className="cancel-button">
-                            Cancelar
-                        </button>
-                        <button type="submit" disabled={uploading || !file} className="submit-button">
-                            {uploading ? <><span className="spinner" />Subiendo...</> : "Subir Canción"}
-                        </button>
-                        <p className="copyright-notice">Al subir este archivo confirmas que eres el propietario o tienes los derechos necesarios para usar este contenido. El uso de material con copyright sin autorización es responsabilidad del usuario.</p>
-                    </div>
+                    <div className="copyright-notice">
+    <p>⚠️ Al subir este archivo confirmas que eres el propietario o tienes los derechos necesarios para usar este contenido. El uso de material con copyright sin autorización es responsabilidad del usuario.</p>
+</div>
+
+<div className="form-actions">
+    <button type="button" onClick={onClose} disabled={uploading} className="cancel-button">
+        Cancelar
+    </button>
+    <button type="submit" disabled={uploading || !file} className="submit-button">
+        {uploading ? <><span className="spinner" />Subiendo...</> : "Subir Canción"}
+    </button>
+</div>
                 </form>
             </div>
         </div>

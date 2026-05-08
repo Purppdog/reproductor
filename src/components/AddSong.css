@@ -287,32 +287,22 @@
 /* Media Queries para responsive */
 @media (max-width: 768px) {
     .add-song-content {
-        padding: 2rem;
-        width: 85%;
+        padding: 1.5rem;
+        width: 95%;
+        max-height: 90vh;
+        overflow-y: auto;
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 480px) {
     .add-song-content {
-        padding: 1.5rem;
-        width: 90%;
+        padding: 1.2rem;
+        width: 98%;
     }
 
     .add-song-content h2 {
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-group input[type="text"] {
-        padding: 0.8rem 1rem;
-    }
-
-    .file-input-label {
-        padding: 1.2rem;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
     }
 
     .form-actions {
@@ -323,34 +313,5 @@
     .cancel-button,
     .submit-button {
         width: 100%;
-    }
-}
-
-@media (max-width: 375px) {
-    .add-song-content {
-        padding: 1.2rem;
-        width: 95%;
-    }
-
-    .add-song-content h2 {
-        font-size: 1.3rem;
-    }
-
-    .form-group label {
-        font-size: 0.9rem;
-    }
-
-    .form-group input[type="text"] {
-        padding: 0.7rem 0.9rem;
-        font-size: 0.95rem;
-    }
-
-    .file-input-label {
-        padding: 1rem;
-        font-size: 0.9rem;
-    }
-
-    .file-input-label span {
-        font-size: 0.8rem;
     }
 }
