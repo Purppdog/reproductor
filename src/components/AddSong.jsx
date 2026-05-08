@@ -119,7 +119,7 @@ export default function AddSong({ onSongAdded, onClose }) {
                     </div>
 
                     <div className="copyright-notice">
-    <p>⚠️ Al subir este archivo confirmas que eres el propietario o tienes los derechos necesarios para usar este contenido. El uso de material con copyright sin autorización es responsabilidad del usuario.</p>
+    <p>Al subir este archivo confirmas que eres el propietario o tienes los derechos necesarios para usar este contenido. El uso de material con copyright sin autorización es responsabilidad del usuario.</p>
 </div>
 
 <div className="form-actions">

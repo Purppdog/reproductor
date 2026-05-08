@@ -71,7 +71,7 @@
 .youtube-player-container {
     width: 100%;
     max-width: 1000px;
-    margin: 0 auto 1.5rem;
+    margin: 0 auto;
     background: transparent;
     position: relative;
 }
@@ -147,10 +147,8 @@
     padding: 1.2rem;
     background: var(--card-bg);
     border-radius: 0 0 8px 8px;
-    /* Solo redondeo abajo */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    margin-top: 30px;
-    /* Elimina espacio entre reproductor e info */
+    margin-top: 0;
 }
 
 .video-info h3 {
@@ -176,7 +174,7 @@
     gap: 1rem;
     color: var(--text-secondary);
     font-size: 0.9rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 0;
     flex-wrap: wrap;
     text-align: center;
 }
