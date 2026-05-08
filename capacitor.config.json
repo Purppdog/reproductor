@@ -1,0 +1,9 @@
+{
+  "appId": "com.nicolas.reproductor",
+  "appName": "Wavvy",
+  "webDir": "dist",
+  "server": {
+    "url": "https://reproductor-ivory.vercel.app",
+    "cleartext": true
+  }
+}
