@@ -350,47 +350,92 @@
     .player-controls {
         grid-template-columns: auto 1fr auto;
         gap: 0.6rem;
-        /* Más compacto */
         padding: 0.5rem;
+        min-height: 80px;
     }
 
     .player-track-info {
-        max-width: 140px;
-        /* Más compacto */
+        max-width: 130px;
     }
 
-    .player-progress-container {
-        width: 80%;
-        /* Más estrecho */
+    .player-volume-controls {
+        min-width: auto;
+    }
+
+    .player-volume-slider {
+        width: 60px;
     }
 }
 
 @media (max-width: 480px) {
     .player-controls {
-        grid-template-columns: 1fr auto;
+        grid-template-columns: 1fr;
         grid-template-areas:
-            "track-info volume"
-            "playback playback";
-        gap: 0.5rem;
+            "playback"
+            "progress"
+            "track-info";
+        padding: 0.8rem;
+        gap: 0.6rem;
+        min-height: auto;
     }
 
     .player-track-info {
-        max-width: 120px;
+        grid-area: track-info;
+        max-width: 100%;
+        justify-content: center;
     }
 
-    .player-track-title {
-        font-size: 0.78rem;
-        /* Más ajustado */
+    .player-playback-controls {
+        grid-area: playback;
+        width: 100%;
     }
 
-    .player-track-artist {
-        font-size: 0.62rem;
-        /* Más ajustado */
+    .player-volume-controls {
+        display: none;
+    }
+
+    .player-transport-controls {
+        gap: 1.2rem;
+        justify-content: center;
+    }
+
+    .player-control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
     }
 
     .player-play-pause-btn {
-        width: 30px;
-        /* Más pequeño */
-        height: 30px;
+        width: 48px;
+        height: 48px;
+        font-size: 1.2rem;
+    }
+
+    .player-progress-container {
+        width: 100%;
+    }
+
+    .player-progress-bar {
+        height: 6px;
+    }
+
+    .player-time {
+        font-size: 0.7rem;
+        min-width: 32px;
+    }
+
+    .player-track-title {
+        font-size: 0.85rem;
+        text-align: center;
+    }
+
+    .player-track-artist {
+        font-size: 0.75rem;
+        text-align: center;
+    }
+
+    .player-thumbnail {
+        width: 36px;
+        height: 36px;
     }
 }

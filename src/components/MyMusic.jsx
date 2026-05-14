@@ -15,6 +15,7 @@ export default function MyMusic({
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastUpdated, setLastUpdated] = useState(Date.now());
+    const [sortBy, setSortBy] = useState('recent');
 
     const generateCloudinaryUrl = useCallback((publicId, resourceType = 'video') => {
         if (!publicId) return null;
@@ -29,23 +30,16 @@ export default function MyMusic({
             setLoading(true);
             setError(null);
             const token = localStorage.getItem('token');
-const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic?t=${lastUpdated}`, {
-    headers: {
-        'Authorization': `Bearer ${token}`
-    }
-});
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic?t=${lastUpdated}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
             const data = await response.json();
 
             const normalizedSongs = data.map(song => {
                 const publicId = song.cloudinary_public_id;
                 const audioUrl = song.cloudinary_url;
-
-                if (!audioUrl && !publicId) {
-                    console.warn('Canción sin URL válida:', song);
-                    return null;
-                }
-
+                if (!audioUrl && !publicId) return null;
                 return {
                     id: song.id.toString(),
                     title: song.title || "Sin título",
@@ -61,7 +55,6 @@ const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic?t=${la
 
             setSongs(normalizedSongs);
         } catch (err) {
-            console.error("Error al cargar canciones:", err);
             setError(`Error al cargar canciones: ${err.message}`);
         } finally {
             setLoading(false);
@@ -71,6 +64,24 @@ const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic?t=${la
     useEffect(() => {
         fetchSongs();
     }, [fetchSongs]);
+
+    // ✅ Función de ordenación
+    const getSortedSongs = useCallback((songs) => {
+        const sorted = [...songs];
+        switch (sortBy) {
+            case 'title':
+                return sorted.sort((a, b) => a.title.localeCompare(b.title));
+            case 'artist':
+                return sorted.sort((a, b) => a.artist.localeCompare(b.artist));
+            case 'duration':
+                return sorted.sort((a, b) => b.duration - a.duration);
+            case 'recent':
+            default:
+                return sorted.sort((a, b) =>
+                    new Date(b.uploaded_at) - new Date(a.uploaded_at)
+                );
+        }
+    }, [sortBy]);
 
     const handleSongAdded = useCallback((newSong) => {
         setSongs(prev => [{
@@ -83,33 +94,20 @@ const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic?t=${la
     }, [setShowAddSong]);
 
     const handleDeleteSong = useCallback(async (songId) => {
-    try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic/${songId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || 'Error al eliminar canción');
-        }
-
-        if (currentPlayingSong?.id === songId) {
-            onPlaySong(null);
-        }
-
-        setSongs(prev => prev.filter(song => song.id !== songId));
-        return true;
-
-    } catch (error) {
-        console.error("Error completo al eliminar:", error);
-        alert(`Error al eliminar: ${error.message}`);
-        throw error;
-    }
-}, [currentPlayingSong, onPlaySong]);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic/${songId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Error al eliminar canción');
+            if (currentPlayingSong?.id === songId) onPlaySong(null);
+            setSongs(prev => prev.filter(song => song.id !== songId));
+            return true;
+    }, [currentPlayingSong, onPlaySong]);
 
     if (loading) return (
         <div className="loading">
@@ -121,23 +119,37 @@ const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic?t=${la
     if (error) return (
         <div className="error">
             <p>{error}</p>
-            <button onClick={() => fetchSongs()}>
-                Reintentar
-            </button>
+            <button onClick={() => fetchSongs()}>Reintentar</button>
         </div>
     );
+
+    const sortedSongs = getSortedSongs(songs);
 
     return (
         <div className="my-music">
             <div className="header">
-                <h1>Mi Biblioteca</h1>
-                <button
-                    className="add-song-button"
-                    onClick={() => setShowAddSong(true)}
-                    aria-label="Agregar canción"
-                >
-                    Agregar Canción
-                </button>
+                <div className="header-left">
+                    <h1>Mi Biblioteca</h1>
+                    <span className="song-count">{songs.length} {songs.length === 1 ? 'canción' : 'canciones'}</span>
+                </div>
+                <div className="header-right">
+                    <select
+                        className="sort-select"
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                    >
+                        <option value="recent">Más reciente</option>
+                        <option value="title">Título A-Z</option>
+                        <option value="artist">Artista A-Z</option>
+                        <option value="duration">Duración</option>
+                    </select>
+                    <button
+                        className="add-song-button"
+                        onClick={() => setShowAddSong(true)}
+                    >
+                        Agregar Canción
+                    </button>
+                </div>
             </div>
 
             {showAddSong && (
@@ -148,8 +160,8 @@ const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mymusic?t=${la
             )}
 
             <div className="song-grid">
-                {songs.length > 0 ? (
-                    songs.map(song => (
+                {sortedSongs.length > 0 ? (
+                    sortedSongs.map(song => (
                         <SongCard
                             key={`${song.id}-${song.uploaded_at || ''}`}
                             song={song}
